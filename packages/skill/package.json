@@ -1,0 +1,12 @@
+{
+  "name": "@tearframe/skill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('skill docs ready')\"",
+    "typecheck": "node -e \"console.log('skill docs ready')\"",
+    "lint": "node -e \"console.log('skill docs ready')\"",
+    "test": "python3 scripts/validate_card.py --self-test"
+  }
+}

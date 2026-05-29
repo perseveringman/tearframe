@@ -1,0 +1,25 @@
+{
+  "name": "tearframe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @tearframe/server --filter @tearframe/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @tearframe/web test:e2e",
+    "tearframe": "tsx scripts/tearframe.ts",
+    "tearframe:doctor": "tsx scripts/doctor.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "expectedOpencliMin": "0.1.0"
+}
