@@ -62,13 +62,20 @@ describe("SourceService", () => {
 
   test("downscales oversized downloads before storing the sample video", async () => {
     const root = await mkdtemp(join(tmpdir(), "tearframe-source-"));
-    const downloaded = join(root, "download.mp4");
-    await writeFile(downloaded, "4k video");
     const samples = new SampleService();
     const storage = new StorageService(root);
     const source = new SourceService(
       samples,
-      [{ ...adapter, downloadVideo: async () => ({ videoPath: downloaded }) }],
+      [
+        {
+          ...adapter,
+          downloadVideo: async (_input, outputDir) => {
+            const downloaded = join(outputDir, "BV1xx.mp4");
+            await writeFile(downloaded, "4k video");
+            return { videoPath: downloaded };
+          }
+        }
+      ],
       storage,
       {
         inspect: async (videoPath: string) =>
@@ -94,5 +101,6 @@ describe("SourceService", () => {
     expect(sample.resolution).toBe("1920x1080");
     expect(await storage.exists(storage.resolvePath(sample.local_path ?? ""))).toBe(true);
     expect(await storage.exists(join(storage.sampleDir(sample.id), "source.mp4"))).toBe(false);
+    expect(await storage.exists(join(storage.sampleDir(sample.id), "BV1xx.mp4"))).toBe(false);
   });
 });

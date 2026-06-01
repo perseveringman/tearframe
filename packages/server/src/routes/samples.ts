@@ -12,6 +12,9 @@ samplesRouter.get("/", async (req, res) => {
     tag: req.query.tag as string | undefined,
     status: req.query.status as never,
     q: req.query.q as string | undefined,
+    collection_id: req.query.collection_id as string | undefined,
+    role: req.query.role as never,
+    include_clips: req.query.include_clips === "1" || req.query.include_clips === "true",
     page: req.query.page ? Number(req.query.page) : undefined,
     pageSize: req.query.pageSize ? Number(req.query.pageSize) : undefined
   });

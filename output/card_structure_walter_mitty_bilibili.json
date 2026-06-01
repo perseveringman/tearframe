@@ -1,0 +1,291 @@
+{
+  "summary": "全片结构是“试做一张能睡的车床”不断外扩成“我想拥有一辆真正 campervan”的欲望链。",
+  "archetype": "DIY 实验片 + 旅行愿望片 + 旧车记忆回收。",
+  "segments": [
+    {
+      "start_sec": 0,
+      "end_sec": 66.333,
+      "label": "清晨启动",
+      "summary": "用起床、洗漱、上车和地图建立行动动机。"
+    },
+    {
+      "start_sec": 66.333,
+      "end_sec": 142.367,
+      "label": "采购材料",
+      "summary": "在仓储商店寻找木板、工具和配件。"
+    },
+    {
+      "start_sec": 142.367,
+      "end_sec": 342.4,
+      "label": "车边 DIY",
+      "summary": "测量、切割、涂胶、钻孔，把车内空间改成可睡平台。"
+    },
+    {
+      "start_sec": 342.4,
+      "end_sec": 449.767,
+      "label": "夜宿测试",
+      "summary": "把改造成果放进真实车内过夜场景。"
+    },
+    {
+      "start_sec": 449.767,
+      "end_sec": 538.767,
+      "label": "资料扩张",
+      "summary": "通过 van life 视频和网页，把小实验升级成生活方式想象。"
+    },
+    {
+      "start_sec": 538.767,
+      "end_sec": 617.0,
+      "label": "看车比较",
+      "summary": "浏览 Toyota Hiace、Fiat Ducato 等候选车，把愿望推向购买决策。"
+    },
+    {
+      "start_sec": 617.0,
+      "end_sec": 663.3,
+      "label": "旧车记忆",
+      "summary": "用 1996 Toyota Tarago 和黑白驾驶画面连接个人历史。"
+    },
+    {
+      "start_sec": 663.3,
+      "end_sec": 745.5,
+      "label": "新年上路",
+      "summary": "雨雾道路、山路远景和日期字卡完成情绪收束。"
+    }
+  ],
+  "turn_points": [
+    {
+      "start_sec": 66.333,
+      "end_sec": 66.333,
+      "label": "进入仓储商店，行动目标从出门变成采购材料",
+      "summary": "进入仓储商店，行动目标从出门变成采购材料。"
+    },
+    {
+      "start_sec": 142.367,
+      "end_sec": 142.367,
+      "label": "开始测量和切割木板，影片从购买转入制作。",
+      "summary": "开始测量和切割木板，影片从购买转入制作。"
+    },
+    {
+      "start_sec": 342.4,
+      "end_sec": 342.4,
+      "label": "夜晚打开后备箱和睡袋，改造成果进入真实使",
+      "summary": "夜晚打开后备箱和睡袋，改造成果进入真实使用测试。"
+    },
+    {
+      "start_sec": 449.767,
+      "end_sec": 449.767,
+      "label": "开始搜索 van life 与改装资料，",
+      "summary": "开始搜索 van life 与改装资料，故事从一辆现有车扩展到理想车型。"
+    },
+    {
+      "start_sec": 617.0,
+      "end_sec": 617.0,
+      "label": "1996 Toyota Tarago 图",
+      "summary": "1996 Toyota Tarago 图卡把车型选择转入个人记忆。"
+    },
+    {
+      "start_sec": 736.333,
+      "end_sec": 736.333,
+      "label": "新年字卡给出时间节点和祝福式结尾。",
+      "summary": "新年字卡给出时间节点和祝福式结尾。"
+    }
+  ],
+  "skeleton_template": "日常触发 → 补给采购 → 手作过程 → 真实测试 → 参考资料 → 方案升级 → 个人记忆 → 路途/日期收束。",
+  "storyline": {
+    "premise": "一个清晨出发的车内改造小实验，逐步扩展成关于 campervan 生活、旧车记忆和新年上路的个人愿望。",
+    "protagonist_arc": {
+      "start_state": "人物从卧室里的低光、碎片化准备动作开始，只是在处理一个具体当天任务。",
+      "end_state": "人物被放到山路、车辆和新年日期之中，车不再只是工具，而成为生活方向的象征。",
+      "transformation": "从“临时让车能睡”转向“认真想象一种可以长期移动生活的可能”。"
+    },
+    "story_beats": [
+      {
+        "start_sec": 0,
+        "end_sec": 66.333,
+        "label": "清晨启动",
+        "story_function": "setup",
+        "viewer_knows": "观众知道人物很早起床、取物、上车并查看地图，但还不知道完整目的。",
+        "viewer_question": "这些准备动作会导向一次普通出门，还是某个更大的计划？",
+        "author_intent": "先用时间、卧室和车内细节把故事压在可亲近的生活尺度里。",
+        "why_here": "开头必须先给身体动作和时间坐标，让后面的采购与改装显得是当天自然发生的行动。",
+        "evidence_shots": [
+          4,
+          16,
+          24
+        ]
+      },
+      {
+        "start_sec": 66.333,
+        "end_sec": 142.367,
+        "label": "采购材料",
+        "story_function": "task_definition",
+        "viewer_knows": "观众看到仓储货架、购物车、木板和手锯，意识到任务和 DIY 材料有关。",
+        "viewer_question": "这些木板和工具最终会被装到车上的什么位置？",
+        "author_intent": "把抽象想法换成可购买、可搬动、可测量的材料。",
+        "why_here": "在上车之后马上进入商店，能快速回答“今天要做什么”，避免前段准备悬而不决。",
+        "evidence_shots": [
+          49,
+          58,
+          63
+        ]
+      },
+      {
+        "start_sec": 142.367,
+        "end_sec": 273.533,
+        "label": "开始加工",
+        "story_function": "execution",
+        "viewer_knows": "观众看到卷尺、铅笔、手锯和木板标记，知道人物在把材料加工成车内结构。",
+        "viewer_question": "这个低成本手工方案是否真的能装进车里并承重？",
+        "author_intent": "用密集工具特写把制作步骤拆开，让观众相信方案可复刻。",
+        "why_here": "采购完成后必须立刻兑现为手工动作，否则材料清单不会产生观看回报。",
+        "evidence_shots": [
+          71,
+          74,
+          81
+        ]
+      },
+      {
+        "start_sec": 273.533,
+        "end_sec": 342.4,
+        "label": "固定成型",
+        "story_function": "proof_of_work",
+        "viewer_knows": "观众看到涂胶、电钻和支撑件，知道结构正在从临时板材变成可使用平台。",
+        "viewer_question": "它在车内真实使用时会不会太窄、太冷或不舒服？",
+        "author_intent": "用胶线、钻孔和支撑细节证明这不是空想，而是实际完成的装置。",
+        "why_here": "在进入夜宿前先让观众看见结构成型，夜晚测试才有物理依据。",
+        "evidence_shots": [
+          87,
+          90,
+          95
+        ]
+      },
+      {
+        "start_sec": 342.4,
+        "end_sec": 449.767,
+        "label": "车内过夜",
+        "story_function": "field_test",
+        "viewer_knows": "观众看到夜间车尾、睡袋、躺卧和车内游戏，知道改装空间被拿来生活和休息。",
+        "viewer_question": "一次成功过夜会让人物满足，还是激发更大的车居欲望？",
+        "author_intent": "把工具成果放进真实身体体验里，让空间限制和生活感同时出现。",
+        "why_here": "制作后需要立即给使用场景，才能判断这个 DIY 是否解决了最初问题。",
+        "evidence_shots": [
+          112,
+          118,
+          131
+        ]
+      },
+      {
+        "start_sec": 449.767,
+        "end_sec": 538.767,
+        "label": "灵感外扩",
+        "story_function": "desire_expansion",
+        "viewer_knows": "观众看到 Google、van life 视频、内饰图和露营车资料，知道人物开始比较更理想的方案。",
+        "viewer_question": "他会继续改现在的车，还是转向购买真正的 campervan？",
+        "author_intent": "用屏幕资料把小车内实验扩展成生活方式想象。",
+        "why_here": "过夜测试之后插入资料，正好说明真实体验如何刺激下一层愿望。",
+        "evidence_shots": [
+          134,
+          138,
+          151
+        ]
+      },
+      {
+        "start_sec": 538.767,
+        "end_sec": 617.0,
+        "label": "车型选择",
+        "story_function": "decision_pressure",
+        "viewer_knows": "观众看到 Toyota Hiace、Fiat Ducato 等二手车页面和现场看车画面，愿望开始接近购买决策。",
+        "viewer_question": "这些车型里哪一辆承载了人物真正想要的生活？",
+        "author_intent": "把灵感板变成价格、型号、车况和现实选择。",
+        "why_here": "资料浏览之后必须进入具体候选项，否则愿望只停留在图片收藏。",
+        "evidence_shots": [
+          163,
+          165,
+          166
+        ]
+      },
+      {
+        "start_sec": 617.0,
+        "end_sec": 663.3,
+        "label": "旧车记忆",
+        "story_function": "personal_context",
+        "viewer_knows": "观众看到 1996 Toyota Tarago 图卡和黑白驾驶画面，知道车型选择与过去经历有关。",
+        "viewer_question": "这辆旧车记忆会怎样影响当下的新年出发？",
+        "author_intent": "用黑白和车型字卡把车从消费品变成个人历史线索。",
+        "why_here": "在看车比较之后补入旧车记忆，能解释为什么某类车对人物有情感重量。",
+        "evidence_shots": [
+          171,
+          175,
+          179
+        ]
+      },
+      {
+        "start_sec": 663.3,
+        "end_sec": 745.5,
+        "label": "新年上路",
+        "story_function": "resolution",
+        "viewer_knows": "观众看到雨雾道路、山路远景、车内驾驶和新年字卡，知道故事以继续上路而非购买答案收束。",
+        "viewer_question": "下一次出发会不会真的变成长期车居生活？",
+        "author_intent": "把选择悬念留在路上，用日期祝福替代明确结论。",
+        "why_here": "结尾不需要宣布决定，而是让车辆、道路和新年时间共同给出开放的下一步。",
+        "evidence_shots": [
+          180,
+          204,
+          211
+        ]
+      }
+    ],
+    "setup_payoffs": [
+      {
+        "setup_sec": 17.566,
+        "payoff_sec": 740.917,
+        "setup_shot": 4,
+        "payoff_shot": 211,
+        "setup": "手机 06:30 把故事钉在一个清晨。",
+        "payoff": "2024.1.1 新年快乐字卡把一天的行动落到新年时间点。",
+        "meaning": "早起不是普通日常，而是一次新生活想象的开端。"
+      },
+      {
+        "setup_sec": 70.617,
+        "payoff_sec": 395.1,
+        "setup_shot": 71,
+        "payoff_shot": 118,
+        "setup": "卷尺和铅笔在木板上标记尺寸。",
+        "payoff": "人物躺进车内平台和睡袋里测试成果。",
+        "meaning": "测量动作被回收为身体能否真正睡下的验证。"
+      },
+      {
+        "setup_sec": 462.2,
+        "payoff_sec": 578.767,
+        "setup_shot": 134,
+        "payoff_shot": 163,
+        "setup": "Google 和 van life 视频打开理想车型想象。",
+        "payoff": "二手 Toyota Hiace / Fiat Ducato 页面把想象变成价格和车型选择。",
+        "meaning": "灵感浏览被现实购买条件拉回地面。"
+      },
+      {
+        "setup_sec": 617.75,
+        "payoff_sec": 717.434,
+        "setup_shot": 171,
+        "payoff_shot": 204,
+        "setup": "1996 Toyota Tarago 图卡引入旧车记忆。",
+        "payoff": "高处山路远景让车辆继续在新年路途中移动。",
+        "meaning": "过去的车不只是怀旧素材，而成为继续出发的情绪燃料。"
+      }
+    ]
+  },
+  "reusable_skeleton": "用 8 段式结构复刻：清晨启动、采购材料、开始加工、固定成型、真实使用、资料外扩、现实选择、开放上路。",
+  "evidence": [
+    {
+      "timestamp_sec": 67.75,
+      "note": "仓储商店购物车和货架定义采购段落。"
+    },
+    {
+      "timestamp_sec": 291.5,
+      "note": "涂胶和电钻把 DIY 推到成型阶段。"
+    },
+    {
+      "timestamp_sec": 578.767,
+      "note": "车辆网页和看车画面让愿望进入现实选择。"
+    }
+  ]
+}

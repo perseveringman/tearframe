@@ -63,7 +63,15 @@ export const SampleSchema = z.object({
   priority: z.enum(["low", "medium", "high"]).default("medium"),
   teardown_status: z.enum(["pending", "running", "done", "failed"]).default("pending"),
   teardown_count: z.number().int().nonnegative().default(0),
-  thumbnail_path: z.string().nullable().optional()
+  thumbnail_path: z.string().nullable().optional(),
+  collection_id: z.string().nullable().optional(),
+  parent_sample_id: z.string().nullable().optional(),
+  sample_role: z.enum(["standalone", "master", "clip"]).default("standalone"),
+  clip_start_sec: z.number().nullable().optional(),
+  clip_end_sec: z.number().nullable().optional(),
+  clip_title: z.string().nullable().optional(),
+  why_picked: z.string().nullable().optional(),
+  clip_order: z.number().int().nonnegative().default(0)
 });
 
 export type Sample = z.infer<typeof SampleSchema>;

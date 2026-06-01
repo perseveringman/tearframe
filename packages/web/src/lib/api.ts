@@ -1,4 +1,4 @@
-import type { ApiResponse, CardType, Sample } from "@tearframe/shared";
+import type { ApiResponse, CardType, Collection, CollectionKind, Sample } from "@tearframe/shared";
 
 export type PageResult<T> = {
   items: T[];
@@ -279,6 +279,70 @@ export function mediaUrl(path?: string | null) {
   if (!path) return undefined;
   if (/^https?:\/\//.test(path)) return path;
   return `${API_ORIGIN}/media/${path.replace(/^\/+/, "")}`;
+}
+
+export type CollectionListItem = Collection & { clip_count?: number };
+export type CollectionDetail = {
+  collection: Collection;
+  master: Sample | null;
+  clips: Sample[];
+};
+
+export function listCollections(query: Record<string, string | number | undefined> = {}) {
+  return api<PageResult<CollectionListItem>>(`/collections${queryString(query)}`);
+}
+
+export function getCollection(id: string) {
+  return api<CollectionDetail>(`/collections/${id}`);
+}
+
+export function createCollection(input: {
+  kind?: CollectionKind;
+  title: string;
+  original_title?: string;
+  release_year?: number;
+  director?: string;
+  language?: string;
+  synopsis?: string;
+  parent_collection_id?: string;
+  tags?: string[];
+}) {
+  return api<Collection>("/collections", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function updateCollection(id: string, patch: Record<string, unknown>) {
+  return api<Collection>(`/collections/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
+}
+
+export function deleteCollection(id: string, mode: "detach" | "cascade" = "detach") {
+  return api<{ deleted: boolean; mode: string }>(`/collections/${id}?mode=${mode}`, { method: "DELETE" });
+}
+
+export function importCollectionMaster(id: string, input: { input: string; reference_only?: boolean }) {
+  return api<{ collection: Collection; master: Sample }>(`/collections/${id}/import-master`, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export function addClipToCollection(
+  id: string,
+  input: { start_sec: number; end_sec: number; clip_title: string; why_picked?: string; sub_tags?: string[]; priority?: string; category?: string }
+) {
+  return api<Sample>(`/collections/${id}/clips`, { method: "POST", body: JSON.stringify(input) });
+}
+
+export function removeClipFromCollection(id: string, sampleId: string, mode: "detach" | "delete" = "detach") {
+  return api<{ removed: boolean; mode: string }>(`/collections/${id}/clips/${sampleId}?mode=${mode}`, {
+    method: "DELETE"
+  });
+}
+
+export function reorderCollectionClips(id: string, order: string[]) {
+  return api<{ reordered: boolean }>(`/collections/${id}/clips/order`, {
+    method: "PUT",
+    body: JSON.stringify({ order })
+  });
 }
 
 function queryString(query: Record<string, string | number | undefined>) {

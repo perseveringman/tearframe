@@ -4,6 +4,7 @@ import { CardSchemas } from "./cards";
 
 export * from "./common";
 export * from "./cards";
+export * from "./collection";
 
 export function getCardSchema(cardType: CardType) {
   return CardSchemas[cardType];

@@ -1,5 +1,24 @@
 import { integer, real, sqliteTable, text, primaryKey } from "drizzle-orm/sqlite-core";
 
+export const collections = sqliteTable("collections", {
+  id: text("id").primaryKey(),
+  kind: text("kind").notNull().default("movie"),
+  title: text("title").notNull(),
+  originalTitle: text("original_title"),
+  releaseYear: integer("release_year"),
+  director: text("director"),
+  language: text("language"),
+  durationSec: integer("duration_sec"),
+  posterPath: text("poster_path"),
+  synopsis: text("synopsis"),
+  masterSampleId: text("master_sample_id"),
+  parentCollectionId: text("parent_collection_id"),
+  tags: text("tags", { mode: "json" }).$type<string[]>().default([]),
+  metadata: text("metadata", { mode: "json" }).$type<Record<string, unknown>>().default({}),
+  addedAt: text("added_at").notNull(),
+  updatedAt: text("updated_at").notNull()
+});
+
 export const samples = sqliteTable("samples", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
@@ -22,7 +41,15 @@ export const samples = sqliteTable("samples", {
   priority: text("priority").notNull().default("medium"),
   teardownStatus: text("teardown_status").notNull().default("pending"),
   teardownCount: integer("teardown_count").notNull().default(0),
-  thumbnailPath: text("thumbnail_path")
+  thumbnailPath: text("thumbnail_path"),
+  collectionId: text("collection_id"),
+  parentSampleId: text("parent_sample_id"),
+  sampleRole: text("sample_role").notNull().default("standalone"),
+  clipStartSec: real("clip_start_sec"),
+  clipEndSec: real("clip_end_sec"),
+  clipTitle: text("clip_title"),
+  whyPicked: text("why_picked"),
+  clipOrder: integer("clip_order").notNull().default(0)
 });
 
 export const sampleResources = sqliteTable(

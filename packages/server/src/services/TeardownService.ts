@@ -5,6 +5,8 @@ import { CardValidator } from "./CardValidator";
 import { SampleService } from "./SampleService";
 import { TemplateAggregator } from "./TemplateAggregator";
 
+export const LONG_FORM_STANDALONE_LIMIT_SEC = 40 * 60;
+
 export type TeardownRecord = {
   id: string;
   sample_id: string;
@@ -94,6 +96,22 @@ export class TeardownService {
       this.db
         .prepare("INSERT OR IGNORE INTO samples (id, title, platform, added_at, sub_tags, metrics) VALUES (?, ?, ?, ?, '[]', '{}')")
         .run(input.sample_id, input.sample_id, "local", now);
+    } else {
+      const sample = await this.sampleService.get(input.sample_id);
+      if (sample) {
+        if (sample.sample_role === "master") {
+          throw new Error(
+            "LONG_FORM_TEARDOWN_BLOCKED: master samples never participate in teardown directly. Build a clip via collection.add_clip and tear that down instead."
+          );
+        }
+        if (sample.sample_role === "standalone" && (sample.duration_sec ?? 0) > LONG_FORM_STANDALONE_LIMIT_SEC) {
+          throw new Error(
+            `LONG_FORM_TEARDOWN_BLOCKED: sample ${input.sample_id} is ${Math.round(
+              sample.duration_sec ?? 0
+            )}s long (> ${LONG_FORM_STANDALONE_LIMIT_SEC}s). Wrap it in a collection (collection.create + collection.import_master) and tear down clip samples instead.`
+          );
+        }
+      }
     }
     const teardown: TeardownRecord = {
       id: `td_${ulid()}`,
@@ -174,6 +192,7 @@ export class TeardownService {
 
   async submitStoryboard(id: string, beats: StoryboardBeat[]) {
     await this.get(id);
+    assertNoProgrammaticTraces(beats);
     const now = new Date().toISOString();
     const normalized = beats.map((beat) => ({
       ...beat,
@@ -230,6 +249,44 @@ export class TeardownService {
     const finalized = await this.get(id);
     await this.memoryIndexer?.ingestTeardown(finalized);
     return finalized;
+  }
+}
+
+// Programmatic-trace guard for storyboard submissions.
+// 拉片脚本曾经按 phase × index 模板批量生成 visual_summary / composition_analysis,
+// 把"我没看图"的占位文本伪装成"已完成的拉片"。我们在写库前显式拦下,
+// 不让脏 storyboard 持久化。规则与 packages/skill/scripts/validate_storyboard.py 中
+// PROGRAMMATIC_TRACE_PATTERNS 对齐,任意一条命中即拒收。
+const PROGRAMMATIC_TRACES: Array<{ pattern: RegExp; label: string }> = [
+  { pattern: /对应第\s*\d+\s*镜的具体落位/, label: "visual/composition 出现脚本注入尾缀'对应第 N 镜的具体落位'" },
+  { pattern: /用于第\s*\d+\s*镜的切入位置/, label: "edit_note 出现脚本注入尾缀'用于第 N 镜的切入位置'" },
+  { pattern: /此为段内第\s*\d+\s*个镜头/, label: "visual_summary 出现脚本注入尾缀'此为段内第 N 个镜头'" },
+  { pattern: /持续\s*\d+(\.\d+)?\s*秒/, label: "字段出现脚本注入的'持续 X.XX 秒'尾缀" },
+  { pattern: /镜头编号\s*\d+/, label: "字段出现脚本注入的'镜头编号 N'尾缀" }
+];
+
+const PROGRAMMATIC_FIELDS: Array<keyof StoryboardBeat> = [
+  "visual_summary",
+  "composition_analysis",
+  "camera_angle",
+  "shot_size",
+  "edit_note",
+  "audio_note",
+  "narrative_function",
+  "reusable_pattern"
+];
+
+function assertNoProgrammaticTraces(beats: StoryboardBeat[]) {
+  for (const beat of beats) {
+    const joined = PROGRAMMATIC_FIELDS.map((field) => String(beat[field] ?? "")).join("\n");
+    for (const trace of PROGRAMMATIC_TRACES) {
+      if (trace.pattern.test(joined)) {
+        throw new Error(
+          `Storyboard rejected (programmatic trace at shot_index=${beat.shot_index}): ${trace.label}. ` +
+            `视觉字段必须基于真实关键帧手写,不能用 phase × index 模板批量生成。详见 packages/skill/docs/storyboard-quality.md。`
+        );
+      }
+    }
   }
 }
 

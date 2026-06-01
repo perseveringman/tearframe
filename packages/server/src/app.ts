@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { config } from "./config";
 import { authorsRouter } from "./routes/authors";
+import { collectionsRouter } from "./routes/collections";
 import { memoryRouter } from "./routes/memory";
 import { resourcesRouter } from "./routes/resources";
 import { samplesRouter } from "./routes/samples";
@@ -21,5 +22,6 @@ export function createApp() {
   app.use("/api/templates", templatesRouter);
   app.use("/api/authors", authorsRouter);
   app.use("/api/memory", memoryRouter);
+  app.use("/api/collections", collectionsRouter);
   return app;
 }

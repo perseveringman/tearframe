@@ -1,5 +1,17 @@
-import { CARD_TYPES, RELATION_TYPES } from "@tearframe/shared";
-import { authorProfiler, memoryService, preprocessor, services, sourceService, teardownService, templates } from "../services/container";
+import { CARD_TYPES, COLLECTION_KINDS, RELATION_TYPES } from "@tearframe/shared";
+import {
+  authorProfiler,
+  clipExtractor,
+  collectionService,
+  masterImportService,
+  memoryService,
+  preprocessor,
+  services,
+  sourceService,
+  teardownService,
+  templates
+} from "../services/container";
+import { LONG_FORM_STANDALONE_LIMIT_SEC } from "../services/TeardownService";
 
 const resourceTypeSchema = { type: "string", enum: ["shots", "transcript", "frames"] };
 
@@ -72,6 +84,125 @@ export const MCP_TOOLS = [
         generator: { type: "string" }
       },
       required: ["sample_id", "type", "data"]
+    }
+  },
+  {
+    name: "collection.create",
+    description: `创建电影/系列/季/播放列表容器。容器本身不参与拉片，用于聚合长视频的精彩片段。任何 duration_sec > ${LONG_FORM_STANDALONE_LIMIT_SEC} 秒的视频或商业电影/纪录片/剧集，必须先建 Collection 再切 clip 拉片，禁止直接对整片调 teardown.start。`,
+    inputSchema: {
+      type: "object",
+      properties: {
+        kind: { type: "string", enum: COLLECTION_KINDS },
+        title: { type: "string" },
+        original_title: { type: "string" },
+        release_year: { type: "number" },
+        director: { type: "string" },
+        language: { type: "string" },
+        synopsis: { type: "string" },
+        parent_collection_id: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
+        metadata: { type: "object" }
+      },
+      required: ["title"]
+    }
+  },
+  {
+    name: "collection.list",
+    description: "列出 Collection（电影/系列），支持 kind 与关键词过滤。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        kind: { type: "string", enum: COLLECTION_KINDS },
+        q: { type: "string" },
+        parent_collection_id: { type: "string" },
+        page: { type: "number" },
+        pageSize: { type: "number" }
+      }
+    }
+  },
+  {
+    name: "collection.get",
+    description: "读取一个 Collection 详情，包含 master sample 与所有 clip samples。",
+    inputSchema: { type: "object", properties: { collection_id: { type: "string" } }, required: ["collection_id"] }
+  },
+  {
+    name: "collection.update",
+    description: "更新 Collection 基础信息（标题、导演、海报、简介等）。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        collection_id: { type: "string" },
+        patch: { type: "object" }
+      },
+      required: ["collection_id", "patch"]
+    }
+  },
+  {
+    name: "collection.delete",
+    description: "删除 Collection。mode='detach' 解绑 clip 与 master 但保留样片；mode='cascade' 同时删除所有 clip 样片与 master 软链。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        collection_id: { type: "string" },
+        mode: { type: "string", enum: ["detach", "cascade"] }
+      },
+      required: ["collection_id"]
+    }
+  },
+  {
+    name: "collection.import_master",
+    description: "把一段长视频挂到 Collection 作为 master sample。本地文件默认软链不复制，且不做 1080p 降采样（保留原始文件）。clip 切出时再做 1080p 限制。master sample 永远不能被直接 teardown。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        collection_id: { type: "string" },
+        input: { type: "string", description: "本地绝对路径（推荐）。当前仅支持本地路径。" },
+        reference_only: { type: "boolean", default: true }
+      },
+      required: ["collection_id", "input"]
+    }
+  },
+  {
+    name: "collection.add_clip",
+    description: "在 master 时间轴上选一段 [start_sec, end_sec]，用 ffmpeg 物理切出独立 1080p clip sample（时间戳归零），并自动挂到 Collection 下。该 clip sample 走标准 sample.preprocess + teardown.start 流程，validator 不需要任何改动。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        collection_id: { type: "string" },
+        start_sec: { type: "number" },
+        end_sec: { type: "number" },
+        clip_title: { type: "string" },
+        why_picked: { type: "string" },
+        category: { type: "string" },
+        sub_tags: { type: "array", items: { type: "string" } },
+        priority: { type: "string", enum: ["low", "medium", "high"] }
+      },
+      required: ["collection_id", "start_sec", "end_sec", "clip_title"]
+    }
+  },
+  {
+    name: "collection.remove_clip",
+    description: "从 Collection 上摘除 clip sample。mode='detach' 保留样片但清空 collection_id；mode='delete' 同时删除样片与磁盘文件。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        collection_id: { type: "string" },
+        sample_id: { type: "string" },
+        mode: { type: "string", enum: ["detach", "delete"] }
+      },
+      required: ["collection_id", "sample_id"]
+    }
+  },
+  {
+    name: "collection.reorder_clips",
+    description: "调整 clip 在 Collection 详情页的展示顺序。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        collection_id: { type: "string" },
+        order: { type: "array", items: { type: "string" } }
+      },
+      required: ["collection_id", "order"]
     }
   },
   {
@@ -250,6 +381,44 @@ export async function callMcpTool(name: string, args: Record<string, unknown>) {
   if (name === "sample.get_resources") return { resources: preprocessor.list(String(args.sample_id)) };
   if (name === "sample.preprocess") return preprocessor.preprocess(String(args.sample_id), args.type as never);
   if (name === "sample.upload_resource") return preprocessor.upload(String(args.sample_id), args.type as never, args.data, String(args.generator ?? "agent:unknown"));
+  if (name === "collection.create") return collectionService.create(args as never);
+  if (name === "collection.list") return collectionService.list(args as never);
+  if (name === "collection.get") return collectionService.getWithSamples(String(args.collection_id));
+  if (name === "collection.update") return collectionService.update(String(args.collection_id), (args.patch ?? {}) as never);
+  if (name === "collection.delete") {
+    const mode = (args.mode as "detach" | "cascade" | undefined) ?? "detach";
+    return { deleted: await collectionService.delete(String(args.collection_id), mode), mode };
+  }
+  if (name === "collection.import_master") {
+    return masterImportService.importMaster({
+      collection_id: String(args.collection_id),
+      input: String(args.input),
+      reference_only: args.reference_only !== false
+    });
+  }
+  if (name === "collection.add_clip") {
+    return clipExtractor.extractClip({
+      collection_id: String(args.collection_id),
+      start_sec: Number(args.start_sec),
+      end_sec: Number(args.end_sec),
+      clip_title: String(args.clip_title),
+      why_picked: args.why_picked != null ? String(args.why_picked) : undefined,
+      category: args.category != null ? String(args.category) : undefined,
+      sub_tags: Array.isArray(args.sub_tags) ? (args.sub_tags as string[]) : undefined,
+      priority: args.priority as never
+    });
+  }
+  if (name === "collection.remove_clip") {
+    const mode = (args.mode as "detach" | "delete" | undefined) ?? "detach";
+    return {
+      removed: await collectionService.removeClip(String(args.collection_id), String(args.sample_id), mode),
+      mode
+    };
+  }
+  if (name === "collection.reorder_clips") {
+    await collectionService.reorderClips(String(args.collection_id), args.order as string[]);
+    return { reordered: true };
+  }
   if (name === "teardown.list") return { items: await teardownService.list(args as never) };
   if (name === "teardown.start") return teardownService.start(args as never);
   if (name === "teardown.get") return teardownService.get(String(args.teardown_id));

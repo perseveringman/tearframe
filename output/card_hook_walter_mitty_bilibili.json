@@ -1,0 +1,30 @@
+{
+  "summary": "开头不靠强冲突，而靠“清晨私密起床 + 具体时间 + 一连串准备动作”让观众等着看今天到底要做什么。",
+  "retention_logic": "观众先看到 06:30、起床、取物、上车和地图，问题从“他是谁”转成“他这么早出门要做什么”。",
+  "next_question_in_viewer_mind": "这些准备动作会导向一次普通出门，还是一次车居/旅行改造？",
+  "reusable_skeleton": "用手机时间特写 + 低光起床 + 出门前小动作 + 上车/地图，把观众带进一个尚未揭晓的日常任务。",
+  "evidence": [
+    {
+      "timestamp_sec": 4.984,
+      "note": "人物暗部近景制造私密进入感。"
+    },
+    {
+      "timestamp_sec": 17.566,
+      "note": "手机 06:30 明确当天开始得很早。"
+    },
+    {
+      "timestamp_sec": 57.617,
+      "note": "车辆和地图把行动从室内推出去。"
+    }
+  ],
+  "t0_frame": {
+    "timestamp_sec": 4.984,
+    "description": "室内近距离人物头部与手部，脸部被模糊，背景偏暗绿色。",
+    "frame_path": "samples/smp_01KSWWTEWHPJPCD6AM3D1HA8Z1/resources/frames/shot_000_t4.984s.jpg"
+  },
+  "first_sentence": {
+    "text": "transcript 未返回；开头实际以清晨起床和 06:30 时间画面制造沉浸。",
+    "sentence_pattern": "scene_immersion"
+  },
+  "hook_type": "info_gap"
+}

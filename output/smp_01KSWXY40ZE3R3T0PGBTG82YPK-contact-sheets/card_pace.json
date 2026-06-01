@@ -1,0 +1,67 @@
+{
+  "summary": "节奏曲线是“快开题—地点内波浪—中段航拍释放—后段材质密集—结尾慢收”。",
+  "reusable_skeleton": "每 3-5 分钟给一个新星球概念，每个概念内用远景/人物/细节做小循环，最后用制作动作降速。",
+  "evidence": [
+    {
+      "timestamp_sec": 7.8,
+      "note": "片名覆盖移动路景，迅速承诺外星球式地球旅行。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_003_t7.8s.jpg"
+    },
+    {
+      "timestamp_sec": 610.0,
+      "note": "骆驼、水鸟和湖岸让荒漠重新出现生命。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_164_t610.667s.jpg"
+    },
+    {
+      "timestamp_sec": 1260.0,
+      "note": "红白灰坏地层理形成第三种星球表面。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_353_t1259.45s.jpg"
+    },
+    {
+      "timestamp_sec": 1518.0,
+      "note": "室内打印裁剪照片，回收片名中“几张照片”的承诺。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_426_t1517.217s.jpg"
+    }
+  ],
+  "overall_curve": "前 1 分钟高密度建立期待；中段通过地貌和动物交替维持新鲜；后段用材质和车内解释压实信息；结尾室内动作放慢。",
+  "density_segments": [
+    {
+      "start_sec": 0,
+      "end_sec": 72,
+      "label": "高密开题",
+      "summary": "口播、图卡、路景快速切。"
+    },
+    {
+      "start_sec": 72,
+      "end_sec": 790,
+      "label": "地点波浪",
+      "summary": "每个地点内部远近切换。"
+    },
+    {
+      "start_sec": 790,
+      "end_sec": 1450,
+      "label": "尺度升级",
+      "summary": "月面、坏地、台地不断换视觉系统。"
+    },
+    {
+      "start_sec": 1450,
+      "end_sec": 1541.8,
+      "label": "慢收",
+      "summary": "打印裁剪让结尾落在动作上。"
+    }
+  ],
+  "breath_points": [
+    {
+      "start_sec": 129,
+      "end_sec": 148,
+      "label": "航拍色块",
+      "summary": "彩色盐池给视觉呼吸。"
+    },
+    {
+      "start_sec": 413,
+      "end_sec": 429,
+      "label": "室内手作",
+      "summary": "离开外景高刺激。"
+    }
+  ]
+}

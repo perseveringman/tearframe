@@ -1,0 +1,41 @@
+{
+  "teardown_id": "td_01KSWXEY29TCKBGY0DKTPQTBXY",
+  "relations": [
+    {
+      "source_node": "topic",
+      "target_node": "structure",
+      "relation_type": "supports",
+      "description": "主题的车居愿望由八段故事结构逐步展开。"
+    },
+    {
+      "source_node": "hook",
+      "target_node": "structure",
+      "relation_type": "transitions_to",
+      "description": "清晨启动悬念过渡到采购和 DIY 主线。"
+    },
+    {
+      "source_node": "shot",
+      "target_node": "edit",
+      "relation_type": "supports",
+      "description": "工具特写和车内 POV 为步骤式硬切提供素材。"
+    },
+    {
+      "source_node": "subtitle",
+      "target_node": "music",
+      "relation_type": "aligns_with",
+      "description": "两者都受 transcript 缺失限制，需要后续回看原片核验。"
+    },
+    {
+      "source_node": "structure",
+      "target_node": "template:structure",
+      "relation_type": "supports",
+      "description": "八段故事线可直接抽成复刻模板。"
+    },
+    {
+      "source_node": "shot",
+      "target_node": "template:shot",
+      "relation_type": "supports",
+      "description": "必拍镜头清单来自 storyboard 中反复出现的素材功能。"
+    }
+  ]
+}

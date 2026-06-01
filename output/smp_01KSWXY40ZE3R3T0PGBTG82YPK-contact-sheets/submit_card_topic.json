@@ -1,0 +1,29 @@
+{
+  "teardown_id": "td_01KSX1TX8TNG4P3EGHJQVY4Z8T",
+  "card_type": "topic",
+  "payload": {
+    "summary": "《我们去外星球拍了几张照片》把地球上的盐湖、工业湖区、灰色月面、彩色坏地和台地拍成“异星旅行”，最后用打印照片回收创作承诺。",
+    "reusable_skeleton": "一句反常识命题（地球像外星球）+ 多地点实证 + 人物现场验证 + 材质近景 + 实体作品回收。",
+    "evidence": [
+      {
+        "timestamp_sec": 3.467,
+        "note": "室内口播与手工道具把宏大主题收成个人计划。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_001_t3.467s.jpg"
+      },
+      {
+        "timestamp_sec": 7.8,
+        "note": "片名覆盖移动路景，迅速承诺外星球式地球旅行。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_003_t7.8s.jpg"
+      },
+      {
+        "timestamp_sec": 1518.0,
+        "note": "室内打印裁剪照片，回收片名中“几张照片”的承诺。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_426_t1517.217s.jpg"
+      }
+    ],
+    "question": "如果不用出地球，怎样拍出外星球旅行的陌生感？",
+    "why_now": "B 站旅行内容常陷入景点罗列，这条片用“异星照片项目”给长旅行片一个更强的观看理由。",
+    "angle_type": "story",
+    "transferable_formula": "把目的地改写成一个视觉谜题：先承诺一个反常识目标，再用地图、边界、材质和最终作品逐步证明。"
+  }
+}

@@ -19,6 +19,7 @@ export const VIDEO_CATEGORIES = [
   "product_story",
   "interview",
   "film",
+  "film-scene",
   "generic_short"
 ] as const;
 

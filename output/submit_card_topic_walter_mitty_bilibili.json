@@ -1,0 +1,26 @@
+{
+  "teardown_id": "td_01KSWXEY29TCKBGY0DKTPQTBXY",
+  "card_type": "topic",
+  "payload": {
+    "summary": "这是一条从日常醒来、采购木板、改造车内睡眠平台，到被 van life 想象和旧车记忆牵引上路的新年车居探索片。",
+    "transferable_formula": "清晨行动触发 → 采购和 DIY 证明可行性 → 车内过夜测试 → 查资料扩大欲望 → 看车/旧车记忆回收 → 风景路途和日期字卡收束。",
+    "reusable_skeleton": "如果你要复刻：先给一个具体生活问题，再拍购买材料、实际动手、第一次使用、搜索更大方案、情绪性路途收束。",
+    "evidence": [
+      {
+        "timestamp_sec": 4.984,
+        "note": "手机 06:30 和起床洗漱建立清晨出发点。"
+      },
+      {
+        "timestamp_sec": 70.617,
+        "note": "卷尺、木板和手锯把想象落成 DIY 行动。"
+      },
+      {
+        "timestamp_sec": 740.917,
+        "note": "2024.1.1 新年快乐字卡把旅程收束到新年节点。"
+      }
+    ],
+    "question": "怎样把一次低成本车内睡眠改造，拍成关于新年上路和 campervan 愿望的完整故事？",
+    "why_now": "新年日期、临时 DIY 和 van life 资料浏览同时出现，让普通改车动作变成一个生活方式选择的节点。",
+    "angle_type": "personal"
+  }
+}

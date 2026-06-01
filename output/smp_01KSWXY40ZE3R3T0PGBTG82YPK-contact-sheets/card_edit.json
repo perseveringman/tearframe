@@ -1,0 +1,74 @@
+{
+  "summary": "剪辑靠“快蒙太奇开题 + 地点内远近交替 + 字卡换星球 + 室内回收”维持二十五分钟长片的节奏。",
+  "reusable_skeleton": "每个地点按远景建立、人物验证、细节证据、解释信息、下一地貌预告的顺序剪。",
+  "evidence": [
+    {
+      "timestamp_sec": 7.8,
+      "note": "片名覆盖移动路景，迅速承诺外星球式地球旅行。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_003_t7.8s.jpg"
+    },
+    {
+      "timestamp_sec": 520.0,
+      "note": "粉绿盐池航拍释放强色块奇观。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_137_t520.7s.jpg"
+    },
+    {
+      "timestamp_sec": 870.0,
+      "note": "灰色荒漠与小人物比例建立月面感。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_261_t870.084s.jpg"
+    },
+    {
+      "timestamp_sec": 1518.0,
+      "note": "室内打印裁剪照片，回收片名中“几张照片”的承诺。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_426_t1517.217s.jpg"
+    }
+  ],
+  "tempo_map": [
+    {
+      "start_sec": 0,
+      "end_sec": 72,
+      "label": "高密开题",
+      "summary": "室内口播与路景标题快速交代玩法。"
+    },
+    {
+      "start_sec": 72,
+      "end_sec": 560,
+      "label": "证据式探索",
+      "summary": "盐湖、工厂、铁路用远近交替持续补证据。"
+    },
+    {
+      "start_sec": 560,
+      "end_sec": 1110,
+      "label": "奇观升级",
+      "summary": "航拍、水鸟、月面和遗址把尺度拉大。"
+    },
+    {
+      "start_sec": 1110,
+      "end_sec": 1541.8,
+      "label": "材质收束",
+      "summary": "手部特写、车内解释和打印照片让项目落地。"
+    }
+  ],
+  "transitions": [
+    "星球字卡切换章节",
+    "车内 POV 连接地点",
+    "航拍大色块作为段落释放",
+    "室内打印动作回收旅行"
+  ],
+  "jump_cuts": [
+    {
+      "start_sec": 10,
+      "end_sec": 40,
+      "label": "片名路景跳切",
+      "summary": "用多段道路快速建立旅程跨度。"
+    }
+  ],
+  "pause_points": [
+    {
+      "start_sec": 1450,
+      "end_sec": 1541.8,
+      "label": "照片制作慢下来",
+      "summary": "结尾从外景速度转为手工整理。"
+    }
+  ]
+}

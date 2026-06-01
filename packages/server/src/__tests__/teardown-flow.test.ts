@@ -1,7 +1,9 @@
 import { describe, expect, test } from "vitest";
+import { createSqliteDatabase } from "../db/sqlite";
 import { CardValidator } from "../services/CardValidator";
 import { GraphBuilder } from "../services/GraphBuilder";
 import { TeardownService } from "../services/TeardownService";
+import { SampleService } from "../services/SampleService";
 
 const hookCard = {
   summary: "反常识开头制造信息缺口",
@@ -69,6 +71,43 @@ describe("teardown flow", () => {
     expect(graph.stats.explicitRelations).toBe(1);
     expect(graph.stats.derivedRelations).toBeGreaterThan(0);
     expect(graph.edges[0]?.data.relationType).toBe("causes");
+  });
+
+  test("rejects storyboards with programmatic visual_summary traces", async () => {
+    const service = new TeardownService(new CardValidator());
+    const teardown = await service.start({ sample_id: "smp_2", lens: "narrative", agent_name: "test-agent" });
+
+    const trapBeat = {
+      shot_index: 0,
+      start_sec: 0,
+      end_sec: 2,
+      frame_path: "samples/smp_2/resources/frames/shot_000_t1s.jpg",
+      shot_size: "中近景",
+      voiceover: "无",
+      background_audio: "低频铺底",
+      visual_summary: "夜晚户外派对人影摇摆;对应第 0 镜的具体落位。",
+      camera_angle: "平视",
+      composition_analysis: "人物居中,背景留白。",
+      camera_motion: "手持轻晃",
+      edit_note: "硬切;用于第 0 镜的切入位置。",
+      audio_note: "音乐铺底",
+      narrative_function: "建立反差钩子",
+      reusable_pattern: "套路:开场反差"
+    };
+
+    await expect(service.submitStoryboard(teardown.id, [trapBeat])).rejects.toThrow(/programmatic trace/i);
+  });
+
+  test("allows standalone samples up to 40 minutes and blocks longer ones", async () => {
+    const db = createSqliteDatabase();
+    const sampleService = new SampleService(db);
+    const service = new TeardownService(new CardValidator(), db, sampleService);
+
+    await sampleService.create({ id: "smp_40_min", title: "40 分钟样片", platform: "local", duration_sec: 2400 });
+    await sampleService.create({ id: "smp_over_40_min", title: "超过 40 分钟样片", platform: "local", duration_sec: 2401 });
+
+    await expect(service.start({ sample_id: "smp_40_min" })).resolves.toMatchObject({ sample_id: "smp_40_min" });
+    await expect(service.start({ sample_id: "smp_over_40_min" })).rejects.toThrow(/> 2400s/);
   });
 });
 

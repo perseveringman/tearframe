@@ -1,0 +1,37 @@
+{
+  "teardown_id": "td_01KSX1TX8TNG4P3EGHJQVY4Z8T",
+  "card_type": "subtitle",
+  "payload": {
+    "summary": "平台字幕资源为空，本次只按画面提交 storyboard；字幕策略建议围绕地点名、星球比喻、关键反转和数据事实做小字提示。",
+    "reusable_skeleton": "字幕不要铺满屏幕：地点名/星球章节用大字，解释性事实用短行小字，人物口播保留关键词强调。",
+    "evidence": [
+      {
+        "timestamp_sec": 7.8,
+        "note": "片名覆盖移动路景，迅速承诺外星球式地球旅行。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_003_t7.8s.jpg"
+      },
+      {
+        "timestamp_sec": 300.0,
+        "note": "工厂烟囱和盐池说明奇观背后的工业现实。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_094_t298.534s.jpg"
+      },
+      {
+        "timestamp_sec": 1410.0,
+        "note": "桌状山和动物尸骸并置，延续荒漠生命主题。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_398_t1409.75s.jpg"
+      }
+    ],
+    "strategy": "章节字卡负责“地球/月球/台地”等概念切换；普通口播字幕应突出地点、事实数据和作者判断。",
+    "emphasis_style": "大标题使用强对比白字，事实说明用较小字号贴边，不遮挡地貌纹理。",
+    "color_coding": "以白字为主，必要时用浅色描边保证盐地、天空和红色地貌上可读。",
+    "keyword_choices": [
+      "BACK TO EARTH",
+      "地球异旅",
+      "月球",
+      "台地",
+      "盐湖",
+      "警示",
+      "照片"
+    ]
+  }
+}

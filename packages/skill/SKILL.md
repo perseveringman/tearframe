@@ -46,13 +46,65 @@ Tearframe 后端会自动选择底层抓取器：
 
 如果 OpenCLI 返回登录、浏览器桥接或配置错误，把错误原样告诉用户，让用户在本机 Chrome/OpenCLI 环境中修复后重试。
 
+## 长片/电影/系列：必须走 Collection 容器
+
+> 适用于任何 `duration_sec > 2400` 秒（约 40 分钟）的视频，以及任何商业电影、纪录片、系列剧集、播客整集。
+
+直接对一整部电影或一整集长视频调 `teardown.start` **会被服务端拒收**：
+- storyboard 校验要求覆盖每一个 shot，长片 shot 数动辄过千，agent 无法逐帧解读；
+- 8 维度卡片不适配商业长片叙事，单条样片挂太多 teardown 会丢失可复用价值。
+
+正确流程：
+
+1. **建 Collection 容器**
+
+   ```
+   collection.create({ kind: "movie", title: "白日梦想家", original_title: "The Secret Life of Walter Mitty", release_year: 2013, director: "Ben Stiller" })
+   ```
+
+2. **挂载整片为 master**
+
+   ```
+   collection.import_master({ collection_id, input: "/Users/.../The.Secret.Life.of.Walter.Mitty.2013.mkv", reference_only: true })
+   ```
+
+   master sample 默认软链原文件，不复制、不降采样；它只是容器，**不会出现在普通的 `sample.list` 视图，也禁止对其调用 `teardown.start`**。
+
+3. **挑选精彩片段**
+   - 在前端 `/collections/:id` 详情页用时间轴拖选；或
+   - 直接调
+
+     ```
+     collection.add_clip({ collection_id, start_sec: 3245, end_sec: 3470, clip_title: "冰岛长板速降", why_picked: "..." })
+     ```
+
+   ffmpeg 会把 `[start_sec, end_sec]` 切成独立 1080p mp4（时间戳归零），并落库为一个 `sample_role='clip'` 的样片。
+
+4. **对 clip sample 走标准拉片流程**
+
+   ```
+   sample.preprocess({ sample_id: <clip_id>, type: "shots" })
+   sample.preprocess({ sample_id: <clip_id>, type: "transcript" })
+   sample.preprocess({ sample_id: <clip_id>, type: "frames" })
+   teardown.start({ sample_id: <clip_id> })
+   ... teardown.submit_storyboard ... teardown.finalize ...
+   ```
+
+   storyboard 时间码使用 **clip 内部相对时间（从 0 开始）**，UI 在展示时会通过 `clip_start_sec` 自动换算回电影绝对时间。所有现有 storyboard / card / storyline validator 都不需要任何改动。
+
+### 不要做的事
+
+- 不要对 master sample 直接 `sample.preprocess` 或 `teardown.start`，后端会以 `LONG_FORM_TEARDOWN_BLOCKED` 拒绝。
+- 不要把整片复制进 `~/.tearframe/samples/<id>/source.mp4`：master 默认软链；clip 才是物理文件。
+- 不要在没建 Collection 的情况下，把电影当成"普通 standalone 长视频"导入并强行拉片。
+
 ## 强制工作流
 
 1. 如果只有 URL 或本地路径，先调 `source.crawl` 探测源信息；确认要入库后调 `sample.import`。如果已有样片，调 `sample.list` / `sample.get` 定位。
 2. 调 `sample.get_resources` 检查 shots、transcript、frames。
 3. 缺资源时调 `sample.preprocess`；如果 agent 自己生成资源，则调 `sample.upload_resource`。
 4. 调 `teardown.start` 创建拉片任务。
-5. 结合 shots、frames、transcript 对镜头切分的每一个 shot 做详细解读。大样片先用 `scripts/make_contact_sheets.py` 生成 12 格左右的大图证据，再按 `docs/storyboard-quality.md` 自查，并运行 `scripts/validate_storyboard.py --storyboard <storyboard.json> --shots <shots.json> --frames <frames/index.json> --strict`；通过后再调 `teardown.submit_storyboard`。
+5. 结合 shots、frames、transcript 对镜头切分的每一个 shot 做详细解读。**每个 shot 的关键帧必须真的看过**——不能跳过、不能"按 phase 推断"、不能让脚本批量生成 `visual_summary` / `composition_analysis` / `camera_angle`。如果当前 agent 环境拿不到关键帧的视觉内容（Read/MCP 多模态返回空、image cache 命中、运行环境没有视觉通道），**立刻停下来**，把 `visual_summary` 等"必须看图"的字段填成 `pending_visual_review`，并在卡片或说明里告诉用户：这条样片需要在能看图的会话里二次过帧。绝不把模板化占位文本作为"已完成的拉片"提交。大样片先用 `scripts/make_contact_sheets.py` 生成 12 格左右的大图证据，再按 `docs/storyboard-quality.md` 自查，并运行 `scripts/validate_storyboard.py --storyboard <storyboard.json> --shots <shots.json> --frames <frames/index.json> --strict`；通过后再调 `teardown.submit_storyboard`。
 6. 获取素材后按 lens 权重填写八维度卡片；叙事/旅行/纪录/人物向样片的 `structure` 卡必须包含 `storyline`。
 7. 每张卡提交前用 `scripts/validate_card.py` 自校验；包含 `storyline` 时再运行 `scripts/validate_storyline.py --structure <structure-card.json> --storyboard <storyboard.json> --strict`。
 8. 调 `teardown.submit_card`、`teardown.submit_template`、`teardown.submit_relations`。
@@ -88,3 +140,20 @@ Tearframe 拉片详情页按用户学习方向展示，不按内部卡片类型�
 - storyboard beat 应尽量补齐 `composition`、`camera_motion`、`edit_note`、`audio_note`、`narrative_function`、`reusable_pattern`，这些字段会直接进入“怎么拍 / 怎么剪 / 声音字幕”Tabs。
 - 精品拉片必须遵守 `docs/storyboard-quality.md`：`visual_summary` 要逐 shot 描述可见事实，`shot_size` 只能是单一景别，`camera_angle` 与 `composition_analysis` 禁止批量模板化；提交前必须通过 storyboard validator。
 - 评分不是给 agent 的自评分；服务端会根据作品质量、可复用价值和证据置信度生成。agent 只负责提供证据，不要把普通样片夸成标杆级。
+
+## 视觉断言与回溯条款
+
+`visual_summary`、`composition_analysis`、`camera_angle`、`shot_size` 这四个字段是"我看过这一帧"的事实声明。下列做法一律视作伪造证据，必须避免：
+
+- 用脚本/模板按 `phase × index % N` 之类的轮换填这些字段。
+- 在还没看过关键帧的情况下，根据相邻镜头、段落主题或 transcript 推断画面内容。
+- 在视觉通道不可用（Read 返回空、image cache 命中、当前会话不支持多模态）时硬写一段"看起来合理"的描述。
+
+正确做法：
+1. 先确认你能真正看到该 shot 的关键帧（Read 返回有内容、或 contact sheet 已被读取过）。看不到就写 `pending_visual_review`，并在结尾告诉用户哪些 shot 需要后续会话补帧。
+2. 如果只能确认部分 shot，可以分批提交：已看过的写真实描述，未看过的整段标 `pending_visual_review`，不要混。
+3. 一旦发现既往 storyboard 是程序化生成的、画面对不上，立刻：
+   - 用 `pending_visual_review` 覆盖这些字段并 `teardown.submit_storyboard` 重新入库；
+   - 不要直接重新走一遍同样的脚本式流程，必须靠"逐帧观看 + 手写描述"修复。
+
+服务端会拒收带有明显程序化痕迹的 storyboard（同一前缀大批量复用、固定尾缀如"对应第 N 镜的具体落位"等），具体规则见 `scripts/validate_storyboard.py`。

@@ -1,0 +1,253 @@
+{
+  "teardown_id": "td_01KSX1TX8TNG4P3EGHJQVY4Z8T",
+  "card_type": "structure",
+  "payload": {
+    "summary": "全片不是按景点平铺，而是按“命题—第一处奇观—工业/边界—生态反差—月面尺度—材质解释—照片回收”递进。",
+    "reusable_skeleton": "命题开场 / 地点证明 / 反浪漫证据 / 边界或工业信息 / 更大尺度升级 / 创作交付物回收。",
+    "evidence": [
+      {
+        "timestamp_sec": 46.0,
+        "note": "盐湖人物与阴云环境形成第一处奇观现场。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_021_t45.683s.jpg"
+      },
+      {
+        "timestamp_sec": 300.0,
+        "note": "工厂烟囱和盐池说明奇观背后的工业现实。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_094_t298.534s.jpg"
+      },
+      {
+        "timestamp_sec": 870.0,
+        "note": "灰色荒漠与小人物比例建立月面感。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_261_t870.084s.jpg"
+      },
+      {
+        "timestamp_sec": 1518.0,
+        "note": "室内打印裁剪照片，回收片名中“几张照片”的承诺。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_426_t1517.217s.jpg"
+      }
+    ],
+    "archetype": "项目式旅行纪录片：用一个创作任务串联多地点奇观。",
+    "segments": [
+      {
+        "start_sec": 0,
+        "end_sec": 72,
+        "label": "命题与片名",
+        "summary": "从室内道具到路景片名，建立外星球照片任务。"
+      },
+      {
+        "start_sec": 72,
+        "end_sec": 260,
+        "label": "盐湖验证",
+        "summary": "盐地、湖面和鸟骨让第一处地貌既美又冷。"
+      },
+      {
+        "start_sec": 260,
+        "end_sec": 560,
+        "label": "工业边界",
+        "summary": "烟囱、警示牌、铁路和盐池说明景观背后的人造系统。"
+      },
+      {
+        "start_sec": 560,
+        "end_sec": 790,
+        "label": "生态反差",
+        "summary": "骆驼、水鸟、高塔和观测行为给荒漠加入生命。"
+      },
+      {
+        "start_sec": 790,
+        "end_sec": 1110,
+        "label": "月面升级",
+        "summary": "灰色荒漠、火山和遗址把陌生感推向更大尺度。"
+      },
+      {
+        "start_sec": 1110,
+        "end_sec": 1450,
+        "label": "材质与台地",
+        "summary": "土块、锈车、坏地和桌状山把奇观拆成可解释的视觉素材。"
+      },
+      {
+        "start_sec": 1450,
+        "end_sec": 1541.8,
+        "label": "照片回收",
+        "summary": "修图、打印、裁剪和排列照片，完成项目交付。"
+      }
+    ],
+    "turn_points": [
+      {
+        "start_sec": 72,
+        "end_sec": 90,
+        "label": "离开标题进入盐湖",
+        "summary": "从概念进入第一处现场。"
+      },
+      {
+        "start_sec": 260,
+        "end_sec": 320,
+        "label": "地球字卡与烟囱",
+        "summary": "从自然奇观转向工业现实。"
+      },
+      {
+        "start_sec": 790,
+        "end_sec": 830,
+        "label": "月面段开启",
+        "summary": "尺度和色彩从湖区转向灰色荒漠。"
+      },
+      {
+        "start_sec": 1450,
+        "end_sec": 1541.8,
+        "label": "室内照片收束",
+        "summary": "从旅程回到作品。"
+      }
+    ],
+    "skeleton_template": "先把一个地点拍成谜题，再用地图/人物/材质/边界/生态/回收物逐层回答。",
+    "storyline": {
+      "premise": "两位创作者从“地球像外星球”的拍摄命题出发，在多个极端地貌中验证、修正并最终把旅行转化成实体照片。",
+      "protagonist_arc": {
+        "start_state": "在室内提出一个听起来夸张的拍摄计划。",
+        "end_state": "回到室内整理、打印和排列照片，让旅程变成可交付作品。",
+        "transformation": "从寻找奇观的旅行者，变成把奇观转译成照片项目的创作者。"
+      },
+      "story_beats": [
+        {
+          "start_sec": 0,
+          "end_sec": 72,
+          "label": "把地球装进手心",
+          "story_function": "premise_setup",
+          "summary": "室内口播、手工地图和片名路景先说明：这不是科普清单，而是一次去寻找地球异星表面的私人旅行。",
+          "viewer_knows": "观众知道作者要把现实地球拍成外星球，并且会用照片作为最终成果。",
+          "viewer_question": "这些看起来不像地球的地方到底在哪里，真的能被抵达吗？",
+          "author_intent": "先用近景口播降低门槛，再用路景片名把期待推到远方。",
+          "why_here": "开头必须先交代玩法和承诺，否则后面大量地貌会变成普通风光合集。",
+          "evidence_shots": [
+            0,
+            10,
+            21
+          ]
+        },
+        {
+          "start_sec": 72,
+          "end_sec": 260,
+          "label": "盐湖从美变冷",
+          "story_function": "first_discovery_turn",
+          "summary": "盐湖段先给湖面和盐地，再持续插入鸟骨、脚印、手捧盐粒，让奇观不只是漂亮颜色。",
+          "viewer_knows": "观众看到这里像异星平原，但也开始理解它和盐、干旱、死亡有关。",
+          "viewer_question": "这么美的地方为什么会留下那么多遗骸和警示？",
+          "author_intent": "用触摸和遗骸把审美快感转成真实环境的刺痛。",
+          "why_here": "第一处地点需要建立全片规则：每个奇观都要被现场证据重新解释。",
+          "evidence_shots": [
+            36,
+            50,
+            69
+          ]
+        },
+        {
+          "start_sec": 260,
+          "end_sec": 560,
+          "label": "工业与边界露出来",
+          "story_function": "world_context_expansion",
+          "summary": "地球字卡之后出现烟囱、厂区、警告门、铁路和私有土地告示，奇观背后的生产和边界开始可见。",
+          "viewer_knows": "观众知道这些地貌不是完全无人的纯自然，也被工业、道路和产权切割。",
+          "viewer_question": "作者还能不能继续进入更深处，还是会被这些边界挡住？",
+          "author_intent": "把旅行探索从观景推进到进入限制区域的尝试。",
+          "why_here": "在盐湖之后插入工业信息，可以避免全片只靠美景递进。",
+          "evidence_shots": [
+            76,
+            99,
+            122
+          ]
+        },
+        {
+          "start_sec": 560,
+          "end_sec": 790,
+          "label": "生命重新出现",
+          "story_function": "ecology_counterpoint",
+          "summary": "彩色盐池之后，骆驼、水鸟、观鸟器材和高塔让荒漠恢复生命线索。",
+          "viewer_knows": "观众意识到外星感并不等于死寂，湖区生态和人的观察行为并存。",
+          "viewer_question": "这些生命如何在看似极端的环境中存在？",
+          "author_intent": "用动物运动和长焦观察调节全片密度，让奇观多一种生命维度。",
+          "why_here": "中段需要给观众一次柔软的生态段落，平衡前面的盐湖死亡感和工业感。",
+          "evidence_shots": [
+            161,
+            188,
+            206
+          ]
+        },
+        {
+          "start_sec": 790,
+          "end_sec": 1110,
+          "label": "月面尺度压低人物",
+          "story_function": "scale_escalation",
+          "summary": "月球段把人物缩到灰色荒漠、黑色岩丘和遗址之中，甚至插入月球与火山素材，地貌尺度被放大。",
+          "viewer_knows": "观众看到人物只是地貌中的小点，外星球比喻从颜色转成尺度和时间。",
+          "viewer_question": "这些地方为什么会让人联想到月球、火山和废墟？",
+          "author_intent": "用大远景和极小人物制造敬畏，再用遗址夜色把地质时间接到人类时间。",
+          "why_here": "后半程需要比前面更大尺度的陌生感，支撑二十多分钟长片继续观看。",
+          "evidence_shots": [
+            226,
+            259,
+            285
+          ]
+        },
+        {
+          "start_sec": 1110,
+          "end_sec": 1450,
+          "label": "材质、锈迹和台地",
+          "story_function": "texture_and_explanation",
+          "summary": "干裂土块、锈蚀车辆、红白坏地和桌状山交替出现，车内解释负责把地貌知识串起来。",
+          "viewer_knows": "观众知道奇观可以被触摸、被命名，也会和废弃设备、动物尸骸产生联系。",
+          "viewer_question": "这些颜色、裂纹和台地形态如何被拍成可理解的段落？",
+          "author_intent": "把远景奇观拆成材质近景、人物反应和车内解释三种证据。",
+          "why_here": "临近结尾必须把信息和感受压实，否则连续地貌会失去新鲜感。",
+          "evidence_shots": [
+            300,
+            327,
+            380
+          ]
+        },
+        {
+          "start_sec": 1450,
+          "end_sec": 1541.8,
+          "label": "照片把旅程落地",
+          "story_function": "promise_payoff",
+          "summary": "最后回到室内修图、打印、裁剪、排列照片，片名中“拍了几张照片”的承诺被实体化。",
+          "viewer_knows": "观众确认这趟旅行不仅是看景，而是为了把异星感转译成照片作品。",
+          "viewer_question": "这些照片能否成为普通创作者也能复刻的项目？",
+          "author_intent": "用手工整理照片替代宏大旁白，让结尾回到可执行的创作动作。",
+          "why_here": "长片结尾需要一个具体动作收束，否则地貌奇观没有最终交付物。",
+          "evidence_shots": [
+            413,
+            419,
+            427
+          ]
+        }
+      ],
+      "setup_payoffs": [
+        {
+          "setup_sec": 0,
+          "payoff_sec": 1518,
+          "setup": "开头承诺去外星球拍几张照片。",
+          "payoff": "结尾打印、裁剪并排列旅行照片。",
+          "meaning": "标题噱头被实体作品兑现。",
+          "setup_shot": 0,
+          "payoff_shot": 417
+        },
+        {
+          "setup_sec": 72,
+          "payoff_sec": 1110,
+          "setup": "盐湖段用脚印和手捧盐粒证明现场真实。",
+          "payoff": "后半段手托干土、拍锈蚀设备继续用触摸证明地貌。",
+          "meaning": "全片的可信度来自身体接触和材质证据。",
+          "setup_shot": 40,
+          "payoff_shot": 300
+        },
+        {
+          "setup_sec": 260,
+          "payoff_sec": 1400,
+          "setup": "工业烟囱和警示牌提示地貌背后有人造系统。",
+          "payoff": "台地段的车内解释和废弃设备把人类痕迹再次带回。",
+          "meaning": "外星感不是逃离现实，而是重新看见地球的生产、废弃与边界。",
+          "setup_shot": 99,
+          "payoff_shot": 396
+        }
+      ]
+    }
+  }
+}

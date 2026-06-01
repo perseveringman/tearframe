@@ -15,6 +15,7 @@ import {
   GitBranch,
   Heart,
   Layers3,
+  Layers,
   MessageCircle,
   Play,
   Scissors,
@@ -28,7 +29,7 @@ import { Link, useParams } from "react-router-dom";
 import type { Sample } from "@tearframe/shared";
 import { EmptyState } from "../components/shared/EmptyState";
 import { ErrorState } from "../components/shared/ErrorState";
-import { getSample, listSampleResources, listTeardowns, mediaUrl, type ResourceRecord, type ResourceType, type TeardownRecord } from "../lib/api";
+import { getCollection, getSample, listSampleResources, listTeardowns, mediaUrl, type ResourceRecord, type ResourceType, type TeardownRecord } from "../lib/api";
 import { platformLabel, statusLabel, videoCategoryLabel } from "../lib/labels";
 
 type ResourceDefinition = {
@@ -75,10 +76,20 @@ export function SampleDetailPage() {
   const sample = useQuery({ queryKey: ["sample", sampleId], queryFn: () => getSample(sampleId), enabled: Boolean(sampleId) });
   const resources = useQuery({ queryKey: ["resources", sampleId], queryFn: () => listSampleResources(sampleId), enabled: Boolean(sampleId) });
   const teardowns = useQuery({ queryKey: ["teardowns", { sample_id: sampleId }], queryFn: () => listTeardowns({ sample_id: sampleId }), enabled: Boolean(sampleId) });
+  const collectionId = sample.data?.collection_id ?? null;
+  const collection = useQuery({
+    queryKey: ["collection", collectionId],
+    queryFn: () => getCollection(collectionId as string),
+    enabled: Boolean(collectionId)
+  });
 
   if (sample.isError) return <main className="mx-auto max-w-[1200px] px-4 py-6 lg:px-6"><ErrorState message={sample.error.message} /></main>;
 
   const current = sample.data;
+  const role = current?.sample_role ?? "standalone";
+  const isMaster = role === "master";
+  const isClip = role === "clip";
+
   const resourceList = resources.data?.resources ?? [];
   const teardownList = teardowns.data?.items ?? [];
   const resourceByType = new Map(resourceList.map((resource) => [resource.resource_type, resource]));
@@ -86,6 +97,7 @@ export function SampleDetailPage() {
   const stage = getStage(current, readyResources, teardownList);
   const nextStep = getNextStep(sampleId, current, resourceByType, teardownList);
   const latestTeardown = teardownList[0];
+  const collectionDetail = collection.data?.collection ?? null;
 
   return (
     <main className="mx-auto flex max-w-[1500px] flex-col gap-2 px-4 py-3 lg:h-[100dvh] lg:overflow-hidden lg:px-5">
@@ -106,6 +118,21 @@ export function SampleDetailPage() {
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
+              {isMaster ? (
+                <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                  <Film className="size-3" />
+                  Master 整片（不参与拉片）
+                </span>
+              ) : null}
+              {isClip && collectionDetail ? (
+                <Link
+                  to={`/collections/${collectionDetail.id}`}
+                  className="inline-flex items-center gap-1 rounded-md bg-cyan-100 px-2 py-0.5 text-[11px] font-semibold text-cyan-800 hover:bg-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-200"
+                >
+                  <Layers className="size-3" />
+                  来源：{collectionDetail.title} {formatClipBadgeRange(current?.clip_start_sec, current?.clip_end_sec)}
+                </Link>
+              ) : null}
               <StatusPill status={current?.teardown_status ?? "pending"} />
               <CompactTag>{current ? platformLabel(current.platform) : "读取中"}</CompactTag>
               {current?.category ? <CompactTag>{videoCategoryLabel(current.category)}</CompactTag> : null}
@@ -115,6 +142,9 @@ export function SampleDetailPage() {
             <h1 className="mt-2 truncate text-xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50 md:text-2xl">
               {current?.title ?? "读取样片中"}
             </h1>
+            {isClip && current?.why_picked ? (
+              <p className="mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">{current.why_picked}</p>
+            ) : null}
             <div className="mt-2 grid gap-1.5 text-sm text-zinc-600 dark:text-zinc-400 sm:grid-cols-2 xl:grid-cols-4">
               <Fact icon={UserRound} label="作者" value={current?.author ?? current?.author_handle ?? "未知作者"} />
               <Fact icon={Clock3} label="时长" value={formatDuration(current?.duration_sec)} />
@@ -154,12 +184,33 @@ export function SampleDetailPage() {
           </div>
         </section>
 
-        <ResourcePipeline resourceByType={resourceByType} readyResources={readyResources} />
+        {isMaster ? (
+          <section className="flex min-h-0 flex-col items-center justify-center rounded-xl border border-amber-300 bg-amber-50 p-6 text-center dark:border-amber-900 dark:bg-amber-950/40 xl:col-span-2">
+            <Film className="size-10 text-amber-700 dark:text-amber-200" />
+            <h3 className="mt-3 text-lg font-semibold text-amber-900 dark:text-amber-100">这是 Collection 的 master 整片</h3>
+            <p className="mt-2 max-w-md text-sm text-amber-800 dark:text-amber-200/80">
+              整片不参与拉片，也不会触发 sample.preprocess / teardown.start。请回到 Collection 详情页用「添加精彩片段」切出独立 clip 后再做拉片分析。
+            </p>
+            {collectionDetail ? (
+              <Link
+                to={`/collections/${collectionDetail.id}`}
+                className="mt-4 inline-flex items-center gap-2 rounded-md bg-amber-700 px-4 py-2 text-sm font-medium text-white hover:bg-amber-800"
+              >
+                <Layers className="size-4" />
+                打开 Collection: {collectionDetail.title}
+              </Link>
+            ) : null}
+          </section>
+        ) : (
+          <>
+            <ResourcePipeline resourceByType={resourceByType} readyResources={readyResources} />
 
-        <aside className="flex min-h-0 flex-col gap-3 overflow-hidden">
-          <NextStepPanel nextStep={nextStep} latestTeardown={latestTeardown} />
-          <TeardownPanel teardowns={teardownList} />
-        </aside>
+            <aside className="flex min-h-0 flex-col gap-3 overflow-hidden">
+              <NextStepPanel nextStep={nextStep} latestTeardown={latestTeardown} />
+              <TeardownPanel teardowns={teardownList} />
+            </aside>
+          </>
+        )}
       </div>
     </main>
   );
@@ -585,6 +636,11 @@ function formatDate(value?: string | null) {
 function formatDateTime(value?: string | null) {
   if (!value) return "未记录";
   return value.replace("T", " ").slice(0, 16);
+}
+
+function formatClipBadgeRange(start?: number | null, end?: number | null) {
+  if (start == null || end == null) return "";
+  return `${formatDuration(start)} → ${formatDuration(end)}`;
 }
 
 function classNames(...classes: Array<string | false | null | undefined>) {

@@ -1,0 +1,58 @@
+{
+  "summary": "当前资源没有逐轨音频分析；从剪辑结构看，音乐应服务三种状态：开场推进、奇观铺陈、结尾收束。",
+  "reusable_skeleton": "开题用有推进感的节奏，奇观段压低旋律保留环境空间，结尾换成温暖室内质感。",
+  "evidence": [
+    {
+      "timestamp_sec": 7.8,
+      "note": "片名覆盖移动路景，迅速承诺外星球式地球旅行。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_003_t7.8s.jpg"
+    },
+    {
+      "timestamp_sec": 870.0,
+      "note": "灰色荒漠与小人物比例建立月面感。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_261_t870.084s.jpg"
+    },
+    {
+      "timestamp_sec": 1518.0,
+      "note": "室内打印裁剪照片，回收片名中“几张照片”的承诺。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_426_t1517.217s.jpg"
+    }
+  ],
+  "mood_curve": [
+    {
+      "start_sec": 0,
+      "end_sec": 260,
+      "label": "好奇启动",
+      "summary": "从标题承诺进入第一处奇观。"
+    },
+    {
+      "start_sec": 260,
+      "end_sec": 1110,
+      "label": "陌生和敬畏",
+      "summary": "工业、动物、月面和遗址增强空间感。"
+    },
+    {
+      "start_sec": 1110,
+      "end_sec": 1541.8,
+      "label": "解释与回收",
+      "summary": "材质细节和照片制作让情绪变具体。"
+    }
+  ],
+  "in_points": [
+    {
+      "start_sec": 10,
+      "end_sec": 20,
+      "label": "片名进入",
+      "summary": "音乐可在标题蒙太奇处抬升。"
+    }
+  ],
+  "out_points": [
+    {
+      "start_sec": 1528,
+      "end_sec": 1541.8,
+      "label": "片尾落下",
+      "summary": "照片板和片尾文字适合降低能量。"
+    }
+  ],
+  "reference_genre": "旅行纪录片氛围配乐：轻节奏推进 + 空间感 pad + 结尾温暖 acoustic/ambient。"
+}

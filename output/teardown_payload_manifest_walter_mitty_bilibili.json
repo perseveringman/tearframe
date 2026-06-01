@@ -1,0 +1,18 @@
+{
+  "sample_id": "smp_01KSWWTEWHPJPCD6AM3D1HA8Z1",
+  "teardown_id": "td_01KSWXEY29TCKBGY0DKTPQTBXY",
+  "storyboard_beats": 212,
+  "cards": [
+    "edit",
+    "hook",
+    "music",
+    "pace",
+    "shot",
+    "structure",
+    "subtitle",
+    "topic"
+  ],
+  "templates": 3,
+  "relations": 6,
+  "transcript_status": "resource remained running/data:null after background preprocess completed; storyboard uses visible subtitles and frame evidence only"
+}

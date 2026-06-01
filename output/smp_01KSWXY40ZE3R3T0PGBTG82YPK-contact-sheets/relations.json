@@ -1,0 +1,41 @@
+{
+  "teardown_id": "td_01KSX1TX8TNG4P3EGHJQVY4Z8T",
+  "relations": [
+    {
+      "source_node": "topic",
+      "target_node": "hook",
+      "relation_type": "supports",
+      "description": "标题命题需要开场口播和路景蒙太奇马上证明可执行。"
+    },
+    {
+      "source_node": "structure",
+      "target_node": "shot",
+      "relation_type": "supports",
+      "description": "七段式结构依赖每个地点内远景、人物和材质细节的循环。"
+    },
+    {
+      "source_node": "edit",
+      "target_node": "pace",
+      "relation_type": "aligns_with",
+      "description": "快开题、地点波浪和慢收束共同形成节奏曲线。"
+    },
+    {
+      "source_node": "subtitle",
+      "target_node": "hook",
+      "relation_type": "supports",
+      "description": "章节字卡把外星球比喻变成观众可快速识别的观看任务。"
+    },
+    {
+      "source_node": "music",
+      "target_node": "edit",
+      "relation_type": "aligns_with",
+      "description": "音乐情绪应跟随地点切换和照片收束，而不是持续高能。"
+    },
+    {
+      "source_node": "account",
+      "target_node": "topic",
+      "relation_type": "supports",
+      "description": "项目型旅行账号适合用反常识命题包装长途多地点内容。"
+    }
+  ]
+}

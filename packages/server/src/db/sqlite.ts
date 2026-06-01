@@ -237,6 +237,30 @@ export function migrateDatabase(db: SqliteDatabase) {
       finished_at TEXT NOT NULL,
       FOREIGN KEY (teardown_id) REFERENCES teardowns(id) ON DELETE SET NULL
     );
+
+    CREATE TABLE IF NOT EXISTS collections (
+      id TEXT PRIMARY KEY,
+      kind TEXT NOT NULL DEFAULT 'movie',
+      title TEXT NOT NULL,
+      original_title TEXT,
+      release_year INTEGER,
+      director TEXT,
+      language TEXT,
+      duration_sec INTEGER,
+      poster_path TEXT,
+      synopsis TEXT,
+      master_sample_id TEXT,
+      parent_collection_id TEXT,
+      tags TEXT NOT NULL DEFAULT '[]',
+      metadata TEXT NOT NULL DEFAULT '{}',
+      added_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (master_sample_id) REFERENCES samples(id) ON DELETE SET NULL,
+      FOREIGN KEY (parent_collection_id) REFERENCES collections(id) ON DELETE SET NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_collections_kind ON collections(kind);
+    CREATE INDEX IF NOT EXISTS idx_collections_parent ON collections(parent_collection_id);
   `);
 
   ensureColumns(db, "teardown_storyboards", {
@@ -246,6 +270,23 @@ export function migrateDatabase(db: SqliteDatabase) {
     camera_angle: "TEXT",
     composition_analysis: "TEXT"
   });
+
+  ensureColumns(db, "samples", {
+    collection_id: "TEXT",
+    parent_sample_id: "TEXT",
+    sample_role: "TEXT NOT NULL DEFAULT 'standalone'",
+    clip_start_sec: "REAL",
+    clip_end_sec: "REAL",
+    clip_title: "TEXT",
+    why_picked: "TEXT",
+    clip_order: "INTEGER NOT NULL DEFAULT 0"
+  });
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_samples_collection ON samples(collection_id);
+    CREATE INDEX IF NOT EXISTS idx_samples_role ON samples(sample_role);
+    CREATE INDEX IF NOT EXISTS idx_samples_parent ON samples(parent_sample_id);
+  `);
 }
 
 function ensureColumns(db: SqliteDatabase, table: string, columns: Record<string, string>) {

@@ -1,0 +1,36 @@
+{
+  "summary": "镜头组织以三类素材循环：人物口播/自拍负责陪伴，地貌大远景负责陌生感，手部/脚步/遗骸/锈迹特写负责现场证据。",
+  "reusable_skeleton": "每个地点至少拍 1 个地图或交通镜、3 个大环境、2 个身体接触细节、1 个边界或人造痕迹。",
+  "evidence": [
+    {
+      "timestamp_sec": 438.0,
+      "note": "铁路、告示牌和桥梁构成边界穿越。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_124_t429.8s.jpg"
+    },
+    {
+      "timestamp_sec": 520.0,
+      "note": "粉绿盐池航拍释放强色块奇观。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_137_t520.7s.jpg"
+    },
+    {
+      "timestamp_sec": 1140.0,
+      "note": "锈蚀旧设备把荒凉落到人工痕迹和材质细节。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_303_t1139.317s.jpg"
+    },
+    {
+      "timestamp_sec": 1260.0,
+      "note": "红白灰坏地层理形成第三种星球表面。",
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_353_t1259.45s.jpg"
+    }
+  ],
+  "a_roll_style": "人物多为手持自拍或车内近景，脸和身体进入画面让长片保持陪伴感。",
+  "b_roll_functions": [
+    "建立异星地貌",
+    "证明抵达现场",
+    "补充工业/边界信息",
+    "提供材质证据",
+    "用动物和遗骸制造生命反差"
+  ],
+  "cut_density": "整体镜头密度高，430 个 shot 覆盖 25 分 42 秒；开场与转场段切得更快，奇观段留给大远景和航拍更多阅读时间。",
+  "low_cost_replicable": true
+}

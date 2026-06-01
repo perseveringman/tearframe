@@ -63,4 +63,41 @@ export class VideoMetadataService {
     if (result.exitCode !== 0) throw new Error(result.stderr || "ffmpeg thumbnail extraction failed");
     return targetPath;
   }
+
+  async extractClip(input: { src: string; dst: string; startSec: number; endSec: number; maxLongEdge?: number }) {
+    const { src, dst, startSec, endSec, maxLongEdge } = input;
+    if (!(endSec > startSec)) throw new Error("INVALID_CLIP_RANGE");
+    await mkdir(dirname(dst), { recursive: true });
+
+    const args = ["-y", "-ss", String(startSec), "-to", String(endSec), "-i", src, "-map", "0:v:0", "-map", "0:a?"];
+    if (maxLongEdge && maxLongEdge > 0) {
+      args.push("-vf", `scale='if(gt(iw,ih),min(iw,${maxLongEdge}),-2)':'if(gt(iw,ih),-2,min(ih,${Math.round((maxLongEdge * 9) / 16)}))'`);
+    }
+    args.push(
+      "-c:v",
+      "libx264",
+      "-preset",
+      "veryfast",
+      "-crf",
+      "20",
+      "-c:a",
+      "aac",
+      "-b:a",
+      "160k",
+      "-movflags",
+      "+faststart",
+      "-avoid_negative_ts",
+      "make_zero",
+      "-reset_timestamps",
+      "1",
+      dst
+    );
+    const result = await this.runner.run({
+      command: this.options.ffmpegBin ?? "ffmpeg",
+      args,
+      timeoutMs: 30 * 60_000
+    });
+    if (result.exitCode !== 0) throw new Error(result.stderr || "ffmpeg extractClip failed");
+    return dst;
+  }
 }

@@ -7,7 +7,7 @@ import { LocalFileAdapter } from "../sources/local/local";
 import { SampleSourceAdapter } from "../sources/types";
 import { YoutubeYtdlpAdapter } from "../sources/ytdlp/youtube";
 import { config } from "../config";
-import { extname, join } from "node:path";
+import { extname, isAbsolute, join, relative } from "node:path";
 import { unlink } from "node:fs/promises";
 import { SamplePriority, SampleService } from "./SampleService";
 import { VideoCategory } from "@tearframe/shared";
@@ -83,6 +83,7 @@ export class SourceService {
       const target = join(sampleDir, `source${ext}`);
       if (downloaded.videoPath !== target) await this.storage.copyInto(downloaded.videoPath, target);
       const normalizedVideoPath = await this.ensureDownloadWithinLimit(sample.id, target);
+      await this.removeIntermediateDownload(sampleDir, downloaded.videoPath, normalizedVideoPath);
       const localPath = this.storage.relativePath(normalizedVideoPath);
       const mediaPatch = await this.readMediaPatch(sample.id, normalizedVideoPath);
       const next = await this.sampleService.update(sample.id, { local_path: localPath, ...mediaPatch });
@@ -146,5 +147,15 @@ export class SourceService {
     }
 
     return patch;
+  }
+
+  private async removeIntermediateDownload(sampleDir: string, downloadedPath: string, storedPath: string) {
+    if (downloadedPath === storedPath || !this.isInsideDirectory(sampleDir, downloadedPath)) return;
+    await unlink(downloadedPath).catch(() => {});
+  }
+
+  private isInsideDirectory(parent: string, child: string) {
+    const childRelativePath = relative(parent, child);
+    return Boolean(childRelativePath) && !childRelativePath.startsWith("..") && !isAbsolute(childRelativePath);
   }
 }

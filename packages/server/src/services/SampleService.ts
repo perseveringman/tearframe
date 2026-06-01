@@ -1,5 +1,5 @@
 import { ulid } from "ulid";
-import { Platform, VideoCategory } from "@tearframe/shared";
+import { Platform, SampleRole, VideoCategory } from "@tearframe/shared";
 import { createSqliteDatabase, parseJson, SqliteDatabase, toJson } from "../db/sqlite";
 
 export type SamplePriority = "low" | "medium" | "high";
@@ -27,6 +27,14 @@ export type SampleRecord = {
   teardown_status: TeardownStatus;
   teardown_count: number;
   thumbnail_path?: string | null;
+  collection_id?: string | null;
+  parent_sample_id?: string | null;
+  sample_role: SampleRole;
+  clip_start_sec?: number | null;
+  clip_end_sec?: number | null;
+  clip_title?: string | null;
+  why_picked?: string | null;
+  clip_order: number;
 };
 
 export type CreateSampleInput = Partial<SampleRecord> & Pick<SampleRecord, "title" | "platform">;
@@ -38,6 +46,9 @@ export type ListSampleQuery = {
   tag?: string;
   status?: TeardownStatus;
   q?: string;
+  collection_id?: string;
+  role?: SampleRole;
+  include_clips?: boolean;
   page?: number;
   pageSize?: number;
 };
@@ -62,13 +73,20 @@ export class SampleService {
     const normalizedQ = query.q?.trim().toLowerCase();
     const rows = this.db.prepare("SELECT * FROM samples ORDER BY added_at DESC").all() as SampleRow[];
     const filtered = rows.map(fromRow).filter((sample) => {
+      if (query.collection_id && sample.collection_id !== query.collection_id) return false;
+      if (query.role) {
+        if (sample.sample_role !== query.role) return false;
+      } else if (!query.collection_id && !query.include_clips) {
+        // Default view hides clip samples to avoid flooding the sample library
+        if (sample.sample_role === "clip") return false;
+      }
       if (query.author && sample.author_handle !== query.author && sample.author !== query.author) return false;
       if (query.category && sample.category !== query.category) return false;
       if (query.platform && sample.platform !== query.platform) return false;
       if (query.tag && !sample.sub_tags.includes(query.tag)) return false;
       if (query.status && sample.teardown_status !== query.status) return false;
       if (normalizedQ) {
-        const haystack = [sample.title, sample.author, sample.author_handle, sample.why_collected, ...sample.sub_tags]
+        const haystack = [sample.title, sample.author, sample.author_handle, sample.why_collected, sample.clip_title, sample.why_picked, ...sample.sub_tags]
           .filter(Boolean)
           .join(" ")
           .toLowerCase();
@@ -107,6 +125,13 @@ export class SampleService {
     return this.db.prepare("DELETE FROM samples WHERE id = ?").run(id).changes > 0;
   }
 
+  async listByCollection(collectionId: string): Promise<SampleRecord[]> {
+    const rows = this.db
+      .prepare("SELECT * FROM samples WHERE collection_id = ? ORDER BY clip_order ASC, clip_start_sec ASC, added_at ASC")
+      .all(collectionId) as SampleRow[];
+    return rows.map(fromRow);
+  }
+
   async markTeardownStarted(id: string) {
     await this.update(id, { teardown_status: "running" });
   }
@@ -123,11 +148,15 @@ export class SampleService {
         `INSERT INTO samples (
           id, title, author, author_handle, platform, source_url, source_video_id, local_path,
           duration_sec, resolution, published_at, category, sub_tags, language, metrics,
-          added_at, why_collected, priority, teardown_status, teardown_count, thumbnail_path
+          added_at, why_collected, priority, teardown_status, teardown_count, thumbnail_path,
+          collection_id, parent_sample_id, sample_role, clip_start_sec, clip_end_sec,
+          clip_title, why_picked, clip_order
         ) VALUES (
           @id, @title, @author, @author_handle, @platform, @source_url, @source_video_id, @local_path,
           @duration_sec, @resolution, @published_at, @category, @sub_tags, @language, @metrics,
-          @added_at, @why_collected, @priority, @teardown_status, @teardown_count, @thumbnail_path
+          @added_at, @why_collected, @priority, @teardown_status, @teardown_count, @thumbnail_path,
+          @collection_id, @parent_sample_id, @sample_role, @clip_start_sec, @clip_end_sec,
+          @clip_title, @why_picked, @clip_order
         )
         ON CONFLICT(id) DO UPDATE SET
           title = excluded.title,
@@ -148,7 +177,15 @@ export class SampleService {
           priority = excluded.priority,
           teardown_status = excluded.teardown_status,
           teardown_count = excluded.teardown_count,
-          thumbnail_path = excluded.thumbnail_path`
+          thumbnail_path = excluded.thumbnail_path,
+          collection_id = excluded.collection_id,
+          parent_sample_id = excluded.parent_sample_id,
+          sample_role = excluded.sample_role,
+          clip_start_sec = excluded.clip_start_sec,
+          clip_end_sec = excluded.clip_end_sec,
+          clip_title = excluded.clip_title,
+          why_picked = excluded.why_picked,
+          clip_order = excluded.clip_order`
       )
       .run({ ...sample, sub_tags: toJson(sample.sub_tags), metrics: toJson(sample.metrics) });
   }
@@ -176,7 +213,15 @@ function normalizeSample(input: CreateSampleInput): SampleRecord {
     priority: input.priority ?? "medium",
     teardown_status: input.teardown_status ?? "pending",
     teardown_count: input.teardown_count ?? 0,
-    thumbnail_path: input.thumbnail_path ?? null
+    thumbnail_path: input.thumbnail_path ?? null,
+    collection_id: input.collection_id ?? null,
+    parent_sample_id: input.parent_sample_id ?? null,
+    sample_role: input.sample_role ?? "standalone",
+    clip_start_sec: input.clip_start_sec ?? null,
+    clip_end_sec: input.clip_end_sec ?? null,
+    clip_title: input.clip_title ?? null,
+    why_picked: input.why_picked ?? null,
+    clip_order: input.clip_order ?? 0
   };
 }
 
@@ -184,6 +229,8 @@ function fromRow(row: SampleRow): SampleRecord {
   return {
     ...row,
     sub_tags: parseJson<string[]>(row.sub_tags, []),
-    metrics: parseJson<Record<string, number>>(row.metrics, {})
+    metrics: parseJson<Record<string, number>>(row.metrics, {}),
+    sample_role: (row.sample_role ?? "standalone") as SampleRole,
+    clip_order: row.clip_order ?? 0
   };
 }

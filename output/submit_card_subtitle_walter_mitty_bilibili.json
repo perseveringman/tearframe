@@ -1,0 +1,31 @@
+{
+  "teardown_id": "td_01KSWXEY29TCKBGY0DKTPQTBXY",
+  "card_type": "subtitle",
+  "payload": {
+    "summary": "画面多处可见中文字幕，但 transcript 未成功落库；字幕策略更像补充内心说明和行动解释，而不是强排版装饰。",
+    "strategy": "底部中文字幕跟随旁白/说明出现；屏幕资料段保留原网页或视频字幕，让观众同时看到信息来源。",
+    "emphasis_style": "以橙色或白色底部字幕为主；结尾用独立图卡显示日期和祝福。",
+    "keyword_choices": [
+      "06:30：时间锚点，提示清晨行动。",
+      "van life / campervan：资料段关键词，把车内实验扩展为生活方式。",
+      "1996 Toyota Tarago：车型和记忆锚点。",
+      "2024.1.1 新年快乐：结尾时间和情绪落点。"
+    ],
+    "reusable_skeleton": "行动段字幕解释原因，资料段保留网页/视频文字，结尾用独立日期卡完成情绪确认。",
+    "evidence": [
+      {
+        "timestamp_sec": 17.566,
+        "note": "06:30 手机时间承担字幕之外的信息锚。"
+      },
+      {
+        "timestamp_sec": 462.2,
+        "note": "Google 和资料视频画面自带文字信息。"
+      },
+      {
+        "timestamp_sec": 740.917,
+        "note": "新年快乐字卡是全片最明确的文字落点。"
+      }
+    ],
+    "color_coding": "常规说明以白色底部字幕为主，部分强调字幕使用橙色；结尾日期卡使用绿色日期和红色祝福。"
+  }
+}

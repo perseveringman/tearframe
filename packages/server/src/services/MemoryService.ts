@@ -82,6 +82,10 @@ type SampleRow = {
   platform: string;
   category?: string | null;
   sub_tags?: string | null;
+  collection_id?: string | null;
+  sample_role?: string | null;
+  collection_kind?: string | null;
+  collection_title?: string | null;
 };
 
 type MemoryItemRow = Omit<MemoryItemRecord, "tags" | "metadata"> & { tags: string; metadata: string };
@@ -267,7 +271,8 @@ export class MemoryService {
     const clusters = this.clustersForTeardown(teardownId);
     const sampleId = items[0]?.sample_id ?? scores[0]?.sample_id ?? this.getTeardownSampleId(teardownId);
     const topScore = [...scores].sort((a, b) => b.score - a.score)[0];
-    const average = scores.length > 0 ? round(scores.reduce((sum, item) => sum + item.score, 0) / scores.length, 1) : null;
+    const sample = sampleId ? this.getSample(sampleId) : undefined;
+    const average = scores.length > 0 ? averageScore(scores, sample) : null;
     return {
       teardown_id: teardownId,
       sample_id: sampleId,
@@ -508,7 +513,14 @@ export class MemoryService {
   }
 
   private getSample(sampleId: string) {
-    const sample = this.db.prepare("SELECT * FROM samples WHERE id = ?").get(sampleId) as SampleRow | undefined;
+    const sample = this.db
+      .prepare(
+        `SELECT s.*, c.kind AS collection_kind, c.title AS collection_title
+         FROM samples s
+         LEFT JOIN collections c ON c.id = s.collection_id
+         WHERE s.id = ?`
+      )
+      .get(sampleId) as SampleRow | undefined;
     return sample ?? { id: sampleId, title: sampleId, platform: "local" };
   }
 
@@ -634,14 +646,13 @@ function buildScores(teardown: TeardownRecord, sample: SampleRow, createdAt: str
     const evidence = evidenceNotes(payload);
     const keyCount = DIMENSION_KEYS[dimension].filter((key) => hasMeaningfulValue(payload[key])).length;
     const scored = scoreDimension({ dimension, payload, content, evidenceCount: evidence.length, keyCount, sample, teardown });
-    const confidence = clamp(0.3 + (keyCount / DIMENSION_KEYS[dimension].length) * 0.32 + evidence.length * 0.045 + Math.min(0.18, content.length / 2200), 0.25, 0.94);
     return [
       {
         teardown_id: teardown.id,
         sample_id: teardown.sample_id,
         dimension,
         score: scored.score,
-        confidence: round(confidence, 2),
+        confidence: scored.confidence,
         rationale: scored.rationale,
         evidence,
         created_at: createdAt
@@ -659,96 +670,590 @@ function scoreDimension(input: {
   sample: SampleRow;
   teardown: TeardownRecord;
 }) {
-  const { dimension, payload, content, evidenceCount, keyCount, sample, teardown } = input;
+  const { dimension, payload, content, keyCount, sample, teardown } = input;
   const coverage = keyCount / DIMENSION_KEYS[dimension].length;
   const base = dimensionBase(dimension);
-  const quality = dimensionQualitySignal(dimension, payload, content, teardown);
-  const coverageAdjustment = clamp((coverage - 0.55) * 0.75, -0.45, 0.35);
-  const evidenceAdjustment = Math.min(0.18, evidenceCount * 0.04);
-  const raw = base + quality + coverageAdjustment + evidenceAdjustment;
-  const ceiling = categoryCeiling(sample.category, dimension) + standoutLift(content);
-  const score = round(clamp(Math.min(raw, ceiling), 0, 10), 1);
+  const evidence = evidenceQuality(payload);
+  const specificity = contentSpecificity(content);
+  const craft = dimensionCraftSignal(dimension, payload, content, teardown);
+  const quality = workQualitySignal(dimension, payload, content, teardown);
+  const storyboard = storyboardSignal(dimension, teardown.storyboard);
+  const standout = standoutSignal(content);
+  const penalty = weaknessPenalty(content);
+  const absence = absenceSignal(dimension, content);
+  const category = categoryCalibration(sample, dimension);
+  const signals: ScoreSignals = { coverage, evidence: evidence.score, specificity, craft, quality, storyboard, standout, penalty, absence, category };
+  const proof = coverage * 0.12 + evidence.score * 0.18 + specificity * 0.16;
+  const raw =
+    base +
+    proof +
+    Math.pow(craft, 1.25) * 2.45 +
+    quality * 2.25 +
+    storyboard * storyboardWeight(dimension) * 0.52 +
+    standout * 1.05 +
+    category -
+    penalty * 1.55 -
+    absence * absenceWeight(sample, dimension);
+  const score = round(clamp(raw, 0, 10), 1);
+  const confidence = round(
+    clamp(0.18 + coverage * 0.3 + evidence.score * 0.32 + specificity * 0.14 + Math.min(0.12, teardown.storyboard.length / 90), 0.2, 0.96),
+    2
+  );
   return {
     score,
-    rationale: scoreRationale({ dimension, score, quality, coverage, evidenceCount, sample })
+    confidence,
+    rationale: scoreRationale({ dimension, score, confidence, signals, evidenceCount: evidence.count, sample })
   };
 }
 
+type ScoreSignals = {
+  coverage: number;
+  evidence: number;
+  specificity: number;
+  craft: number;
+  quality: number;
+  storyboard: number;
+  standout: number;
+  penalty: number;
+  absence: number;
+  category: number;
+};
+
 function dimensionBase(dimension: CardType) {
   const bases: Record<CardType, number> = {
-    topic: 4.3,
-    copy: 3.9,
-    hook: 4.2,
-    structure: 4.6,
-    shot: 4.5,
-    edit: 4.7,
-    music: 4.6,
-    subtitle: 3.7,
-    pace: 4.5,
-    account: 4.1
+    topic: 3.05,
+    copy: 2.65,
+    hook: 3.65,
+    structure: 3,
+    shot: 3.05,
+    edit: 2.95,
+    music: 2.75,
+    subtitle: 2.35,
+    pace: 2.95,
+    account: 2.8
   };
   return bases[dimension];
 }
 
-function dimensionQualitySignal(dimension: CardType, payload: Record<string, unknown>, content: string, teardown: TeardownRecord) {
-  const common =
-    (hasMeaningfulValue(payload.summary) ? 0.18 : 0) +
-    (hasMeaningfulValue(payload.reusable_skeleton) ? 0.28 : 0) +
-    (hasMeaningfulValue(payload.transferable_formula) ? 0.28 : 0) +
-    Math.min(0.22, topTerms(content, 6).length * 0.035);
+function categoryCalibration(sample: SampleRow, dimension: CardType) {
+  if (sample.category === "process_vlog") {
+    const adjustments: Record<CardType, number> = {
+      topic: -0.1,
+      copy: -0.15,
+      hook: -0.1,
+      structure: 0.05,
+      shot: 0.1,
+      edit: 0.1,
+      music: 0.05,
+      subtitle: -0.2,
+      pace: 0.05,
+      account: -0.1
+    };
+    return adjustments[dimension];
+  }
+  if (isFilmLikeSample(sample)) {
+    const adjustments: Partial<Record<CardType, number>> = {
+      topic: 0.7,
+      copy: 0.25,
+      hook: 0.5,
+      structure: 1.25,
+      shot: 1.25,
+      edit: 1.1,
+      music: 0.8,
+      subtitle: 0.1,
+      pace: 1,
+      account: 0.3
+    };
+    return adjustments[dimension] ?? 0;
+  }
+  if (sample.category === "mini_doc") {
+    const adjustments: Partial<Record<CardType, number>> = { structure: 0.35, shot: 0.35, edit: 0.25, music: 0.2, pace: 0.25 };
+    return adjustments[dimension] ?? 0;
+  }
+  if (sample.category === "personal_opinion") {
+    const adjustments: Partial<Record<CardType, number>> = { topic: 0.1, copy: 0.1, hook: 0.1, account: 0.1 };
+    return adjustments[dimension] ?? 0;
+  }
+  return 0;
+}
+
+function dimensionCraftSignal(dimension: CardType, payload: Record<string, unknown>, content: string, teardown: TeardownRecord) {
+  const summary = stringSignal(payload.summary, 130);
+  const reusable = stringSignal(payload.reusable_skeleton, 110);
+  const reusableBase = summary * 0.08 + reusable * 0.08;
 
   if (dimension === "topic") {
-    return common + boolScore(payload.question, 0.24) + boolScore(payload.why_now, 0.22) + boolScore(payload.angle_type, 0.2) - textPenalty(content, ["普通假期", "旅行素材", "旅游混剪"], 0.18);
+    const angle = enumSignal(payload.angle_type, { counter_consensus: 1, timely: 0.85, story: 0.82, personal: 0.72, tutorial: 0.62, review: 0.58 });
+    return clamp(
+      reusableBase +
+        stringSignal(payload.question, 70) * 0.17 +
+        stringSignal(payload.why_now, 95) * 0.17 +
+        stringSignal(payload.transferable_formula, 120) * 0.26 +
+        angle * 0.14 +
+        standoutSignal(content) * 0.1,
+      0,
+      1
+    );
   }
+
   if (dimension === "copy") {
-    return common + boolScore(payload.first_line, 0.22) + arrayScore(payload.key_lines, 0.28) + arrayScore(payload.rhetorical_devices, 0.22) + boolScore(payload.info_density_curve, 0.2) - textPenalty(content, ["不写路线攻略", "低字幕密度", "降低信息解释"], 0.34);
+    return clamp(
+      reusableBase +
+        stringSignal(payload.first_line, 70) * 0.18 +
+        arraySignal(payload.key_lines, 5) * 0.24 +
+        arraySignal(payload.rhetorical_devices, 4) * 0.2 +
+        timeSegmentSignal(payload.info_density_curve, 4) * 0.22,
+      0,
+      1
+    );
   }
+
   if (dimension === "hook") {
-    return common + boolScore(payload.hook_type, 0.25) + boolScore(payload.retention_logic, 0.3) + boolScore(payload.t0_frame, 0.16) + boolScore(payload.next_question_in_viewer_mind, 0.18) - textPenalty(content, ["不靠口播", "空镜", "标题"], 0.26);
+    const firstSentence = asRecord(payload.first_sentence);
+    const hookType = enumSignal(payload.hook_type, { suspense: 1, info_gap: 0.92, emotion_gap: 0.86, identity: 0.74, benefit_promise: 0.62 });
+    const sentencePattern = enumSignal(firstSentence.sentence_pattern, {
+      counter_intuitive: 1,
+      number_shock: 0.92,
+      question: 0.82,
+      scene_immersion: 0.78,
+      self_deprecation: 0.72,
+      promise: 0.62
+    });
+    return clamp(
+      reusableBase +
+        objectSignal(payload.t0_frame, ["timestamp_sec", "description"], 90) * 0.14 +
+        stringSignal(firstSentence.text, 80) * 0.11 +
+        sentencePattern * 0.1 +
+        hookType * 0.14 +
+        stringSignal(payload.retention_logic, 135) * 0.24 +
+        stringSignal(payload.next_question_in_viewer_mind, 90) * 0.15,
+      0,
+      1
+    );
   }
+
   if (dimension === "structure") {
-    return common + boolScore(payload.archetype, 0.3) + arrayScore(payload.segments, 0.32) + arrayScore(payload.turn_points, 0.24) + boolScore(payload.skeleton_template, 0.28) + boolScore(payload.storyline, 0.24);
+    return clamp(
+      reusableBase +
+        stringSignal(payload.archetype, 70) * 0.1 +
+        timeSegmentSignal(payload.segments, 5) * 0.22 +
+        timeSegmentSignal(payload.turn_points, 3) * 0.16 +
+        stringSignal(payload.skeleton_template, 150) * 0.15 +
+        storylineSignal(payload.storyline) * 0.29,
+      0,
+      1
+    );
   }
+
   if (dimension === "shot") {
-    return common + boolScore(payload.a_roll_style, 0.18) + arrayScore(payload.b_roll_functions, 0.34) + boolScore(payload.cut_density, 0.2) + boolScore(payload.low_cost_replicable, 0.16) + storyboardScore(teardown.storyboard.length, 0.48) - textPenalty(content, ["低成本", "空镜", "背影"], 0.16);
+    return clamp(
+      reusableBase +
+        stringSignal(payload.a_roll_style, 90) * 0.12 +
+        arraySignal(payload.b_roll_functions, 6) * 0.25 +
+        stringSignal(payload.cut_density, 70) * 0.1 +
+        lowCostSignal(payload.low_cost_replicable) * 0.07 +
+        storyboardSignal(dimension, teardown.storyboard) * 0.38,
+      0,
+      1
+    );
   }
+
   if (dimension === "edit") {
-    return common + boolScore(payload.tempo_map, 0.45) + arrayScore(payload.transitions, 0.32) + arrayScore(payload.jump_cuts, 0.2) + arrayScore(payload.pause_points, 0.24) + storyboardScore(teardown.storyboard.length, 0.32);
+    return clamp(
+      reusableBase +
+        timeSegmentSignal(payload.tempo_map, 5) * 0.25 +
+        arraySignal(payload.transitions, 6) * 0.18 +
+        timeSegmentSignal(payload.jump_cuts, 4) * 0.15 +
+        timeSegmentSignal(payload.pause_points, 4) * 0.14 +
+        storyboardSignal(dimension, teardown.storyboard) * 0.2,
+      0,
+      1
+    );
   }
+
   if (dimension === "music") {
-    return common + boolScore(payload.mood_curve, 0.42) + arrayScore(payload.in_points, 0.24) + arrayScore(payload.out_points, 0.24) + boolScore(payload.reference_genre, 0.34);
+    return clamp(
+      reusableBase +
+        timeSegmentSignal(payload.mood_curve, 4) * 0.28 +
+        timeSegmentSignal(payload.in_points, 3) * 0.17 +
+        timeSegmentSignal(payload.out_points, 3) * 0.17 +
+        stringSignal(payload.reference_genre, 80) * 0.2 +
+        storyboardSignal(dimension, teardown.storyboard) * 0.1,
+      0,
+      1
+    );
   }
+
   if (dimension === "subtitle") {
-    return common + boolScore(payload.strategy, 0.22) + boolScore(payload.emphasis_style, 0.18) + boolScore(payload.color_coding, 0.14) + arrayScore(payload.keyword_choices, 0.22) - textPenalty(content, ["低字幕密度", "不用满屏", "保留画面空间"], 0.46);
+    return clamp(
+      reusableBase +
+        stringSignal(payload.strategy, 130) * 0.3 +
+        stringSignal(payload.emphasis_style, 90) * 0.17 +
+        stringSignal(payload.color_coding, 70) * 0.12 +
+        arraySignal(payload.keyword_choices, 6) * 0.25,
+      0,
+      1
+    );
   }
+
   if (dimension === "pace") {
-    return common + boolScore(payload.overall_curve, 0.38) + arrayScore(payload.density_segments, 0.3) + arrayScore(payload.breath_points, 0.28) + storyboardScore(teardown.storyboard.length, 0.24);
+    return clamp(
+      reusableBase +
+        stringSignal(payload.overall_curve, 130) * 0.24 +
+        timeSegmentSignal(payload.density_segments, 5) * 0.28 +
+        timeSegmentSignal(payload.breath_points, 4) * 0.24 +
+        storyboardSignal(dimension, teardown.storyboard) * 0.16,
+      0,
+      1
+    );
   }
-  return common + boolScore(payload.promise, 0.3) + boolScore(payload.persona_type, 0.25) + boolScore(payload.consistency_with_other_videos, 0.2) + boolScore(payload.share_currency, 0.18);
+
+  return clamp(
+    summary * 0.1 +
+      stringSignal(payload.promise, 120) * 0.28 +
+      stringSignal(payload.persona_type, 90) * 0.22 +
+      stringSignal(payload.consistency_with_other_videos, 120) * 0.18 +
+      stringSignal(payload.share_currency, 120) * 0.22,
+    0,
+    1
+  );
 }
 
-function categoryCeiling(category: string | null | undefined, dimension: CardType) {
-  if (category === "process_vlog") {
-    const ceilings: Record<CardType, number> = {
-      topic: 5.7,
-      copy: 5.1,
-      hook: 5.5,
-      structure: 6.1,
-      shot: 5.9,
-      edit: 6.3,
-      music: 6.4,
-      subtitle: 4.2,
-      pace: 6.0,
-      account: 5.3
+function workQualitySignal(dimension: CardType, payload: Record<string, unknown>, content: string, teardown: TeardownRecord) {
+  const formal = termSignal(content, [
+    "构图",
+    "调度",
+    "景别",
+    "机位",
+    "视线",
+    "反打",
+    "长镜",
+    "空镜",
+    "特写",
+    "遮挡",
+    "框中框",
+    "前景",
+    "纵深",
+    "对称",
+    "低角度",
+    "俯拍",
+    "手持",
+    "固定机位",
+    "声画"
+  ]);
+  const narrative = termSignal(content, ["叙事", "故事线", "伏笔", "回收", "转折", "揭示", "悬念", "信息缺口", "因果", "动机", "关系", "冲突", "对峙", "试探", "告别", "介入"]);
+  const emotion = termSignal(content, ["情绪", "孤独", "亲密", "失落", "松动", "尴尬", "温柔", "压抑", "崩溃", "哭", "笑", "沉默", "停顿", "落差"]);
+  const motif = termSignal(content, ["重复", "循环", "变奏", "对照", "镜像", "母题", "仪式", "树影", "影子", "物件", "纸条", "磁带", "照片"]);
+  const reusable = termSignal(content, ["可复刻", "模板", "公式", "骨架", "迁移", "复用", "创作方法", "拍法", "剪法"]);
+  const language = termSignal(content, ["文案", "台词", "口播", "旁白", "句子", "反问", "标题", "纸条", "招牌", "文字", "语义", "信息密度"]);
+  const editing = termSignal(content, ["硬切", "转场", "切点", "剪辑", "跳切", "声音桥", "动作连续", "节拍", "停顿", "省略", "匹配", "插入"]);
+  const audio = termSignal(content, ["音乐", "配乐", "歌曲", "歌词", "环境音", "声画", "音量", "进点", "出点", "动机", "静默", "人声", "车声", "水声"]);
+  const subtitle = termSignal(content, ["字幕", "关键词", "强调", "颜色", "字体", "排版", "标题", "片名", "图卡", "文字"]);
+  const pace = termSignal(content, ["节奏", "密度", "呼吸", "加速", "减速", "停顿", "延宕", "收束", "复位", "推进", "松紧"]);
+  const identity = termSignal(content, ["人设", "作者", "身份", "价值观", "审美", "世界观", "人格", "气质", "一致性", "风格"]);
+  const absence = absenceSignal(dimension, content);
+  const storyboardVariety = storyboardVarietySignal(teardown.storyboard);
+  const story = storylineSignal(payload.storyline);
+  const standout = standoutSignal(content);
+
+  if (dimension === "topic") return clamp(narrative * 0.28 + identity * 0.26 + reusable * 0.18 + motif * 0.16 + standout * 0.12, 0, 1);
+  if (dimension === "copy") return clamp(language * 0.36 + subtitle * 0.2 + narrative * 0.14 + reusable * 0.14 + motif * 0.08 + standout * 0.08 - absence * 0.18, 0, 1);
+  if (dimension === "hook") return clamp(narrative * 0.34 + emotion * 0.2 + language * 0.16 + motif * 0.12 + reusable * 0.08 + standout * 0.1 - absence * 0.08, 0, 1);
+  if (dimension === "structure") return clamp(narrative * 0.34 + motif * 0.2 + emotion * 0.13 + story * 0.18 + reusable * 0.1 + standout * 0.05, 0, 1);
+  if (dimension === "shot") return clamp(formal * 0.4 + motif * 0.17 + emotion * 0.1 + storyboardVariety * 0.22 + reusable * 0.06 + standout * 0.05, 0, 1);
+  if (dimension === "edit") return clamp(editing * 0.4 + pace * 0.22 + formal * 0.12 + narrative * 0.1 + storyboardVariety * 0.08 + standout * 0.08, 0, 1);
+  if (dimension === "music") return clamp(audio * 0.42 + emotion * 0.22 + motif * 0.12 + pace * 0.1 + formal * 0.06 + standout * 0.08 - absence * 0.24, 0, 1);
+  if (dimension === "subtitle") return clamp(subtitle * 0.46 + language * 0.18 + reusable * 0.12 + narrative * 0.08 + standout * 0.06 - absence * 0.28, 0, 1);
+  if (dimension === "pace") return clamp(pace * 0.34 + editing * 0.18 + narrative * 0.16 + emotion * 0.13 + motif * 0.11 + standout * 0.08, 0, 1);
+  return clamp(identity * 0.38 + narrative * 0.18 + emotion * 0.14 + reusable * 0.12 + motif * 0.1 + standout * 0.08, 0, 1);
+}
+
+function termSignal(content: string, terms: string[], target = 6) {
+  const hits = new Set(terms.filter((term) => content.includes(term)));
+  return clamp(hits.size / target, 0, 1);
+}
+
+function absenceSignal(dimension: CardType, content: string) {
+  const shared = ["没有明显", "不明显", "基本无", "几乎没有", "很少", "低密度", "弱化"];
+  const terms: Partial<Record<CardType, string[]>> = {
+    copy: ["无口播", "无旁白", "无台词", "少台词", "非语言", "不靠口播", "低字幕密度"],
+    hook: ["无口播", "无旁白", "没有开场白", "弱情节"],
+    music: ["无配乐", "无音乐", "不靠音乐", "环境音为主", "只有环境音", "弱音乐"],
+    subtitle: ["无字幕", "没有字幕", "低字幕密度", "字幕很少", "不用满屏", "片尾字幕", "功能性字幕"],
+    account: ["不塑造人设", "弱作者", "低表达"]
+  };
+  return termSignal(content, [...shared, ...(terms[dimension] ?? [])], 3);
+}
+
+function absenceWeight(sample: SampleRow, dimension: CardType) {
+  if (isFilmLikeSample(sample)) {
+    const filmWeights: Record<CardType, number> = {
+      topic: 0.12,
+      copy: 0.35,
+      hook: 0.18,
+      structure: 0.08,
+      shot: 0.06,
+      edit: 0.08,
+      music: 0.35,
+      subtitle: 0.3,
+      pace: 0.06,
+      account: 0.16
     };
-    return ceilings[dimension];
+    return filmWeights[dimension];
   }
-  return 7.4;
+  const weights: Record<CardType, number> = {
+    topic: 0.35,
+    copy: 0.95,
+    hook: 0.45,
+    structure: 0.25,
+    shot: 0.2,
+    edit: 0.25,
+    music: 1.05,
+    subtitle: 1.25,
+    pace: 0.2,
+    account: 0.45
+  };
+  return weights[dimension];
 }
 
-function standoutLift(content: string) {
-  const signals = ["强反转", "复杂调度", "专业级", "商业级", "强叙事", "原创语法", "高难度", "多层"];
-  return signals.some((signal) => content.includes(signal)) ? 0.7 : 0;
+function storyboardVarietySignal(beats: TeardownRecord["storyboard"]) {
+  if (beats.length === 0) return 0;
+  const sampled = beats.slice(0, 80).map((beat) => beat as Record<string, unknown>);
+  const fieldScore = (field: string, target: number) => {
+    const values = sampled
+      .map((beat) => (typeof beat[field] === "string" ? cleanDisplayText(beat[field]) : ""))
+      .filter(Boolean);
+    return clamp(new Set(values).size / target, 0, 1);
+  };
+  return clamp(
+    fieldScore("shot_size", 5) * 0.28 +
+      fieldScore("camera_angle", 5) * 0.22 +
+      fieldScore("camera_motion", 5) * 0.18 +
+      fieldScore("narrative_function", 8) * 0.2 +
+      fieldScore("reusable_pattern", 8) * 0.12,
+    0,
+    1
+  );
+}
+
+function evidenceQuality(payload: Record<string, unknown>) {
+  const evidence = Array.isArray(payload.evidence) ? payload.evidence.map(asRecord) : [];
+  if (evidence.length === 0) return { score: 0, count: 0 };
+  const notes = evidence.map((item) => (typeof item.note === "string" ? item.note.trim() : "")).filter(Boolean);
+  const timestamps = evidence.map((item) => item.timestamp_sec).filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+  const minTime = timestamps.length > 0 ? Math.min(...timestamps) : 0;
+  const maxTime = timestamps.length > 0 ? Math.max(...timestamps) : 0;
+  const countScore = clamp(evidence.length / 5, 0, 1);
+  const detailScore = notes.length > 0 ? clamp(notes.reduce((sum, note) => sum + cleanDisplayText(note).length, 0) / notes.length / 42, 0, 1) : 0;
+  const spreadScore = timestamps.length > 1 ? clamp((maxTime - minTime) / 180, 0, 1) : timestamps.length === 1 ? 0.2 : 0;
+  const frameScore = evidence.filter((item) => typeof item.frame_path === "string" && item.frame_path.trim().length > 0).length / evidence.length;
+  return {
+    score: clamp(countScore * 0.36 + detailScore * 0.34 + spreadScore * 0.2 + frameScore * 0.1, 0, 1),
+    count: evidence.length
+  };
+}
+
+function contentSpecificity(content: string) {
+  const cleaned = cleanDisplayText(content);
+  const uniqueTokenCount = new Set(tokenList(content)).size;
+  const lexicalScore = clamp((uniqueTokenCount - 5) / 24, 0, 1);
+  const lengthScore = clamp((cleaned.length - 70) / 780, 0, 1);
+  const temporalMarks = content.match(/\d+(?:\.\d+)?\s*(?:s|秒|分|分钟|:)/g)?.length ?? 0;
+  const temporalScore = clamp(temporalMarks / 8, 0, 1);
+  const quotedOrNumeric = content.match(/[「」《》“”]|[0-9]+/g)?.length ?? 0;
+  const concreteScore = clamp(quotedOrNumeric / 8, 0, 1);
+  return clamp(lexicalScore * 0.42 + lengthScore * 0.32 + temporalScore * 0.16 + concreteScore * 0.1 - weaknessPenalty(content) * 0.28, 0, 1);
+}
+
+function storyboardSignal(dimension: CardType, beats: TeardownRecord["storyboard"]) {
+  if (beats.length === 0) return 0;
+  const sampled = beats.slice(0, 80);
+  const baseFields = ["composition", "composition_analysis", "camera_angle", "camera_motion", "edit_note", "audio_note", "background_audio", "narrative_function", "reusable_pattern"];
+  const dimensionFields: Partial<Record<CardType, string[]>> = {
+    structure: ["narrative_function", "reusable_pattern"],
+    shot: ["composition", "composition_analysis", "camera_angle", "camera_motion", "shot_size", "reusable_pattern"],
+    edit: ["edit_note", "camera_motion", "reusable_pattern"],
+    music: ["audio_note", "background_audio"],
+    pace: ["edit_note", "narrative_function", "reusable_pattern"]
+  };
+  const coverageScore = clamp(beats.length / 36, 0, 1);
+  const richnessScore = filledFieldRatio(sampled, baseFields);
+  const dimensionScore = filledFieldRatio(sampled, dimensionFields[dimension] ?? ["visual_summary"]);
+  return clamp(coverageScore * 0.32 + richnessScore * 0.33 + dimensionScore * 0.35, 0, 1);
+}
+
+function storyboardWeight(dimension: CardType) {
+  const weights: Record<CardType, number> = {
+    topic: 0.15,
+    copy: 0.08,
+    hook: 0.12,
+    structure: 0.35,
+    shot: 0.72,
+    edit: 0.62,
+    music: 0.42,
+    subtitle: 0.08,
+    pace: 0.55,
+    account: 0.05
+  };
+  return weights[dimension];
+}
+
+function stringSignal(value: unknown, targetLength: number) {
+  if (typeof value !== "string") return 0;
+  const text = cleanDisplayText(value);
+  if (!text) return 0;
+  const lengthScore = clamp((text.length - 6) / targetLength, 0, 1);
+  const tokenScore = clamp((new Set(tokenList(text)).size - 1) / 10, 0, 1);
+  return clamp(lengthScore * 0.58 + tokenScore * 0.42, 0, 1);
+}
+
+function arraySignal(value: unknown, targetCount: number) {
+  if (!Array.isArray(value) || value.length === 0) return 0;
+  const countScore = clamp(value.length / targetCount, 0, 1);
+  const detailScore = value.reduce((sum, item) => sum + valueDetailSignal(item), 0) / value.length;
+  return clamp(countScore * 0.55 + detailScore * 0.45, 0, 1);
+}
+
+function timeSegmentSignal(value: unknown, targetCount: number) {
+  if (!Array.isArray(value) || value.length === 0) return 0;
+  const segments = value.map(asRecord);
+  const validSegments = segments.filter((segment) => typeof segment.start_sec === "number" && typeof segment.end_sec === "number" && hasMeaningfulValue(segment.label));
+  const countScore = clamp(validSegments.length / targetCount, 0, 1);
+  const detailScore = segments.reduce((sum, segment) => sum + valueDetailSignal(segment), 0) / segments.length;
+  const starts = validSegments.map((segment) => segment.start_sec).filter((value): value is number => typeof value === "number");
+  const ends = validSegments.map((segment) => segment.end_sec).filter((value): value is number => typeof value === "number");
+  const spanScore = starts.length > 0 && ends.length > 0 ? clamp((Math.max(...ends) - Math.min(...starts)) / 240, 0, 1) : 0;
+  return clamp(countScore * 0.48 + detailScore * 0.32 + spanScore * 0.2, 0, 1);
+}
+
+function storylineSignal(value: unknown) {
+  const storyline = asRecord(value);
+  if (Object.keys(storyline).length === 0) return 0;
+  const arc = asRecord(storyline.protagonist_arc);
+  return clamp(
+    stringSignal(storyline.premise, 110) * 0.18 +
+      objectSignal(arc, ["start_state", "end_state", "transformation"], 170) * 0.2 +
+      arraySignal(storyline.story_beats, 5) * 0.38 +
+      arraySignal(storyline.setup_payoffs, 3) * 0.24,
+    0,
+    1
+  );
+}
+
+function objectSignal(value: unknown, keys: string[], targetLength: number) {
+  const record = asRecord(value);
+  if (Object.keys(record).length === 0) return 0;
+  const coverage = keys.filter((key) => hasMeaningfulValue(record[key])).length / keys.length;
+  const detail = valueDetailSignal(record, targetLength);
+  return clamp(coverage * 0.45 + detail * 0.55, 0, 1);
+}
+
+function valueDetailSignal(value: unknown, targetLength = 120): number {
+  if (typeof value === "string") return stringSignal(value, targetLength);
+  if (typeof value === "number" || typeof value === "boolean") return 0.35;
+  if (Array.isArray(value)) return arraySignal(value, Math.min(5, Math.max(2, value.length)));
+  if (value && typeof value === "object") {
+    const text = Object.values(value).map(stringifyValue).join(" ");
+    return stringSignal(text, targetLength);
+  }
+  return 0;
+}
+
+function enumSignal(value: unknown, weights: Record<string, number>) {
+  return typeof value === "string" ? weights[value] ?? 0.55 : 0;
+}
+
+function lowCostSignal(value: unknown) {
+  if (value === true) return 0.72;
+  if (value === false) return 0.42;
+  return 0;
+}
+
+function filledFieldRatio(beats: TeardownRecord["storyboard"], fields: string[]) {
+  if (beats.length === 0 || fields.length === 0) return 0;
+  let filled = 0;
+  for (const beat of beats) {
+    const record = beat as Record<string, unknown>;
+    for (const field of fields) {
+      if (hasMeaningfulValue(record[field])) filled += 1;
+    }
+  }
+  return filled / (beats.length * fields.length);
+}
+
+function averageScore(scores: SampleScoreRecord[], sample?: SampleRow) {
+  let weightedSum = 0;
+  let totalWeight = 0;
+  for (const score of scores) {
+    const weight = dimensionAverageWeight(sample, score.dimension);
+    weightedSum += score.score * weight;
+    totalWeight += weight;
+  }
+  return round(weightedSum / Math.max(totalWeight, 0.001), 1);
+}
+
+function dimensionAverageWeight(sample: SampleRow | undefined, dimension: CardType) {
+  if (!sample || !isFilmLikeSample(sample)) return 1;
+  const weights: Record<CardType, number> = {
+    topic: 1.05,
+    copy: 0.35,
+    hook: 0.8,
+    structure: 1.55,
+    shot: 1.55,
+    edit: 1.35,
+    music: 1.1,
+    subtitle: 0.2,
+    pace: 1.3,
+    account: 0.25
+  };
+  return weights[dimension];
+}
+
+function isFilmLikeSample(sample: SampleRow) {
+  const category = sample.category?.toLowerCase() ?? "";
+  const collectionKind = sample.collection_kind?.toLowerCase() ?? "";
+  return category === "film" || category === "film-scene" || category.includes("film") || collectionKind === "movie";
+}
+
+function standoutSignal(content: string) {
+  const signals = [
+    "强反转",
+    "反常识",
+    "信息缺口",
+    "悬念",
+    "伏笔",
+    "回收",
+    "setup",
+    "payoff",
+    "复杂调度",
+    "专业级",
+    "商业级",
+    "强叙事",
+    "原创语法",
+    "高难度",
+    "多层",
+    "情绪落差",
+    "身份认同",
+    "作者观点",
+    "文化记忆",
+    "节奏曲线"
+  ];
+  return clamp(signals.filter((signal) => content.includes(signal)).length / 5, 0, 1);
+}
+
+function weaknessPenalty(content: string) {
+  const signals = ["待补充", "未提交", "不明显", "没有明显", "比较普通", "普通记录", "普通素材", "流水账", "泛泛", "看不出", "无法判断", "素材混剪", "简单记录"];
+  return clamp(signals.filter((signal) => hasUnqualifiedWeakSignal(content, signal)).length / 4, 0, 1);
+}
+
+function hasUnqualifiedWeakSignal(content: string, signal: string) {
+  let index = content.indexOf(signal);
+  while (index >= 0) {
+    const prefix = content.slice(Math.max(0, index - 8), index);
+    if (!/(?:不是|并非|不靠|避免|拒绝|而非|不是只|不是简单)$/.test(prefix)) return true;
+    index = content.indexOf(signal, index + signal.length);
+  }
+  return false;
 }
 
 function cardContent(type: CardType, payload: unknown) {
@@ -762,10 +1267,34 @@ function cardContent(type: CardType, payload: unknown) {
   return parts.join("\n");
 }
 
-function scoreRationale(input: { dimension: CardType; score: number; quality: number; coverage: number; evidenceCount: number; sample: SampleRow }) {
+function scoreRationale(input: { dimension: CardType; score: number; confidence: number; signals: ScoreSignals; evidenceCount: number; sample: SampleRow }) {
   const band = scoreBand(input.score);
-  const categoryNote = input.sample.category === "process_vlog" ? "按普通旅行/Vlog 混剪基准校准" : "按同类样片基准校准";
-  return `${input.sample.title} 的${CARD_LABELS[input.dimension]}评为${band}：${categoryNote}，作品信号 ${round(input.quality, 1)}，字段覆盖率 ${Math.round(input.coverage * 100)}%，时间码证据 ${input.evidenceCount} 条。字段覆盖和证据主要影响置信度，不直接等同于作品质量。`;
+  const categoryNote = scoreCategoryNote(input.sample);
+  const ranked = [
+    ["作品手法", input.signals.quality],
+    ["创作强度", input.signals.craft],
+    ["证据质量", input.signals.evidence],
+    ["内容具体度", input.signals.specificity],
+    ["分镜支撑", input.signals.storyboard],
+    ["突出识别点", input.signals.standout]
+  ]
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .slice(0, 3)
+    .map(([label, value]) => `${label}${round(Number(value) * 10, 1)}`);
+  const drags = [
+    input.signals.penalty > 0.05 ? `弱信号${round(input.signals.penalty * 10, 1)}` : "",
+    input.signals.absence > 0.05 ? `维度缺席${round(input.signals.absence * 10, 1)}` : ""
+  ].filter(Boolean);
+  const drag = drags.length > 0 ? `；扣分：${drags.join(" / ")}` : "";
+  return `${input.sample.title} 的${CARD_LABELS[input.dimension]}评为${band}：${categoryNote}，主因 ${ranked.join(" / ")}；字段覆盖 ${Math.round(
+    input.signals.coverage * 100
+  )}%，时间码证据 ${input.evidenceCount} 条，置信度 ${Math.round(input.confidence * 100)}%${drag}。`;
+}
+
+function scoreCategoryNote(sample: SampleRow) {
+  if (isFilmLikeSample(sample)) return "按电影片段的叙事、镜头、剪辑、声音和情绪学习价值校准";
+  if (sample.category === "process_vlog") return "按旅行/Vlog 的创意和执行信号校准";
+  return "按同类样片维度校准";
 }
 
 function scoreBand(score: number) {
@@ -775,22 +1304,6 @@ function scoreBand(score: number) {
   if (score >= 5) return "普通可参考";
   if (score >= 3.5) return "基础/弱参考";
   return "证据不足";
-}
-
-function boolScore(value: unknown, amount: number) {
-  return hasMeaningfulValue(value) ? amount : 0;
-}
-
-function arrayScore(value: unknown, amount: number) {
-  return Array.isArray(value) && value.length > 0 ? Math.min(amount, value.length * (amount / 3)) : 0;
-}
-
-function storyboardScore(count: number, amount: number) {
-  return count > 0 ? Math.min(amount, count * (amount / 12)) : 0;
-}
-
-function textPenalty(content: string, terms: string[], amount: number) {
-  return terms.some((term) => content.includes(term)) ? amount : 0;
 }
 
 function evidenceNotes(payload: Record<string, unknown>) {

@@ -1,0 +1,79 @@
+{
+  "summary": "由于 transcript/音频资源未返回，音乐判断只能低置信度占位；从画面结构看，声音应支撑清晨行动、DIY 密度、夜宿安静和道路收束四种状态。",
+  "mood_curve": [
+    {
+      "start_sec": 0,
+      "end_sec": 66.333,
+      "label": "清晨轻启动",
+      "summary": "给日常准备动作提供连续性。"
+    },
+    {
+      "start_sec": 66.333,
+      "end_sec": 342.4,
+      "label": "工具步骤感",
+      "summary": "让大量短镜头不散。"
+    },
+    {
+      "start_sec": 342.4,
+      "end_sec": 449.767,
+      "label": "夜间低能量",
+      "summary": "突出车内过夜的狭小和安静。"
+    },
+    {
+      "start_sec": 617.0,
+      "end_sec": 745.5,
+      "label": "回忆与路途",
+      "summary": "给黑白旧车和新年路途统一尾声。"
+    }
+  ],
+  "in_points": [
+    {
+      "start_sec": 0,
+      "end_sec": 0,
+      "label": "音乐点",
+      "summary": "若复刻，可从起床近景下轻音乐或环境底噪。"
+    },
+    {
+      "start_sec": 66.333,
+      "end_sec": 66.333,
+      "label": "音乐点",
+      "summary": "采购段可加入更稳定的节拍承接购物车移动。"
+    },
+    {
+      "start_sec": 617.0,
+      "end_sec": 617.0,
+      "label": "音乐点",
+      "summary": "旧车图卡处适合换成更怀旧的音色。"
+    }
+  ],
+  "out_points": [
+    {
+      "start_sec": 342.4,
+      "end_sec": 342.4,
+      "label": "音乐点",
+      "summary": "夜宿前应降低音乐密度，给车内空间留白。"
+    },
+    {
+      "start_sec": 736.333,
+      "end_sec": 736.333,
+      "label": "音乐点",
+      "summary": "字卡前后适合让音乐尾音自然收束。"
+    }
+  ],
+  "reference_genre": "低饱和旅行 vlog / DIY 纪录感配乐；避免过强情绪盖住工具细节。",
+  "reusable_skeleton": "没有清晰同期声时，用音乐分段：日常轻启动、制作稳定节拍、夜晚降密度、道路尾声拉长。",
+  "evidence": [
+    {
+      "timestamp_sec": 0,
+      "note": "音频资源缺失，本卡按画面结构给声音方案。"
+    },
+    {
+      "timestamp_sec": 395.1,
+      "note": "车内睡袋段应让声音降下来。"
+    },
+    {
+      "timestamp_sec": 717.434,
+      "note": "道路远景适合尾声音乐延展。"
+    }
+  ]
+}

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三大 Agent 记忆系统对比分析</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --card-bg: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --text-secondary: #6b7280;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-purple: #8b5cf6;
+    --accent-orange: #f59e0b;
+    --accent-red: #ef4444;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px rgba(0,0,0,.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: .5rem; letter-spacing: -.02em; }
+  h1 span { font-weight: 400; font-size: 1.1rem; color: var(--text-secondary); margin-left: .5rem; }
+  h2 { font-size: 1.4rem; font-weight: 600; margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 .75rem; }
+
+  /* Hero cards */
+  .hero-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.5rem; }
+  .hero-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .hero-card.hy::before { background: var(--accent-blue); }
+  .hero-card.mem0::before { background: var(--accent-green); }
+  .hero-card.graphiti::before { background: var(--accent-purple); }
+  .hero-card h3 { margin-top: 0; font-size: 1.2rem; }
+  .hero-card .tagline { font-size: .85rem; color: var(--text-secondary); margin-bottom: .75rem; }
+  .hero-card .meta { font-size: .8rem; color: var(--text-secondary); }
+
+  /* Architecture diagram */
+  .arch-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .arch-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .arch-title .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .arch-diagram {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: .78rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Comparison table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: .88rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  th, td { padding: .75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f1f5f9; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--text-secondary); }
+  td:first-child { font-weight: 500; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+
+  /* Design philosophy cards */
+  .philosophy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1rem; }
+  .philosophy-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .philosophy-card h4 { font-size: 1rem; margin-bottom: .75rem; }
+  .philosophy-card ul { padding-left: 1.25rem; font-size: .88rem; }
+  .philosophy-card li { margin-bottom: .4rem; }
+
+  /* Flow diagram */
+  .flow-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .flow-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.25rem; }
+  .flow-diagram {
+    font-family: 'SF Mono', 'Menlo', monospace;
+    font-size: .78rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Verdict */
+  .verdict {
+    background: linear-gradient(135deg, #eff6ff, #f5f3ff);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 1rem;
+    border: 1px solid #ddd6fe;
+  }
+  .verdict h3 { margin-top: 0; }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: .15rem .5rem;
+    border-radius: 9999px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-purple { background: #ede9fe; color: #5b21b6; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .hero-row, .philosophy-grid { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>三大 Agent 记忆系统对比 <span>HY Memory × Mem0 × Graphiti</span></h1>
+
+<!-- ==================== HERO CARDS ==================== -->
+<div class="hero-row">
+  <div class="hero-card hy">
+    <h3>HY Memory</h3>
+    <div class="tagline">自托管智能体记忆 · OpenClaw 插件生态</div>
+    <div class="meta">@tencent/hy-agent-memory v0.1.15<br>腾讯内部 · MIT License<br>Python 后端 + Node.js 插件层</div>
+  </div>
+  <div class="hero-card mem0">
+    <h3>Mem0</h3>
+    <div class="tagline">Universal Memory Layer · YC S24</div>
+    <div class="meta">mem0ai · Apache 2.0<br>Python/JS SDK + 自托管 Server + Cloud<br>LoCoMo 91.6 / LongMemEval 94.8</div>
+  </div>
+  <div class="hero-card graphiti">
+    <h3>Graphiti (Zep)</h3>
+    <div class="tagline">Temporal Context Graph · 时序知识图谱</div>
+    <div class="meta">graphiti-core · Apache 2.0<br>Neo4j/FalkorDB/Kuzu/Neptune<br>论文: arXiv 2501.13956</div>
+  </div>
+</div>
+
+<!-- ==================== ARCHITECTURE DIAGRAMS ==================== -->
+<h2>架构图</h2>
+
+<h3><span class="dot" style="background:var(--accent-blue)"></span> HY Memory 架构</h3>
+<div class="arch-container">
+  <div class="arch-diagram">┌──────────────────────────────────────────────────────────────────┐
+│                        OpenClaw Gateway                          │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │              Plugin Interface (JS/TS)                      │  │
+│  │  memory_search │ memory_add │ memory_get                   │  │
+│  │  memory_list  │ memory_update │ memory_delete              │  │
+│  └──────────────────────┬─────────────────────────────────────┘  │
+│                         │ HTTP (localhost:19527)                 │
+│                         ▼                                       │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │              Python Memory Server (hy-mem-internal)         │  │
+│  │                                                            │  │
+│  │  ┌──────────┐  ┌───────────┐  ┌────────────────────────┐ │  │
+│  │  │ LLM 层   │  │ Embedder  │  │ Vector Store           │ │  │
+│  │  │ OpenAI   │  │ OpenAI    │  │ Chroma (默认/本地)      │ │  │
+│  │  │ DeepSeek │  │ Ollama   │  │ Qdrant (远程)           │ │  │
+│  │  │ Ollama   │  │          │  │ FAISS  (本地)            │ │  │
+│  │  │ Anthropic│  │          │  │                         │ │  │
+│  │  │ Eval Plat│  │          │  │                         │ │  │
+│  │  └────┬─────┘  └────┬─────┘  └───────────┬────────────┘ │  │
+│  │       │              │                     │              │  │
+│  │       ▼              ▼                     ▼              │  │
+│  │  ┌──────────────────────────────────────────────────────┐ │  │
+│  │  │              Memory Engine Core                       │ │  │
+│  │  │  • LLM 驱动的事实提取 (ADD-only)                      │ │  │
+│  │  │  • Evolution Chain (记忆演化链)                       │ │  │
+│  │  │  • Multi-layer Recall (多层召回)                      │ │  │
+│  │  └──────────────────────────────────────────────────────┘ │  │
+│  └────────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  作用域隔离:  User ID ──▶ Agent ID ──▶ Session ID               │
+│  Auto-Recall:  Agent Turn 前 ──▶ 注入相关记忆                     │
+│  Auto-Capture: Agent Turn 后 ──▶ 提取并存入记忆                   │
+└──────────────────────────────────────────────────────────────────┘</div>
+</div>
+
+<h3><span class="dot" style="background:var(--accent-green)"></span> Mem0 架构</h3>
+<div class="arch-container">
+  <div class="arch-diagram">┌──────────────────────────────────────────────────────────────────┐
+│                     三种部署形态                                   │
+│                                                                  │
+│  ┌──────────────┐ ┌──────────────────┐ ┌──────────────────────┐ │
+│  │ Library 模式  │ │ Self-Hosted      │ │ Cloud Platform       │ │
+│  │ pip install   │ │ Docker Compose   │ │ app.mem0.ai          │ │
+│  │ 本地开发测试   │ │ 团队自运维        │ │ 零运维生产环境         │ │
+│  └──────┬───────┘ └────────┬─────────┘ └──────────┬───────────┘ │
+│         │                  │                       │              │
+│         ▼                  ▼                       ▼              │
+│  ┌──────────────────────────────────────────────────────────────┐│
+│  │                  Mem0 Core (v3 新算法)                       ││
+│  │                                                              ││
+│  │  ┌────────────────────────────────────────────────────────┐ ││
+│  │  │              Extraction Pipeline                        │ ││
+│  │  │  • Single-pass ADD-only extraction (一次 LLM 调用)      │ ││
+│  │  │  • Entity Linking (实体抽取 + 跨记忆关联)                │ ││
+│  │  │  • Agent-generated facts (Agent 确认的事实同等权重)       │ ││
+│  │  └────────────────────────────────────────────────────────┘ ││
+│  │                                                              ││
+│  │  ┌────────────────────────────────────────────────────────┐ ││
+│  │  │              Retrieval Pipeline                         │ ││
+│  │  │  • Semantic Search (向量相似度)                          │ ││
+│  │  │  • BM25 Keyword Matching (关键词匹配)                    │ ││
+│  │  │  • Entity Matching (实体匹配增强)                        │ ││
+│  │  │  • Temporal Reasoning (时间感知排序)                     │ ││
+│  │  │  • Multi-signal Fusion (并行打分融合)                    │ ││
+│  │  └────────────────────────────────────────────────────────┘ ││
+│  │                                                              ││
+│  │  ┌──────────┐  ┌───────────┐  ┌──────────────────────────┐││
+│  │  │ LLM 层   │  │ Embedder  │  │ Vector Store              │││
+│  │  │ OpenAI   │  │ OpenAI    │  │ Qdrant (生产推荐)           │││
+│  │  │ Ollama   │  │ Ollama    │  │ Chroma (开发)              │││
+│  │  │ Anthropic│  │ Qwen 600M │  │ PGVector                  │││
+│  │  │ 等       │  │ 等        │  │ 等                        │││
+│  │  └──────────┘  └───────────┘  └──────────────────────────┘││
+│  └──────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  作用域:  User ──▶ Session ──▶ Agent                             │
+│  特色:    CLI 工具 / Browser Extension / Agent Signup (5秒注册)   │
+└──────────────────────────────────────────────────────────────────┘</div>
+</div>
+
+<h3><span class="dot" style="background:var(--accent-purple)"></span> Graphiti 架构</h3>
+<div class="arch-container">
+  <div class="arch-diagram">┌──────────────────────────────────────────────────────────────────┐
+│                     Graphiti Core                                │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────────┐│
+│  │              Ingestion Pipeline (增量式)                      ││
+│  │                                                              ││
+│  │  Raw Data ──▶ Episode ──▶ Entity Extraction ──▶ Fact/Edge   ││
+│  │                              │                   │           ││
+│  │                              ▼                   ▼           ││
+│  │                     ┌──────────────────────────────────┐     ││
+│  │                     │   Temporal Validity Window       │     ││
+│  │                     │   valid_at ────▶ invalid_at      │     ││
+│  │                     │   (事实何时为真 ──▶ 何时被取代)     │     ││
+│  │                     └──────────────────────────────────┘     ││
+│  └──────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────────┐│
+│  │              Context Graph 数据模型                           ││
+│  │                                                              ││
+│  │  ┌──────────┐  ┌──────────────────┐  ┌──────────────────┐  ││
+│  │  │ Entity   │  │ Fact/Edge        │  │ Episode          │  ││
+│  │  │ (节点)   │──│ (边/三元组)       │──│ (原始数据溯源)    │  ││
+│  │  │ 含演化摘要│  │ 含时间有效性窗口  │  │ 所有事实可追溯    │  ││
+│  │  └──────────┘  └──────────────────┘  └──────────────────┘  ││
+│  │                                                              ││
+│  │  ┌──────────────────────────────────────────────────────┐   ││
+│  │  │  Custom Types (Ontology)                              │   ││
+│  │  │  Prescribed: Pydantic 模型定义实体/边类型               │   ││
+│  │  │  Learned:   从数据中自动涌现结构                        │   ││
+│  │  └──────────────────────────────────────────────────────┘   ││
+│  └──────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────────┐│
+│  │              Hybrid Retrieval                                 ││
+│  │  • Semantic Embedding Search                                 ││
+│  │  • BM25 Keyword Search                                       ││
+│  │  • Graph Traversal (图遍历)                                   ││
+│  │  • Cross-Encoder Reranking                                   ││
+│  │  • Graph Distance Scoring                                    ││
+│  └──────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ┌──────────┐  ┌───────────┐  ┌──────────────────────────────┐ │
+│  │ LLM 层   │  │ Embedder  │  │ Graph DB                     │ │
+│  │ OpenAI   │  │ OpenAI    │  │ Neo4j (主力)                  │ │
+│  │ Gemini   │  │ Gemini    │  │ FalkorDB (轻量替代)            │ │
+│  │ Anthropic│  │ Voyage    │  │ Kuzu (嵌入式)                 │ │
+│  │ Groq     │  │           │  │ Amazon Neptune (云原生)       │ │
+│  └──────────┘  └───────────┘  └──────────────────────────────┘ │
+│                                                                  │
+│  接口形态:  Python SDK / REST Server / MCP Server                 │
+└──────────────────────────────────────────────────────────────────┘</div>
+</div>
+
+<!-- ==================== DESIGN PHILOSOPHY ==================== -->
+<h2>设计思路对比</h2>
+
+<div class="philosophy-grid">
+  <div class="philosophy-card">
+    <h4><span class="badge badge-blue">HY Memory</span> 插件优先 · 渐进演化</h4>
+    <ul>
+      <li><strong>定位：</strong>OpenClaw 生态的记忆插件，非独立产品</li>
+      <li><strong>核心理念：</strong>记忆是 Agent 的附属能力，随 Agent 生命周期存在</li>
+      <li><strong>提取策略：</strong>ADD-only 单次提取，不做 UPDATE/DELETE，记忆只增不减</li>
+      <li><strong>演化机制：</strong>Evolution Chain — 新旧记忆形成链条，而非覆盖</li>
+      <li><strong>召回策略：</strong>Multi-layer Recall，分层召回（语义 + 时间衰减推测）</li>
+      <li><strong>隔离模型：</strong>User → Agent → Session 三级硬隔离</li>
+      <li><strong>部署哲学：</strong>autoStartServer 一键启动，开发者零运维负担</li>
+      <li><strong>局限：</strong>无图结构、无显式时序建模、无事实矛盾检测</li>
+    </ul>
+  </div>
+  <div class="philosophy-card">
+    <h4><span class="badge badge-green">Mem0</span> 规模优先 · 信号融合</h4>
+    <ul>
+      <li><strong>定位：</strong>Universal Memory Layer，跨框架跨平台的记忆基础设施</li>
+      <li><strong>核心理念：</strong>记忆应该是独立于 Agent 的基础设施层</li>
+      <li><strong>提取策略：</strong>v3 新算法 — Single-pass ADD-only，一次 LLM 调用搞定</li>
+      <li><strong>关联机制：</strong>Entity Linking — 抽取实体并跨记忆关联，提升召回精度</li>
+      <li><strong>召回策略：</strong>三信号并行融合 — Semantic + BM25 + Entity Matching</li>
+      <li><strong>时序感知：</strong>Temporal Reasoning — 时间感知排序，区分过去/现在/未来</li>
+      <li><strong>部署哲学：</strong>三种形态渐进 — Library → Self-hosted → Cloud</li>
+      <li><strong>特色：</strong>Agent Signup 5秒注册、CLI、Browser Extension</li>
+    </ul>
+  </div>
+  <div class="philosophy-card">
+    <h4><span class="badge badge-purple">Graphiti</span> 图谱优先 · 时间建模</h4>
+    <ul>
+      <li><strong>定位：</strong>Temporal Context Graph Engine，不只是记忆而是知识图谱</li>
+      <li><strong>核心理念：</strong>事实有时效性，旧事实被取代而非被删除</li>
+      <li><strong>提取策略：</strong>Episode → Entity → Fact 三级增量抽取</li>
+      <li><strong>关联机制：</strong>原生图结构 — 实体间显式边关系，非扁平向量</li>
+      <li><strong>召回策略：</strong>Semantic + BM25 + Graph Traversal + Cross-Encoder Rerank</li>
+      <li><strong>时序建模：</strong>Bi-temporal — valid_at / invalid_at 显式时间窗口</li>
+      <li><strong>本体论：</strong>Prescribed (Pydantic 定义) + Learned (自动涌现)</li>
+      <li><strong>溯源：</strong>Episode 全链路溯源，每个事实可追溯到原始输入</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ==================== WRITE/READ FLOW ==================== -->
+<h2>写入与读取流程对比</h2>
+
+<h3>写入流程 (How memories are stored)</h3>
+<div class="flow-container">
+  <div class="flow-diagram">HY Memory ─── Write Flow
+═══════════════════════════
+Conversation Turn ──▶ Auto-Capture 触发
+                         │
+                         ▼
+              LLM 单次提取事实 (ADD-only)
+                         │
+                         ▼
+              Embedding 向量化
+                         │
+                         ▼
+              存入 Vector Store (Chroma/Qdrant/FAISS)
+                         │
+                         ▼
+              Evolution Chain 追加 (旧记忆保留，新记忆链接)
+
+
+Mem0 ─── Write Flow
+═══════════════════
+Conversation Turn ──▶ memory.add(messages)
+                         │
+                         ▼
+              LLM 单次提取事实 (ADD-only, v3)
+                         │
+                         ▼
+              Entity Extraction + Linking
+                         │
+              ┌──────────┴──────────┐
+              ▼                     ▼
+         Embedding 向量化      Entity Index 建立
+              │                     │
+              └──────────┬──────────┘
+                         ▼
+              存入 Vector Store (Qdrant 推荐)
+
+
+Graphiti ─── Write Flow
+════════════════════════
+Raw Data ──▶ add_episode()
+                  │
+                  ▼
+         LLM Entity Extraction (Structured Output)
+                  │
+         ┌────────┼────────┐
+         ▼        ▼        ▼
+     Episode    Entity    Fact/Edge
+     (原始数据)  (节点)    (三元组+时间窗口)
+         │        │        │
+         │        ▼        ▼
+         │   Summary    valid_at ──▶ invalid_at
+         │   Evolution  (事实何时为真 ──▶ 何时被取代)
+         │        │        │
+         └────────┼────────┘
+                  ▼
+         Graph DB (Neo4j/FalkorDB/Kuzu/Neptune)</div>
+</div>
+
+<h3>读取流程 (How memories are retrieved)</h3>
+<div class="flow-container">
+  <div class="flow-diagram">HY Memory ─── Read Flow
+═══════════════════════════
+Query ──▶ memory_search(query)
+               │
+               ▼
+         Vector Similarity Search (阈值过滤 ≥ 0.3)
+               │
+               ▼
+         Top-K 结果返回 (默认 10)
+
+
+Mem0 ─── Read Flow
+═══════════════════
+Query ──▶ memory.search(query, filters)
+               │
+               ▼
+         ┌─────────── 并行 ────────────┐
+         ▼              ▼              ▼
+   Semantic       BM25 Keyword    Entity Matching
+   Similarity     Matching        Boosting
+         │              │              │
+         └──────────┬───┘              │
+                    ▼                  │
+              Score Fusion ◄───────────┘
+                    │
+                    ▼
+              Temporal Reasoning (时间感知排序)
+                    │
+                    ▼
+              Top-K 结果返回
+
+
+Graphiti ─── Read Flow
+════════════════════════
+Query ──▶ search() / node_search()
+               │
+               ▼
+         ┌─────────── 并行 ────────────┐
+         ▼              ▼              ▼
+   Semantic       BM25 Keyword    Graph Traversal
+   Embedding      Search          (沿边遍历关联节点)
+         │              │              │
+         └──────────┬───┘              │
+                    ▼                  │
+              Cross-Encoder Rerank ◄────┘
+                    │
+                    ▼
+              Graph Distance Scoring (图距离加权)
+                    │
+                    ▼
+              结果返回 (含时间有效性窗口)</div>
+</div>
+
+<!-- ==================== COMPARISON TABLE ==================== -->
+<h2>详细对比表</h2>
+
+<table>
+  <thead>
+    <tr><th>维度</th><th>HY Memory</th><th>Mem0</th><th>Graphiti</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>数据模型</td><td>扁平记忆条目<br>(向量 + 元数据)</td><td>扁平记忆条目<br>+ 实体索引</td><td>图结构<br>(节点 + 边 + Episode)</td></tr>
+    <tr><td>时序建模</td><td>隐式<br>(Evolution Chain)</td><td>隐式<br>(Temporal Reasoning)</td><td><strong>显式 Bi-temporal</strong><br>(valid_at / invalid_at)</td></tr>
+    <tr><td>事实矛盾处理</td><td>ADD-only，不处理矛盾</td><td>ADD-only，旧事实保留</td><td><strong>自动失效旧事实</strong><br>invalid_at 标记取代</td></tr>
+    <tr><td>溯源能力</td><td>无显式溯源</td><td>无显式溯源</td><td><strong>Episode 全链路溯源</strong><br>事实→原始输入</td></tr>
+    <tr><td>关联建模</td><td>无显式关联</td><td>Entity Linking<br>(跨记忆关联)</td><td><strong>原生图边关系</strong><br>(三元组)</td></tr>
+    <tr><td>本体论</td><td>固定 schema</td><td>固定 schema</td><td><strong>Prescribed + Learned</strong><br>(Pydantic 定义 + 自动涌现)</td></tr>
+    <tr><td>召回信号</td><td>语义相似度</td><td>Semantic + BM25<br>+ Entity + Temporal</td><td>Semantic + BM25<br>+ Graph Traversal<br>+ Cross-Encoder + Distance</td></tr>
+    <tr><td>存储后端</td><td>Chroma / Qdrant / FAISS<br>(纯向量)</td><td>Qdrant / Chroma / PGVector<br>(纯向量)</td><td><strong>Neo4j / FalkorDB / Kuzu<br>/ Neptune (图数据库)</strong></td></tr>
+    <tr><td>LLM 支持</td><td>OpenAI / DeepSeek<br>/ Ollama / Anthropic<br>/ Eval Platform</td><td>OpenAI / Ollama<br>/ Anthropic 等</td><td>OpenAI / Gemini<br>/ Anthropic / Groq<br>/ Azure OpenAI</td></tr>
+    <tr><td>Embedding 支持</td><td>OpenAI / Ollama</td><td>OpenAI / Ollama<br>/ Qwen 600M 等</td><td>OpenAI / Gemini<br>/ Voyage / Azure</td></tr>
+    <tr><td>部署形态</td><td>OpenClaw 插件<br>(autoStart)</td><td>Library / Self-hosted<br>/ Cloud 三种形态</td><td>Python SDK<br>/ REST Server<br>/ MCP Server</td></tr>
+    <tr><td>语言</td><td>TypeScript (插件)<br>+ Python (后端)</td><td>Python + Node.js<br>+ CLI</td><td>Python</td></tr>
+    <tr><td>生态绑定</td><td><strong>强绑定 OpenClaw</strong><br>(plugin API)</td><td>框架无关<br>(Universal)</td><td>框架无关<br>(独立引擎)</td></tr>
+    <tr><td>基准测试</td><td>无公开基准</td><td>LoCoMo 91.6<br>LongMemEval 94.8<br>BEAM 1M 64.1</td><td>Zep SOTA<br>(论文支撑)</td></tr>
+    <tr><td>运维复杂度</td><td>低<br>(autoStart)</td><td>低→高<br>(三种形态渐进)</td><td>高<br>(需图数据库)</td></tr>
+    <tr><td>适用规模</td><td>单用户/小团队</td><td>小→大规模生产</td><td>中→大规模<br>(需图 DB 运维)</td></tr>
+  </tbody>
+</table>
+
+<!-- ==================== VERDICT ==================== -->
+<h2>选型建议</h2>
+
+<div class="verdict">
+  <h3>何时选择哪个？</h3>
+
+  <p><strong style="color:var(--accent-blue)">选 HY Memory：</strong>你已经在 OpenClaw 生态里，需要一个开箱即用的记忆插件，不想运维额外基础设施。适合快速原型和个人 Agent 场景。代价是缺乏图结构和显式时序建模。</p>
+
+  <p><strong style="color:var(--accent-green)">选 Mem0：</strong>你需要跨框架、跨平台的通用记忆层，追求生产就绪和规模扩展。三种部署形态让你从开发到生产无缝迁移。v3 新算法在基准测试中表现优异。适合需要快速集成、不想管图数据库的团队。</p>
+
+  <p><strong style="color:var(--accent-purple)">选 Graphiti：</strong>你的场景需要理解实体间的关系、事实的时间演变、矛盾检测和全链路溯源。典型场景：法律合规追踪、医疗病历演变、金融风控图谱。代价是需要运维图数据库（Neo4j/FalkorDB），整体复杂度最高。</p>
+
+  <h3 style="margin-top:1.5rem">一句话总结</h3>
+  <table>
+    <thead><tr><th>系统</th><th>一句话</th></tr></thead>
+    <tbody>
+      <tr><td>HY Memory</td><td>「OpenClaw 生态的记忆插件，轻量够用」</td></tr>
+      <tr><td>Mem0</td><td>「通用记忆基础设施，规模优先，信号融合」</td></tr>
+      <tr><td>Graphiti</td><td>「时序知识图谱引擎，事实有时效，旧事实被取代而非被遗忘」</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

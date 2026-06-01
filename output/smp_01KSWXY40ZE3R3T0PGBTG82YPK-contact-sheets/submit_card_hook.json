@@ -1,0 +1,37 @@
+{
+  "teardown_id": "td_01KSX1TX8TNG4P3EGHJQVY4Z8T",
+  "card_type": "hook",
+  "payload": {
+    "summary": "开头用室内口播和手工地球道具降低理解门槛，随后立刻用片名路景蒙太奇把观众带入“地球异旅”的期待。",
+    "reusable_skeleton": "0-10 秒先给一句项目命题，10-30 秒用移动路景和标题把命题视觉化。",
+    "evidence": [
+      {
+        "timestamp_sec": 3.467,
+        "note": "室内口播与手工道具把宏大主题收成个人计划。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_001_t3.467s.jpg"
+      },
+      {
+        "timestamp_sec": 7.8,
+        "note": "片名覆盖移动路景，迅速承诺外星球式地球旅行。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_003_t7.8s.jpg"
+      },
+      {
+        "timestamp_sec": 46.0,
+        "note": "盐湖人物与阴云环境形成第一处奇观现场。",
+        "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_021_t45.683s.jpg"
+      }
+    ],
+    "t0_frame": {
+      "timestamp_sec": 0.5,
+      "frame_path": "samples/smp_01KSWXY40ZE3R3T0PGBTG82YPK/resources/frames/shot_000_t0.5s.jpg",
+      "description": "室内人物近景开场，亲近感先于宏大地貌。"
+    },
+    "first_sentence": {
+      "text": "我们去外星球拍了几张照片（标题命题）。",
+      "sentence_pattern": "promise"
+    },
+    "hook_type": "info_gap",
+    "retention_logic": "标题制造不可能任务，开头道具说明这是一个可执行拍摄项目，路景蒙太奇马上证明会有多地点兑现。",
+    "next_question_in_viewer_mind": "地球上哪些地方真的能像外星球，而且作者会如何证明不是滤镜噱头？"
+  }
+}

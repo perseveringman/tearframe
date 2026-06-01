@@ -1,0 +1,77 @@
+{
+  "summary": "节奏从清晨碎片快切进入采购与制作密集细节，中段以夜宿和车内活动放慢，后段靠屏幕资料与道路远景交替收束。",
+  "overall_curve": "0-66s 轻快启动；66-342s 工具/材料信息密度最高；342-449s 使用测试放慢；449-617s 屏幕信息加速；617-745s 记忆和路途降速收束。",
+  "density_segments": [
+    {
+      "start_sec": 0,
+      "end_sec": 66.333,
+      "label": "medium",
+      "summary": "起床、取物、上车、地图连续交代。"
+    },
+    {
+      "start_sec": 66.333,
+      "end_sec": 342.4,
+      "label": "high",
+      "summary": "采购和制作细节密集，镜头短且动作明确。"
+    },
+    {
+      "start_sec": 342.4,
+      "end_sec": 449.767,
+      "label": "medium-low",
+      "summary": "睡袋、躺卧、车内娱乐让观看从步骤转为体验。"
+    },
+    {
+      "start_sec": 449.767,
+      "end_sec": 617.0,
+      "label": "high",
+      "summary": "网页、资料视频、车型列表快速切换。"
+    },
+    {
+      "start_sec": 617.0,
+      "end_sec": 745.5,
+      "label": "low",
+      "summary": "黑白驾驶、雨雾道路和山路远景拉长情绪。"
+    }
+  ],
+  "breath_points": [
+    {
+      "start_sec": 125.6,
+      "end_sec": 125.6,
+      "label": "呼吸点",
+      "summary": "购物通道全景给采购段落短暂停顿。"
+    },
+    {
+      "start_sec": 342.4,
+      "end_sec": 342.4,
+      "label": "呼吸点",
+      "summary": "夜间车辆外景从制作高密度转为使用测试。"
+    },
+    {
+      "start_sec": 617.0,
+      "end_sec": 617.0,
+      "label": "呼吸点",
+      "summary": "1996 Tarago 图卡让屏幕资料段落切入记忆。"
+    },
+    {
+      "start_sec": 736.333,
+      "end_sec": 736.333,
+      "label": "呼吸点",
+      "summary": "结尾字卡让道路段落停住。"
+    }
+  ],
+  "reusable_skeleton": "高密度步骤段之后必须安排体验段；大量屏幕资料之后用路途远景和图卡降速。",
+  "evidence": [
+    {
+      "timestamp_sec": 70.617,
+      "note": "测量和工具镜头开始连续密集。"
+    },
+    {
+      "timestamp_sec": 395.1,
+      "note": "躺进睡袋后节奏明显放缓。"
+    },
+    {
+      "timestamp_sec": 712.117,
+      "note": "山路大远景给结尾留出呼吸。"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
-import { Boxes, FileJson2, Library, PanelLeftClose, Search } from "lucide-react";
+import { Boxes, FileJson2, Film, Library, PanelLeftClose, Search } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 
 const navItems = [
   { to: "/", label: "样片库", icon: Library },
+  { to: "/collections", label: "电影聚合", icon: Film },
   { to: "/templates", label: "模板库", icon: Boxes },
   { to: "/protocol", label: "MCP 协议", icon: FileJson2 }
 ];
