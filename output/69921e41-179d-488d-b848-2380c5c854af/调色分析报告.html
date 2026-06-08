@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调色分析报告 - 轮滑黄昏场景</title>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --card: #16213e;
+  --accent: #0f3460;
+  --highlight: #53a8b6;
+  --text: #e8e8e8;
+  --muted: #a0a0a0;
+  --warm: #e6a756;
+  --cool: #5b9bd5;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  padding: 40px 20px;
+}
+.container { max-width: 900px; margin: 0 auto; }
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--highlight), var(--cool));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle { color: var(--muted); margin-bottom: 40px; font-size: 0.95rem; }
+.section {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(83, 168, 182, 0.1);
+}
+.section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  color: var(--highlight);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section h2::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: var(--highlight);
+  border-radius: 2px;
+}
+h3 { font-size: 1.05rem; margin: 20px 0 12px; color: #ccc; }
+p, li { color: #d0d0d0; margin-bottom: 8px; }
+ul { padding-left: 20px; }
+li { margin-bottom: 6px; }
+.highlight { color: var(--highlight); font-weight: 600; }
+.warm { color: var(--warm); }
+.cool { color: var(--cool); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 0.9rem;
+}
+th, td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+th { color: var(--highlight); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.badge-up { background: rgba(83,168,182,0.15); color: var(--highlight); }
+.badge-down { background: rgba(230,167,86,0.15); color: var(--warm); }
+.meter {
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  margin: 6px 0;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+.steps {
+  counter-reset: step;
+  padding-left: 0;
+  list-style: none;
+}
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 48px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.steps li:last-child { border-bottom: none; }
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--highlight);
+}
+.note {
+  background: rgba(83,168,182,0.08);
+  border-left: 3px solid var(--highlight);
+  padding: 16px 20px;
+  border-radius: 0 8px 8px 0;
+  margin: 16px 0;
+  font-size: 0.9rem;
+}
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 16px 0;
+}
+.comp-card {
+  background: rgba(0,0,0,0.2);
+  border-radius: 12px;
+  padding: 20px;
+}
+.comp-card h4 { font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+.param { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+.param-label { color: var(--muted); }
+.param-value { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>调色分析报告</h1>
+<p class="subtitle">场景：黄昏海滨轮滑 · 原素材 → 清透电影感调色</p>
+
+<!-- 技术参数差异 -->
+<div class="section">
+<h2>源素材技术差异</h2>
+<table>
+<tr><th>参数</th><th>调色前（原素材）</th><th>调色后（成品）</th></tr>
+<tr><td>色彩空间</td><td>BT.709 / 8-bit / YUV420</td><td><span class="highlight">BT.2020 / 10-bit / YUV422</span></td></tr>
+<tr><td>传输特性</td><td>SDR (BT.709)</td><td><span class="highlight">HDR (PQ / SMPTE 2084)</span></td></tr>
+<tr><td>编码</td><td>H.265 8-bit 4:2:0</td><td>H.265 4:2:2 10-bit (Rext)</td></tr>
+<tr><td>分辨率</td><td>6048×3402</td><td>6048×3402</td></tr>
+<tr><td>帧率</td><td>59.94fps</td><td>59.94fps</td></tr>
+</table>
+<div class="note">
+<strong>关键发现：</strong>调色后的视频采用 HDR PQ (BT.2020) 输出，这意味着调色师在宽色域/HDR 工作流程中完成调色，最终以 HDR 交付。原素材本身就是 SDR BT.709 拍摄（可能是机内直出或简单 Rec.709 导出），动态范围有限。
+</div>
+</div>
+
+<!-- 核心调色变化 -->
+<div class="section">
+<h2>核心调色变化一览</h2>
+<div class="comparison">
+<div class="comp-card">
+<h4>调色前</h4>
+<div class="param"><span class="param-label">平均亮度</span><span class="param-value">44.2 / 255</span></div>
+<div class="param"><span class="param-label">饱和度</span><span class="param-value">9.9%</span></div>
+<div class="param"><span class="param-label">对比度(P5-P95)</span><span class="param-value">37.3</span></div>
+<div class="param"><span class="param-label">色温倾向</span><span class="param-value">微冷 (R-B: -3.2)</span></div>
+<div class="param"><span class="param-label">暗部占比</span><span class="param-value">95.9%</span></div>
+<div class="param"><span class="param-label">有效色彩像素</span><span class="param-value">51.6%</span></div>
+</div>
+<div class="comp-card">
+<h4>调色后</h4>
+<div class="param"><span class="param-label">平均亮度</span><span class="param-value highlight">62.6 / 255 (+42%)</span></div>
+<div class="param"><span class="param-label">饱和度</span><span class="param-value highlight">27.9% (+182%)</span></div>
+<div class="param"><span class="param-label">对比度(P5-P95)</span><span class="param-value highlight">85.3 (+129%)</span></div>
+<div class="param"><span class="param-label">色温倾向</span><span class="param-value cool">明显冷调 (R-B: -18.4)</span></div>
+<div class="param"><span class="param-label">暗部占比</span><span class="param-value highlight">53.7%</span></div>
+<div class="param"><span class="param-label">有效色彩像素</span><span class="param-value highlight">94.0%</span></div>
+</div>
+</div>
+</div>
+
+<!-- 调色手法分解 -->
+<div class="section">
+<h2>调色手法深度分解</h2>
+
+<ol class="steps">
+<li>
+<strong>大幅拉升中间调和亮部曝光</strong>
+<p>原素材 95.9% 的像素集中在暗部区域（&lt;64），几乎是一片"泥灰"。调色后暗部占比降至 53.7%，中间调从 4.1% 提升到 46.2%。</p>
+<p><strong>具体操作：</strong>曲线中间段上提约 <span class="highlight">+1.2~1.5 档曝光</span>，或使用 Lift-Gamma-Gain 中的 Gamma 提亮。Gain（白电平）从 69 提升到 123（约 +0.8 档）。</p>
+</li>
+
+<li>
+<strong>压低暗部黑电平 + 注入冷色</strong>
+<p>暗部 R 通道 Lift 从 24 降至 <span class="highlight">16</span>（压低红色），而 G 保持 25、B 升至 27。这在暗部注入了明显的<span class="cool">青蓝色调</span>。</p>
+<p><strong>效果：</strong>暗部色温倾向从 +0.7（近中性）变为 <span class="cool">-10.8（强冷）</span>，主色相从无明确方向变为 195°-198°（青色）。</p>
+</li>
+
+<li>
+<strong>全局色温向冷调偏移</strong>
+<p>整体 B 通道增幅（+28）远大于 R 通道（+12.9），色温指标从 -3.2 变为 -18.4。中间调和亮部都呈现 <span class="cool">215°-222°（蓝色）</span>主色相。</p>
+<p><strong>具体参数估算：</strong>全局色温约降低 <span class="cool">800-1200K</span>，偏蓝-青方向。</p>
+</li>
+
+<li>
+<strong>大幅提升饱和度（尤其是青蓝区域）</strong>
+<p>整体饱和度从 9.9% 提升到 27.9%（+182%）。更关键的是：</p>
+<ul>
+<li>青色区（150°-210°）占比从 13.9% → <span class="highlight">32.2%</span></li>
+<li>有效色彩像素从 51.6% → <span class="highlight">94.0%</span></li>
+<li>暗部饱和度从 2.2% → <span class="highlight">28.3%</span></li>
+</ul>
+<p><strong>操作：</strong>全局 Saturation 提升约 +30-40%，并对青蓝色相单独做 Hue/Sat 加强。</p>
+</li>
+
+<li>
+<strong>对比度 S 曲线拉开</strong>
+<p>动态范围（P5-P95）从 37.3 扩展到 85.3，增幅达 129%。Gamma 估算从 0.89 降至 0.73（更强的中间调提亮）。</p>
+<p><strong>操作：</strong>典型的 S 型对比度曲线——暗部略压、亮部上提，拉开层次。</p>
+</li>
+
+<li>
+<strong>暗部去除暖色/红色</strong>
+<p>原素材暗部的红色占比（6.8%-7.1%）和橙色（3.6%-4.1%）在调色后被压至 1.4%-2.0%。这是通过<span class="highlight">暗部色轮偏向青色 + 红色通道暗部压低</span>实现的。</p>
+</li>
+</ol>
+</div>
+
+<!-- DaVinci Resolve 参数还原 -->
+<div class="section">
+<h2>DaVinci Resolve 调色参数还原</h2>
+<p style="margin-bottom:16px; color: var(--muted);">以下参数基于数据分析的合理推断，可在 DaVinci Resolve 的 Color 页面中参考复现：</p>
+
+<h3>🎛️ Lift / Gamma / Gain（色轮）</h3>
+<table>
+<tr><th>参数</th><th>调整</th></tr>
+<tr><td>Lift (暗部)</td><td>Master 微降 -0.02 ｜ <span class="cool">R: -0.03</span> ｜ G: 0 ｜ <span class="cool">B: +0.01</span></td></tr>
+<tr><td>Gamma (中间调)</td><td>Master <span class="highlight">+0.15~0.20</span> ｜ <span class="cool">偏向青蓝方向</span></td></tr>
+<tr><td>Gain (亮部)</td><td>Master <span class="highlight">+0.25~0.35</span> ｜ 微偏蓝</td></tr>
+</table>
+
+<h3>📈 曲线 (Curves)</h3>
+<table>
+<tr><th>通道</th><th>调整</th></tr>
+<tr><td>Master 曲线</td><td>S 型：暗部 25% 处下压 5-8%，中高调 60% 处上提 15-20%</td></tr>
+<tr><td>R 通道</td><td>暗部段整体下压 8-12%（去除暗部红色）</td></tr>
+<tr><td>B 通道</td><td>暗部段上提 5-8%，中间调上提 10-12%</td></tr>
+</table>
+
+<h3>🌡️ 一级校色 (Primaries)</h3>
+<table>
+<tr><th>参数</th><th>值</th></tr>
+<tr><td>色温 (Temp)</td><td><span class="cool">-800 ~ -1200K</span>（向蓝偏移）</td></tr>
+<tr><td>色调 (Tint)</td><td>微偏青 -5~-10</td></tr>
+<tr><td>对比度 (Contrast)</td><td>+25~35</td></tr>
+<tr><td>饱和度 (Saturation)</td><td><span class="highlight">+30~40%</span></td></tr>
+<tr><td>曝光 (Offset)</td><td>+0.5~0.8 档</td></tr>
+</table>
+
+<h3>🎨 HSL 限定器 / 色相 vs 饱和度</h3>
+<table>
+<tr><th>色相范围</th><th>操作</th></tr>
+<tr><td>青色 (150°-210°)</td><td>饱和度 <span class="highlight">+20~30%</span>，亮度微提 +5%</td></tr>
+<tr><td>蓝色 (210°-250°)</td><td>饱和度 +15%</td></tr>
+<tr><td>红/橙 (0°-60°)</td><td>饱和度 <span class="warm">-20~30%</span>（压制暖色）</td></tr>
+</table>
+
+<div class="note">
+<strong>💡 "清透感" 的关键秘诀：</strong>
+<ol style="margin-top:8px; padding-left:18px;">
+<li><strong>提亮 + 冷偏</strong> — 整体曝光上提让画面"呼吸"，冷色调给人干净感</li>
+<li><strong>暗部注入青色</strong> — 最核心的操作，让阴影不"脏"、不"浑"</li>
+<li><strong>高饱和度 + 窄色相</strong> — 集中在青蓝色系提升饱和度，其他色相反而压制</li>
+<li><strong>对比度拉开层次</strong> — 让暗部有深度但不死黑，亮部有空间但不过曝</li>
+</ol>
+</div>
+</div>
+
+<!-- 风格总结 -->
+<div class="section">
+<h2>调色风格定位</h2>
+<p>这是一个典型的<strong>"Teal & Shadow"（青色冷调电影感）</strong>调色风格，常见于：</p>
+<ul>
+<li>城市运动/街头文化视频</li>
+<li>黄昏/夜景 cinematic look</li>
+<li>音乐 MV 的冷色氛围营造</li>
+</ul>
+<p style="margin-top:16px">其核心理念是：在保持黄昏自然光的暖色天空的同时，将整体画面（尤其暗部和中间调）推向青蓝冷调，形成<strong>冷暖对比</strong>，同时通过大幅提升曝光和对比度让画面"通透"而非"沉闷"。</p>
+</div>
+
+</div>
+</body>
+</html>

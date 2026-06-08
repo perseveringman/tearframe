@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音乐流派横向对比研究报告</title>
+<style>
+:root{--bg:#faf9f6;--card-bg:#fff;--text:#1a1a2e;--text2:#555;--border:#e0dcd5;--accent:#8b5e3c;--alight:#f5efe6;--tag:#e8e0d5;--hbg:#2c2416;--htext:#f0e6d3;--stripe:#f9f6f0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+.header{background:var(--hbg);color:var(--htext);padding:60px 40px 50px;text-align:center}
+.header h1{font-size:2.2em;font-weight:700;margin-bottom:12px}
+.header .sub{font-size:1.05em;opacity:.78}
+.container{max-width:960px;margin:0 auto;padding:40px 24px}
+h2{font-size:1.55em;font-weight:700;margin:48px 0 20px;padding-bottom:10px;border-bottom:2px solid var(--accent);color:var(--accent)}
+h3{font-size:1.2em;font-weight:600;margin:28px 0 12px;color:#4a3520}
+h4{font-size:1.05em;font-weight:600;margin:20px 0 8px;color:#5a4530}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card h3{margin-top:0}
+.genre-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px;margin:20px 0}
+ul{margin:8px 0 8px 20px}li{margin:4px 0}
+.tag{display:inline-block;background:var(--tag);color:#5a3e28;font-size:.82em;padding:2px 10px;border-radius:12px;margin:2px 4px 2px 0;font-weight:500}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:.92em}
+th,td{border:1px solid var(--border);padding:10px 14px;text-align:left;vertical-align:top}
+th{background:var(--alight);font-weight:600;color:#4a3520;white-space:nowrap}
+tr:nth-child(even) td{background:var(--stripe)}
+.note-box{background:#fdf8f0;border-left:4px solid var(--accent);padding:16px 20px;margin:16px 0;border-radius:0 8px 8px 0;font-size:.94em}
+.source{font-size:.8em;color:#999;margin-top:4px}
+.artist-list{columns:2;column-gap:24px;margin:8px 0}
+.album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin:12px 0}
+.album-card{background:var(--alight);border:1px solid var(--border);border-radius:8px;padding:16px;font-size:.9em}
+.album-card .year{color:var(--accent);font-weight:700}
+.album-card .title{font-weight:600;margin:2px 0}
+.album-card .desc{color:var(--text2);font-size:.88em;margin-top:4px}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.meta{font-size:.9em;color:var(--text2)}
+@media(max-width:600px){.genre-grid{grid-template-columns:1fr}.container{padding:20px 14px}.header{padding:36px 20px 32px}.header h1{font-size:1.55em}.artist-list{columns:1}th,td{padding:6px 8px;font-size:.82em}}
+</style>
+</head>
+<body>
+<div class="header"><h1>音乐流派横向对比研究报告</h1><p class="sub">15大音乐流派 · 代表艺术家 · 里程碑专辑 · 流派特征对比 · 流媒体数据</p><p class="sub" style="font-size:.85em;margin-top:8px">研究日期：2026年6月4日</p></div>
+<div class="container">
+
+<h2>一、各流派代表艺术家、专辑与经典歌曲</h2>
+
+<div class="card"><h3>1. 古典音乐 <span class="tag">Classical</span></h3><p class="meta">起源：欧洲 17-19世纪 · Barock → Classicism → Romanticism</p>
+<h4>代表作曲家</h4><div class="artist-list"><ul>
+<li><strong>J.S. Bach</strong>(1685-1750) — 巴洛克集大成者，宗教音乐与键盘音乐</li>
+<li><strong>W.A. Mozart</strong>(1756-1791) — 古典主义最重要作曲家，旋律优美精确</li>
+<li><strong>L.v. Beethoven</strong>(1770-1827) — 古典→浪漫过渡，被公认为音乐史上最伟大</li>
+<li><strong>F. Chopin</strong>(1810-1849) — 浪漫主义"钢琴诗人"</li>
+<li><strong>P.I. Tchaikovsky</strong>(1840-1893) — 俄罗斯浪漫主义代表</li>
+</ul></div>
+<h4>里程碑录音</h4><div class="album-grid">
+<div class="album-card"><span class="year">1721</span><div class="title">Bach: Brandenburg Concertos</div><div class="desc">巴洛克协奏曲巅峰</div></div>
+<div class="album-card"><span class="year">1808</span><div class="title">Beethoven: Symphonies No.5 & No.9</div><div class="desc">命运交响曲+欢乐颂</div></div>
+<div class="album-card"><span class="year">1839</span><div class="title">Chopin: 24 Preludes & Nocturnes</div><div class="desc">钢琴浪漫主义极致</div></div>
+</div>
+<h4>经典曲目</h4><ul>
+<li>Bach — Toccata and Fugue in D minor / Air on the G String / Cello Suite No.1</li>
+<li>Mozart — Eine kleine Nachtmusik / Requiem / Piano Concerto No.21</li>
+<li>Beethoven — Moonlight Sonata / Symphony No.5 / Symphony No.9 "Choral"</li>
+<li>Chopin — Nocturne Op.9 No.2 / Ballade No.1 / Fantaisie-Impromptu</li>
+<li>Tchaikovsky — Swan Lake / 1812 Overture / The Nutcracker</li>
+</ul><p class="source">来源：baike.baidu.com, zhihu.com</p></div>
+
+<div class="card"><h3>2. 布鲁斯 <span class="tag">Blues</span></h3><p class="meta">起源：19世纪末密西西比三角洲 · Delta Blues → Chicago Blues → Electric Blues</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Robert Johnson</strong>(1911-1938) — Delta Blues之王，仅录29首歌奠基整个流派</li>
+<li><strong>Muddy Waters</strong>(1913-1983) — "现代芝加哥蓝调之父"，影响猫王和鲍勃·迪伦</li>
+<li><strong>B.B. King</strong>(1925-2015) — "蓝调之王"，电吉他布鲁斯传奇</li>
+<li><strong>John Lee Hooker</strong>(1917-2001) — 独特Boogie节奏风格</li>
+<li><strong>Howlin' Wolf</strong>(1910-1976) — 芝加哥布鲁斯巨擘</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1961</span><div class="title">Robert Johnson — King of the Delta Blues Singers</div><div class="desc">后世摇滚吉他手"圣经"</div></div>
+<div class="album-card"><span class="year">1965</span><div class="title">B.B. King — Live at the Regal</div><div class="desc">史上最伟大蓝调现场专辑</div></div>
+<div class="album-card"><span class="year">1964</span><div class="title">Muddy Waters — Folk Singer</div><div class="desc">不插电布鲁斯巅峰录音</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Robert Johnson — Cross Road Blues / Sweet Home Chicago</li>
+<li>Muddy Waters — Mannish Boy / Rollin' Stone / Hoochie Coochie Man</li>
+<li>B.B. King — The Thrill Is Gone / Everyday I Have the Blues</li>
+<li>John Lee Hooker — Boom Boom / One Bourbon, One Scotch, One Beer</li>
+</ul><p class="source">来源：baike.baidu.com, 163.com, yueqiziyuan.com</p></div>
+
+<div class="card"><h3>3. 爵士 <span class="tag">Jazz</span></h3><p class="meta">起源：20世纪初新奥尔良 · Swing → Bebop → Cool → Modal → Fusion</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Louis Armstrong</strong>(1901-1971) — "爵士乐之父"，将爵士带向世界</li>
+<li><strong>Duke Ellington</strong>(1899-1974) — 大乐队/摇摆乐巨匠作曲家</li>
+<li><strong>Charlie Parker</strong>(1920-1955) — Bebop革命者</li>
+<li><strong>Miles Davis</strong>(1926-1991) — 推动爵士多次重大变革(Bebop→Cool→Modal→Fusion)</li>
+<li><strong>John Coltrane</strong>(1926-1967) — 萨克斯技术巅峰，Sheets of Sound</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1959</span><div class="title">Miles Davis — Kind of Blue</div><div class="desc">史上最伟大爵士专辑，调式爵士里程碑</div></div>
+<div class="album-card"><span class="year">1960</span><div class="title">John Coltrane — Giant Steps</div><div class="desc">"最难演奏的爵士专辑之一"</div></div>
+<div class="album-card"><span class="year">1965</span><div class="title">John Coltrane — A Love Supreme</div><div class="desc">精神爵士巅峰</div></div>
+<div class="album-card"><span class="year">1970</span><div class="title">Miles Davis — Bitches Brew</div><div class="desc">开创Fusion Jazz融合风格</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Louis Armstrong — What a Wonderful World / When the Saints Go Marching In</li>
+<li>Duke Ellington — Take the "A" Train / It Don't Mean a Thing</li>
+<li>Miles Davis — So What / All Blues / Blue in Green</li>
+<li>John Coltrane — Giant Steps / Naima / My Favorite Things</li>
+</ul><p class="source">来源：zhihu.com, baike.baidu.com, shuma.taobao.com</p></div>
+
+<div class="card"><h3>4. 摇滚 <span class="tag">Rock</span></h3><p class="meta">起源：20世纪50年代美国 · Rock & Roll → Classic → Psychedelic → Punk → Alternative → Grunge → Progressive</p>
+<h4>代表乐队/艺术家</h4><div class="artist-list"><ul>
+<li><strong>Elvis Presley</strong> — "摇滚之王"</li>
+<li><strong>The Beatles</strong> — 史上最具影响力乐队</li>
+<li><strong>Led Zeppelin</strong> — 硬摇滚/重金属奠基者，滚石29位</li>
+<li><strong>Pink Floyd</strong> — 前卫摇滚巅峰</li>
+<li><strong>Queen</strong> — 体育场摇滚王者</li>
+<li><strong>Nirvana</strong> — Grunge革命者</li>
+<li><strong>Radiohead</strong> — 艺术摇滚先锋</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1967</span><div class="title">The Beatles — Sgt. Pepper's</div><div class="desc">滚石500强第1位，第一张概念专辑</div></div>
+<div class="album-card"><span class="year">1969</span><div class="title">Led Zeppelin — Led Zeppelin</div><div class="desc">硬摇滚/重金属开山，销量超1200万</div></div>
+<div class="album-card"><span class="year">1973</span><div class="title">Pink Floyd — The Dark Side of the Moon</div><div class="desc">销量4500万，Billboard停留741周</div></div>
+<div class="album-card"><span class="year">1991</span><div class="title">Nirvana — Nevermind</div><div class="desc">Grunge革命标志，销量超3000万</div></div>
+<div class="album-card"><span class="year">1997</span><div class="title">Radiohead — OK Computer</div><div class="desc">世纪末焦虑的艺术化呈现</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Elvis — Jailhouse Rock / Can't Help Falling in Love</li>
+<li>The Beatles — Hey Jude / Yesterday / Let It Be / Come Together</li>
+<li>Led Zeppelin — Stairway to Heaven / Whole Lotta Love / Kashmir</li>
+<li>Pink Floyd — Comfortably Numb / Wish You Were Here / Money</li>
+<li>Queen — Bohemian Rhapsody / We Will Rock You / We Are the Champions</li>
+<li>Nirvana — Smells Like Teen Spirit / Come as You Are</li>
+<li>Radiohead — Creep / Paranoid Android / Karma Police</li>
+</ul><p class="source">来源：toutiao.com, rollingstone.com, smzdm.com</p></div>
+
+<div class="card"><h3>5. 金属 <span class="tag">Metal</span></h3><p class="meta">起源：20世纪70年代初英国 · Heavy → Thrash → Death → Black → Progressive</p>
+<h4>代表乐队</h4><div class="artist-list"><ul>
+<li><strong>Black Sabbath</strong> — 重金属开创者</li>
+<li><strong>Metallica</strong> — 激流金属之王，福布斯第1名</li>
+<li><strong>Iron Maiden</strong> — NWOBHM旗手，福布斯第3名</li>
+<li><strong>Slayer</strong> — 激流"四巨头"之一</li>
+<li><strong>Opeth</strong> — 前卫死亡金属代表</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1970</span><div class="title">Black Sabbath — Paranoid</div><div class="desc">定义重金属流派</div></div>
+<div class="album-card"><span class="year">1982</span><div class="title">Iron Maiden — The Number of the Beast</div><div class="desc">NWOBHM里程碑</div></div>
+<div class="album-card"><span class="year">1986</span><div class="title">Metallica — Master of Puppets</div><div class="desc">MusicRadar评选最佳重金属专辑第1名</div></div>
+<div class="album-card"><span class="year">1986</span><div class="title">Slayer — Reign in Blood</div><div class="desc">激流金属极致速度与暴力</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Black Sabbath — Paranoid / Iron Man / War Pigs</li>
+<li>Metallica — Enter Sandman / Master of Puppets / Nothing Else Matters / One</li>
+<li>Iron Maiden — The Trooper / Run to the Hills / Hallowed Be Thy Name</li>
+<li>Slayer — Raining Blood / Angel of Death</li>
+</ul><p class="source">来源：baike.baidu.com, forbes.com, music.yule.sohu.com</p></div>
+
+<div class="card"><h3>6. 乡村 <span class="tag">Country</span></h3><p class="meta">起源：20世纪初美国南部 · Traditional → Outlaw → Country Pop</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Johnny Cash</strong>(1932-2003) — "黑衣人"，50年乐坛生涯，100+首歌曲进入乡村榜</li>
+<li><strong>Dolly Parton</strong> — "乡村音乐女王"</li>
+<li><strong>Willie Nelson</strong> — Outlaw运动关键人物</li>
+<li><strong>Garth Brooks</strong> — 90年代乡村流行化推手</li>
+<li><strong>Taylor Swift</strong>(早期) — 乡村出道后转型流行</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1968</span><div class="title">Johnny Cash — At Folsom Prison</div><div class="desc">乡村音乐史上最重要现场录音</div></div>
+<div class="album-card"><span class="year">1975</span><div class="title">Willie Nelson — Red Headed Stranger</div><div class="desc">Outlaw Country概念专辑里程碑</div></div>
+<div class="album-card"><span class="year">2008</span><div class="title">Taylor Swift — Fearless</div><div class="desc">格莱美年度专辑</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Johnny Cash — Ring of Fire / Folsom Prison Blues / I Walk the Line / Hurt</li>
+<li>Dolly Parton — Jolene / I Will Always Love You / 9 to 5</li>
+<li>Willie Nelson — On the Road Again / Always on My Mind</li>
+<li>Taylor Swift — Love Story / You Belong with Me</li>
+</ul><p class="source">来源：wordln.com, apple music, yueting.net, douban.com</p></div>
+
+<div class="card"><h3>7. R&B/灵魂 <span class="tag">R&B</span> <span class="tag">Soul</span></h3><p class="meta">起源：20世纪50年代美国 · Motown → Philly Soul → Neo-Soul → Contemporary R&B</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Ray Charles</strong>(1930-2004) — "灵魂乐之父"，滚石100艺人第2位</li>
+<li><strong>Aretha Franklin</strong>(1942-2018) — "灵魂乐女王"</li>
+<li><strong>Stevie Wonder</strong> — 盲人天才实验灵魂乐探索者</li>
+<li><strong>Marvin Gaye</strong>(1939-1984) — 灵魂乐与社会议题结合</li>
+<li><strong>Whitney Houston</strong>(1963-2012) — 史上最伟大女声之一</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1971</span><div class="title">Marvin Gaye — What's Going On</div><div class="desc">滚石500强第6位，"最有灵魂力量"专辑</div></div>
+<div class="album-card"><span class="year">1976</span><div class="title">Stevie Wonder — Songs in the Key of Life</div><div class="desc">双LP杰作，格莱美年度专辑</div></div>
+<div class="album-card"><span class="year">1967</span><div class="title">Aretha Franklin — I Never Loved a Man…</div><div class="desc">含Respect，灵魂乐里程碑</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Ray Charles — Georgia on My Mind / Hit the Road Jack / What'd I Say</li>
+<li>Aretha Franklin — Respect / Natural Woman / Chain of Fools</li>
+<li>Stevie Wonder — Superstition / Signed, Sealed, Delivered / Isn't She Lovely</li>
+<li>Marvin Gaye — What's Going On / Sexual Healing / Let's Get It On</li>
+<li>Whitney Houston — I Will Always Love You / I Wanna Dance with Somebody</li>
+</ul><p class="source">来源：baike.baidu.com, gjmrbk.com, apple podcasts</p></div>
+
+<div class="card"><h3>8. 放克/迪斯科 <span class="tag">Funk</span> <span class="tag">Disco</span></h3><p class="meta">起源：20世纪60年代中/70年代美国  Funky → P-Funk → Disco</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>James Brown</strong> — "放克之父"兼"灵魂乐教父"</li>
+<li><strong>Parliament-Funkadelic</strong> — George Clinton的P-Funk帝国</li>
+<li><strong>Earth, Wind & Fire</strong> — Funk/Soul/Jazz/Disco融合</li>
+<li><strong>Bee Gees</strong> — 迪斯科时代代表组合</li>
+<li><strong>Sly & the Family Stone</strong> — 迷幻灵魂Funk融合先驱</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1970</span><div class="title">James Brown — Sex Machine</div><div class="desc">"鼓-贝斯-吉他"Funk模板</div></div>
+<div class="album-card"><span class="year">1975</span><div class="title">Parliament — Mothership Connection</div><div class="desc">P-Funk太空主题里程碑</div></div>
+<div class="album-card"><span class="year">1977</span><div class="title">Bee Gees — Saturday Night Fever OST</div><div class="desc">迪斯科销量巅峰，全球4000万+</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>James Brown — Papa's Got a Brand New Bag / Sex Machine / I Got You</li>
+<li>Parliament-Funkadelic — Flash Light / Give Up the Funk</li>
+<li>Earth, Wind & Fire — September / Boogie Wonderland / Let's Groove</li>
+<li>Bee Gees — Stayin' Alive / Night Fever / How Deep Is Your Love</li>
+</ul><p class="source">来源：sohu.com, zhuanlan.zhihu.com, toutiao.com</p></div>
+
+<div class="card"><h3>9. 嘻哈 <span class="tag">Hip-Hop</span></h3><p class="meta">起源：20世纪70年代纽约布朗克斯 · Old School → Gangsta → East/West Coast → Trap → Conscious</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Grandmaster Flash</strong> — DJ技术先驱</li>
+<li><strong>Tupac Shakur</strong>(1971-1996) — 西海岸之王，"史上最伟大说唱艺人"</li>
+<li><strong>The Notorious B.I.G.</strong>(1972-1997) — 东海岸之王</li>
+<li><strong>Jay-Z</strong> — Forbes评选史上最伟大说唱歌手第1名</li>
+<li><strong>Eminem</strong> — 白人说唱巨星，技术流标杆，全球销量超2亿</li>
+<li><strong>Kendrick Lamar</strong> — Forbes第2名，普利策音乐奖</li>
+<li><strong>Drake</strong> — 流媒体时代王者</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1994</span><div class="title">Nas — Illmatic</div><div class="desc">东海岸嘻哈圣经</div></div>
+<div class="album-card"><span class="year">1994</span><div class="title">Notorious B.I.G. — Ready to Die</div><div class="desc">匪帮说唱硬核经典</div></div>
+<div class="album-card"><span class="year">1996</span><div class="title">Tupac — All Eyez on Me</div><div class="desc">嘻哈首张双CD</div></div>
+<div class="album-card"><span class="year">2015</span><div class="title">Kendrick Lamar — To Pimp a Butterfly</div><div class="desc">普利策级爵士嘻哈融合</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Grandmaster Flash — The Message</li>
+<li>Tupac — California Love / Dear Mama / Changes</li>
+<li>Notorious B.I.G. — Juicy / Big Poppa / Hypnotize</li>
+<li>Eminem — Lose Yourself / Stan / Rap God</li>
+<li>Kendrick Lamar — HUMBLE. / Alright / DNA.</li>
+<li>Drake — God's Plan / Hotline Bling / One Dance</li>
+</ul><p class="source">来源：weibo.com(Forbes), wen.baidu.com, zhihu.com, sohu.com</p></div>
+
+<div class="card"><h3>10. 电子 <span class="tag">Electronic</span></h3><p class="meta">起源：20世纪70年代德国/欧美 · House → Techno → Trance → DNB → Dubstep → IDM → EDM</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Kraftwerk</strong> — 德国发电站，"电子乐坛披头士"</li>
+<li><strong>Daft Punk</strong> — 机器人形象，融合Disco/Funk/House/Rock</li>
+<li><strong>Aphex Twin</strong> — IDM大师</li>
+<li><strong>Deadmau5</strong> — Progressive House标志</li>
+<li><strong>Skrillex</strong> — Dubstep全球化推手</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1974</span><div class="title">Kraftwerk — Autobahn</div><div class="desc">首张电子流行乐唱片，格莱美名人堂</div></div>
+<div class="album-card"><span class="year">1997</span><div class="title">Daft Punk — Homework</div><div class="desc">纯正French House标杆</div></div>
+<div class="album-card"><span class="year">2001</span><div class="title">Daft Punk — Discovery</div><div class="desc">融合多种元素重新定义电子音乐</div></div>
+<div class="album-card"><span class="year">1992</span><div class="title">Aphex Twin — Selected Ambient Works 85-92</div><div class="desc">Ambient/IDM奠基</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Kraftwerk — Autobahn / The Model / Trans-Europe Express</li>
+<li>Daft Punk — One More Time / Around the World / Get Lucky</li>
+<li>Aphex Twin — Windowlicker / Avril 14th</li>
+<li>Deadmau5 — Strobe / Ghosts 'n' Stuff</li>
+<li>Skrillex — Bangarang / Scary Monsters and Nice Sprites</li>
+</ul><p class="source">来源：baike.baidu.com, threads.net, douban.com</p></div>
+
+<div class="card"><h3>11. 流行 <span class="tag">Pop</span></h3><p class="meta">起源：20世纪50年代延续至今 · Dance Pop → Synth-Pop → Teen Pop → Electropop</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Michael Jackson</strong>(1958-2009) — "流行音乐之王"，全球销量超7.5亿张</li>
+<li><strong>Madonna</strong> — "流行女王"，不断重塑自我</li>
+<li><strong>Britney Spears</strong> — 千禧年Teen Pop天后</li>
+<li><strong>Beyoncé</strong> — 当代R&B/Pop跨界女王</li>
+<li><strong>Taylor Swift</strong> — 从乡村到流行的变革者</li>
+<li><strong>Adele</strong> — 21世纪最畅销专辑之一</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1982</span><div class="title">Michael Jackson — Thriller</div><div class="desc">全球销量1.04亿(吉尼斯)，史上最畅销，Billboard 37周冠军</div></div>
+<div class="album-card"><span class="year">1984</span><div class="title">Madonna — Like a Virgin</div><div class="desc">销量2100万+，定义80年代</div></div>
+<div class="album-card"><span class="year">2011</span><div class="title">Adele — 21</div><div class="desc">全球销量3100万+</div></div>
+<div class="album-card"><span class="year">2016</span><div class="title">Beyoncé — Lemonade</div><div class="desc">视觉专辑，政治与个人叙事融合</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Michael Jackson — Billie Jean / Beat It / Thriller / Smooth Criminal</li>
+<li>Madonna — Like a Virgin / Like a Prayer / Vogue</li>
+<li>Britney Spears — ...Baby One More Time / Toxic</li>
+<li>Beyoncé — Single Ladies / Crazy in Love / Halo</li>
+<li>Taylor Swift — Shake It Off / Blank Space / Anti-Hero</li>
+<li>Adele — Rolling in the Deep / Someone Like You / Hello</li>
+</ul><p class="source">来源：toutiao.com, tech.sina.cn, prnewswire.com</p></div>
+
+<div class="card"><h3>12. 雷鬼 <span class="tag">Reggae</span></h3><p class="meta">起源：20世纪60年代牙买加 · Roots Reggae → Dub → Dancehall</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Bob Marley</strong>(1945-1981) — "雷鬼乐鼻祖"，牙买加民族英雄，国葬</li>
+<li><strong>Peter Tosh</strong> — The Wailers创始成员</li>
+<li><strong>Jimmy Cliff</strong> — 雷鬼国际化先驱</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1977</span><div class="title">Bob Marley — Exodus</div><div class="desc">TIME"20世纪最伟大专辑"，滚石169位</div></div>
+<div class="album-card"><span class="year">1984</span><div class="title">Bob Marley — Legend</div><div class="desc">史上最畅销雷鬼专辑，滚石46位</div></div>
+<div class="album-card"><span class="year">1973</span><div class="title">The Wailers — Catch a Fire</div><div class="desc">雷鬼走向国际的首张重要专辑</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Bob Marley — No Woman, No Cry / One Love / Redemption Song / Jamming / Three Little Birds</li>
+<li>Peter Tosh — Legalize It / Equal Rights</li>
+<li>Jimmy Cliff — The Harder They Come / Many Rivers to Cross</li>
+</ul><p class="source">来源：sogou.com, douban.com, mexc.fm, news.guitarschina.com</p></div>
+
+<div class="card"><h3>13. 拉丁 <span class="tag">Latin</span></h3><p class="meta">起源：拉丁美洲 · Latin Rock → Reggaeton → Latin Pop → Latin Trap</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>Santana</strong> — 拉丁摇滚开创者，全球1亿张专辑</li>
+<li><strong>Shakira</strong> — 拉丁跨界天后</li>
+<li><strong>Daddy Yankee</strong> — "Reggaeton之王"</li>
+<li><strong>Bad Bunny</strong> — 革新者，2025 Spotify全球最受欢迎艺人</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1999</span><div class="title">Santana — Supernatural</div><div class="desc">9项格莱美，全球2500万</div></div>
+<div class="album-card"><span class="year">2022</span><div class="title">Bad Bunny — Un Verano Sin Ti</div><div class="desc">Spotify史上播放量最高专辑之一</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>Santana — Smooth / Black Magic Woman / Maria Maria / Oye Como Va</li>
+<li>Shakira — Hips Don't Lie / Waka Waka / Whenever, Wherever</li>
+<li>Daddy Yankee — Gasolina / Despacito (Remix)</li>
+<li>Bad Bunny — DtMF / Tití Me Preguntó / MIA</li>
+</ul><p class="source">来源：music.douban.com, kuwo.cn, bang.cn, weibo.com</p></div>
+
+<div class="card"><h3>14. K-pop <span class="tag">K-pop</span></h3><p class="meta">起源：20世纪90年代韩国 · Idol Pop → K-hiphop → K-R&B</p>
+<h4>代表团体</h4><div class="artist-list"><ul>
+<li><strong>BTS</strong> — 全球现象级男团</li>
+<li><strong>BLACKPINK</strong> — 全球最火K-pop女团，Coachella头条</li>
+<li><strong>EXO</strong> — SM娱乐代表性男团</li>
+<li><strong>BIGBANG</strong> — K-pop国际化先行者</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">2020</span><div class="title">BTS — MAP OF THE SOUL: 7</div><div class="desc">初动337万张，总销量428万+，K-pop冠军</div></div>
+<div class="album-card"><span class="year">2022</span><div class="title">BLACKPINK — BORN PINK</div><div class="desc">女团销量里程碑，Billboard 200冠军</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>BTS — Dynamite / Butter / Spring Day / Boy With Luv</li>
+<li>BLACKPINK — DDU-DU DDU-DU / How You Like That / Kill This Love</li>
+<li>EXO — Growl / Call Me Baby</li>
+<li>BIGBANG — Fantastic Baby / Bang Bang Bang</li>
+</ul><p class="source">来源：163.com, zhihu.com, bilibili.com</p></div>
+
+<div class="card"><h3>15. 独立/另类 <span class="tag">Indie</span> <span class="tag">Alternative</span></h3><p class="meta">起源：20世纪80年代英美 · Indie Rock → Indie Folk → Dream Pop → Shoegaze</p>
+<h4>代表艺术家</h4><div class="artist-list"><ul>
+<li><strong>The Smiths</strong> — 80年代独立摇滚图腾</li>
+<li><strong>Arcade Fire</strong> — 加拿大独立摇滚天团</li>
+<li><strong>Bon Iver</strong> — 独立民谣代表</li>
+<li><strong>Tame Impala</strong> — Kevin Parker一人乐队，迷幻独立</li>
+<li><strong>Pixies</strong> — 另类摇滚先驱，影响Nirvana</li>
+</ul></div>
+<h4>里程碑专辑</h4><div class="album-grid">
+<div class="album-card"><span class="year">1986</span><div class="title">The Smiths — The Queen Is Dead</div><div class="desc">独立摇滚配方定义，滚石216位</div></div>
+<div class="album-card"><span class="year">2004</span><div class="title">Arcade Fire — Funeral</div><div class="desc">新千年最佳独立专辑之一</div></div>
+<div class="album-card"><span class="year">2008</span><div class="title">Bon Iver — For Emma, Forever Ago</div><div class="desc">林间小屋录制，独立民谣定义之作</div></div>
+<div class="album-card"><span class="year">2015</span><div class="title">Tame Impala — Currents</div><div class="desc">迷幻向电子/流行转型</div></div>
+</div>
+<h4>经典歌曲</h4><ul>
+<li>The Smiths — There Is a Light… / This Charming Man</li>
+<li>Arcade Fire — Wake Up / Rebellion (Lies) / The Suburbs</li>
+<li>Bon Iver — Skinny Love / Holocene</li>
+<li>Tame Impala — Let It Happen / The Less I Know the Better</li>
+</ul><p class="source">来源：baike.baidu.com, zhihu.com, douban.com</p></div>
+
+<h2>二、流派差异对比总表</h2>
+<div class="card">
+<div style="overflow-x:auto"><table>
+<thead><tr><th>流派</th><th>典型BPM</th><th>节奏特征</th><th>和声特点</th><th>典型乐器</th><th>歌词主题</th><th>制作风格</th></tr></thead>
+<tbody>
+<tr><td><strong>古典</strong></td><td>Largo40-60<br>Andante76-108<br>Allegro120-168</td><td>自由速度rubato，无机械节拍</td><td>功能和声，大/小调；巴洛克对位，浪漫半音化</td><td>管弦乐团（弦/木管/铜管/定音鼓）；钢琴</td><td>宗教、神话、自然、爱情、英雄</td><td>原声录制，大厅共鸣，大动态范围</td></tr>
+<tr><td><strong>布鲁斯</strong></td><td>60-90</td><td>Shuffle，12小节蓝调进行，切分</td><td>I-IV-V，蓝调音阶♭3♭5♭7，属七和弦</td><td>电吉他(滑棒)、口琴、贝斯、鼓</td><td>苦难、失落、爱情、流浪</td><td>早期原始；芝加哥电声化；人声前置</td></tr>
+<tr><td><strong>爵士</strong></td><td>Swing120-180<br>Bebop200-300+<br>Ballad60-80</td><td>Swing八分音、切分、Walking Bass、即兴</td><td>七/九/变化和弦，II-V-I，Modal</td><td>小号、萨克斯、钢琴、低音提琴、鼓</td><td>爱情、城市生活、自由、抽象</td><td>现场感强，即兴对话；Fusion电气化</td></tr>
+<tr><td><strong>摇滚</strong></td><td>110-140</td><td>4/4拍，强后拍2&4，强力底鼓+军鼓</td><td>Power Chord，I-IV-V，五声音阶Solo</td><td>电吉他(失真)、贝斯、架子鼓</td><td>反叛、自由、爱情、社会批判</td><td>早期粗粝；70年代概念化；Grunge回归原始</td></tr>
+<tr><td><strong>金属</strong></td><td>80-200+<br>Thrash180-220<br>Doom60-80</td><td>双踩底鼓、快速riff、复杂拍号</td><td>Power Chord为主，减音阶/弗里几亚</td><td>高增益电吉他、五弦贝斯、双底鼓</td><td>黑暗、死亡、神话、战争</td><td>高压缩、紧实低音；Prog多层次</td></tr>
+<tr><td><strong>乡村</strong></td><td>80-120</td><td>2/4或4/4，Train Beat，Walking Bass</td><td>I-IV-V为主，大调明亮</td><td>原声吉他、Fiddle、班卓琴、钢棒吉他</td><td>乡村生活、爱情、家庭、信仰</td><td>Nashville弦乐美化；Outlaw回归粗粝</td></tr>
+<tr><td><strong>R&B<br>灵魂</strong></td><td>60-100<br>Uptempo110-130</td><td>Groove切分，一领众和(福音)</td><td>爵士化七/九和弦，花唱melisma</td><td>节奏吉他、贝斯、鼓、铜管、弦乐</td><td>爱情、心碎、社会正义、灵性</td><td>Motown精致；南方灵魂粗犷；Neo-Soul复古</td></tr>
+<tr><td><strong>放克<br>迪斯科</strong></td><td>Funk90-110<br>Disco110-130</td><td>弱化强拍1，强调弱拍2&4；Four on Floor(Disco)</td><td>单和弦Vamp，属九和弦，铜管Stabs</td><td>贝斯(拍弦)、切分吉他、铜管；弦乐(迪斯科)</td><td>派对、舞蹈、性、自由、享乐</td><td>贝斯鼓C位；迪斯科弦乐华丽</td></tr>
+<tr><td><strong>嘻哈</strong></td><td>70-110<br>Trap130-170</td><td>采样Loop、TR-808鼓机、半速感(Trap)</td><td>采样和声，多为小调，简单重复</td><td>采样器/唱机、808/909鼓机、合成器</td><td>街头生活、财富、权力、身份</td><td>采样拼贴；Trap 808沉重；高度数字化</td></tr>
+<tr><td><strong>电子</strong></td><td>Down90-120<br>House120-130<br>Trance130-135<br>DNB165-185</td><td>Four on Floor(House)；Breakbeat(DNB)；半拍(Dubstep)</td><td>重复和弦，Pad铺底，调制自动化</td><td>合成器、鼓机、采样器、MIDI控制器</td><td>氛围、抽象、未来主义、舞蹈</td><td>全数字化；侧链压缩泵动；Build-up/Drop</td></tr>
+<tr><td><strong>流行</strong></td><td>90-130</td><td>4/4拍，强烈Hook，Verse-Chorus</td><td>I-V-vi-IV"四和弦流行"，大调为主</td><td>合成器、鼓机、电吉他、多层人声</td><td>爱情、关系、自我表达、派对</td><td>高度抛光、压缩最大化、人声前置</td></tr>
+<tr><td><strong>雷鬼</strong></td><td>60-90</td><td>One Drop(第3拍军鼓)，Offbeat切音</td><td>大调为主，简单三和弦，属七色彩</td><td>吉他Skank、贝斯(旋律性)、鼓、管风琴</td><td>爱与团结、社会正义、Rastafari、解放</td><td>低频厚重(Roots)；Dub空间混响</td></tr>
+<tr><td><strong>拉丁</strong></td><td>Reggaeton90-100<br>Salsa160-220</td><td>Clave骨架，Dembow(Reggaeton)；多节奏层</td><td>西班牙/非洲融合，Salsa爵士化</td><td>康加鼓、Timbales、牛铃、钢琴Montuno</td><td>爱情、舞蹈、街头、身份</td><td>Salsa大型合奏；Reggaeton数字低频</td></tr>
+<tr><td><strong>K-pop</strong></td><td>90-140</td><td>编舞驱动节奏，多段落，Genre切换</td><td>与Pop/R&B接近，融入Trap电子元素</td><td>合成器、鼓机、多层人声和声</td><td>青春、爱情、梦想、社会压力</td><td>极致抛光、MV视觉驱动；Genre-bending</td></tr>
+<tr><td><strong>独立<br>另类</strong></td><td>80-130</td><td>多样化：民谣慢板到朋克快板</td><td>实验性和声，避免套路，调式混用</td><td>吉他(清音/轻失真)、合成器、多样原声</td><td>疏离、内省、社会观察、诗意</td><td>低预算美学、Lo-Fi、DIY反过度制作</td></tr>
+</tbody></table></div>
+<div class="note-box">
+<strong>关键洞察</strong>：BPM不是流派绝对标识——<strong>节奏型(Rhythmic Pattern)</strong>才是核心区分维度。同样120BPM的House和Disco听感截然不同。制作风格两极：古典/爵士追求"空间真实感"；流行/K-pop/电子追求"无空间"的极致紧凑；独立/另类以Lo-Fi反制作为美学宣言。
+</div></div>
+
+<h2>三、里程碑专辑与滚石500强</h2>
+<div class="card">
+<h3>滚石500强 Top 15</h3>
+<table>
+<thead><tr><th>#</th><th>专辑</th><th>艺术家</th><th>年份</th><th>流派</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Sgt. Pepper's Lonely Hearts Club Band</td><td>The Beatles</td><td>1967</td><td>摇滚/前卫</td></tr>
+<tr><td>2</td><td>Pet Sounds</td><td>The Beach Boys</td><td>1966</td><td>流行/迷幻</td></tr>
+<tr><td>3</td><td>Revolver</td><td>The Beatles</td><td>1966</td><td>迷幻摇滚</td></tr>
+<tr><td>4</td><td>Highway 61 Revisited</td><td>Bob Dylan</td><td>1965</td><td>民谣摇滚</td></tr>
+<tr><td>5</td><td>Rubber Soul</td><td>The Beatles</td><td>1965</td><td>民谣摇滚</td></tr>
+<tr><td>6</td><td>What's Going On</td><td>Marvin Gaye</td><td>1971</td><td>灵魂/R&B</td></tr>
+<tr><td>7</td><td>Exile on Main St.</td><td>The Rolling Stones</td><td>1972</td><td>摇滚/蓝调</td></tr>
+<tr><td>8</td><td>London Calling</td><td>The Clash</td><td>1979</td><td>朋克/摇滚</td></tr>
+<tr><td>9</td><td>Blonde on Blonde</td><td>Bob Dylan</td><td>1966</td><td>民谣摇滚</td></tr>
+<tr><td>10</td><td>The Beatles (White Album)</td><td>The Beatles</td><td>1968</td><td>摇滚</td></tr>
+<tr><td>11</td><td>The Sun Sessions</td><td>Elvis Presley</td><td>1976</td><td>Rock & Roll</td></tr>
+<tr><td>12</td><td>Kind of Blue</td><td>Miles Davis</td><td>1959</td><td>爵士</td></tr>
+<tr><td>13</td><td>Velvet Underground & Nico</td><td>The Velvet Underground</td><td>1967</td><td>实验摇滚</td></tr>
+<tr><td>14</td><td>Abbey Road</td><td>The Beatles</td><td>1969</td><td>摇滚</td></tr>
+<tr><td>15</td><td>Are You Experienced</td><td>Jimi Hendrix</td><td>1967</td><td>迷幻摇滚</td></tr>
+</tbody></table>
+</div>
+
+<div class="card">
+<h3>各流派销量里程碑专辑</h3>
+<table>
+<thead><tr><th>专辑</th><th>艺术家</th><th>年份</th><th>全球销量</th><th>地位</th></tr></thead>
+<tbody>
+<tr><td>Thriller</td><td>Michael Jackson</td><td>1982</td><td><strong>1.04亿</strong></td><td>吉尼斯认证史上最畅销专辑，Billboard 37周冠军，7首Top10单曲</td></tr>
+<tr><td>Their Greatest Hits</td><td>Eagles</td><td>1976</td><td><strong>4200万+</strong></td><td>美国RIAA认证最高销量专辑</td></tr>
+<tr><td>The Dark Side of the Moon</td><td>Pink Floyd</td><td>1973</td><td><strong>4500万</strong></td><td>Billboard停留741周(1973-1988)，概念专辑巅峰</td></tr>
+<tr><td>Back in Black</td><td>AC/DC</td><td>1980</td><td><strong>5000万</strong></td><td>摇滚乐销量最高专辑之一</td></tr>
+<tr><td>Saturday Night Fever OST</td><td>Bee Gees</td><td>1977</td><td><strong>4000万+</strong></td><td>迪斯科时代销量巅峰</td></tr>
+<tr><td>Supernatural</td><td>Santana</td><td>1999</td><td><strong>2500万</strong></td><td>9项格莱美，拉丁摇滚突破之作</td></tr>
+<tr><td>21</td><td>Adele</td><td>2011</td><td><strong>3100万+</strong></td><td>21世纪最畅销专辑之一</td></tr>
+</tbody></table>
+</div>
+
+<h2>四、流媒体时代的流派数据</h2>
+
+<div class="card">
+<h3>全球流媒体市场格局 (IFPI 2025报告/2024年数据)</h3>
+<table>
+<thead><tr><th>指标</th><th>数据</th></tr></thead>
+<tbody>
+<tr><td>全球录制音乐总收入</td><td><strong>296亿美元</strong> (同比增长4.8%，连续10年增长)</td></tr>
+<tr><td>流媒体收入</td><td><strong>204亿美元</strong> (首破200亿大关，占总收入69%)</td></tr>
+<tr><td>全球付费用户</td><td>超5.24亿 (2021Q2数据，持续增长中)</td></tr>
+</tbody></table>
+</div>
+
+<div class="card">
+<h3>流媒体平台市场份额</h3>
+<table>
+<thead><tr><th>平台</th><th>全球份额</th><th>备注</th></tr></thead>
+<tbody>
+<tr><td>Spotify</td><td><strong>31%</strong></td><td>全球第一，略降(2019年34%→2021年31%)</td></tr>
+<tr><td>Apple Music</td><td><strong>15%</strong></td><td>全球第二，超7800万付费用户</td></tr>
+<tr><td>Amazon Music</td><td><strong>13%</strong></td><td>增长迅速</td></tr>
+<tr><td>腾讯音乐</td><td><strong>13%</strong></td><td>中国市场主导</td></tr>
+<tr><td>YouTube Music</td><td><strong>~8%</strong></td><td>广告+订阅混合模式</td></tr>
+</tbody></table>
+</div>
+
+<div class="card">
+<h3>2025 Spotify年度数据趋势</h3>
+<ul>
+<li><strong>全球最受欢迎艺人</strong>：Bad Bunny（全年198亿播放量，第4次登顶）</li>
+<li><strong>年度Top艺人</strong>：Bad Bunny → Taylor Swift → The Weeknd → Drake → Billie Eilish</li>
+<li><strong>全球播放量最高单曲</strong>：Lady Gaga & Bruno Mars — "Die With A Smile"（17亿+播放量）</li>
+<li><strong>年度热歌Top 5</strong>：Die With A Smile / BIRDS OF A FEATHER(Billie Eilish) / APT.(ROSÉ & Bruno Mars) / Ordinary(Alex Warren) / DtMF(Bad Bunny)</li>
+</ul>
+<p class="source">来源：163.com, sohu.com, hupu.com (Spotify Wrapped 2025)</p>
+</div>
+
+<div class="card">
+<h3>新兴流派增长趋势</h3>
+<table>
+<thead><tr><th>流派/趋势</th><th>增长数据</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>Afrobeats</strong></td><td>2017年起<strong>增长550%</strong>，2022年播放量超<strong>135亿次</strong></td><td>西非起源，Spotify上有超150亿总播放；美国/英国/尼日利亚最大消费国，法国/荷兰/墨西哥迅速增长</td></tr>
+<tr><td><strong>K-pop</strong></td><td>2024年<strong>同比增长328%</strong>(下载量)</td><td>Splice平台增长最快流派之一；融合pluggnb和rage等地下嘻哈元素</td></tr>
+<tr><td><strong>日本City Pop</strong></td><td>2024年<strong>同比增长290%</strong>(下载量)</td><td>复古潮流带动80年代日本流行复兴</td></tr>
+<tr><td><strong>拉丁音乐</strong></td><td>IFPI报告拉丁美洲收入<strong>增长22.5%</strong></td><td>Bad Bunny、Shakira等推动拉丁成为全球主流</td></tr>
+<tr><td><strong>中东/北非</strong></td><td><strong>增长22.8%</strong></td><td>新兴市场增速最快地区之一</td></tr>
+<tr><td><strong>撒哈拉以南非洲</strong></td><td><strong>增长22.6%</strong></td><td>Afrobeats推动非洲音乐全球化</td></tr>
+</tbody></table>
+<div class="note-box">
+<strong>趋势总结</strong>：全球音乐流派的边界正在加速消融。拉丁音乐（Bad Bunny全西语作品登顶全球）、K-pop（BTS/BLACKPINK全球现象）、Afrobeats（播放量5年翻7倍）的崛起表明——<strong>非英语音乐正在打破语言壁垒</strong>，成为流媒体时代最大的变量。Hip-Hop继续主导播放量，流行音乐保持最大市场份额，而电子音乐的子流派（House/Techno/EDM）维持稳定的俱乐部文化和音乐节经济。
+</div>
+<p class="source">来源：IFPI 2025全球音乐报告, Billboard, Splice, Spotify数据, toutiao.com, 163.com, news.qq.com, k.sina.com.cn</p>
+</div>
+
+<div class="card">
+<h3>中国市场数据</h3>
+<ul>
+<li>中国连续3年保持<strong>全球第5大音乐市场</strong></li>
+<li>2024年收入<strong>同比增长9.6%</strong></li>
+<li>全球十大市场：美国 → 日本 → 英国 → 德国 → <strong>中国</strong> → 法国 → 韩国 → 加拿大 → 澳大利亚 → 墨西哥</li>
+</ul>
+<p class="source">来源：IFPI 2025全球音乐报告, new.qq.com, sina.cn</p>
+</div>
+
+<hr>
+<div class="card" style="text-align:center;color:var(--text2);font-size:.9em">
+<p>本报告基于公开网络资料整理（百度百科、知乎、豆瓣、网易云音乐、Billboard、Rolling Stone、IFPI、Spotify等），研究日期：2026年6月4日。</p>
+<p>数据来源以文中各节标注为准。滚石500强榜单基于豆瓣用户整理的版本。</p>
+</div>
+
+</div>
+</body>
+</html>

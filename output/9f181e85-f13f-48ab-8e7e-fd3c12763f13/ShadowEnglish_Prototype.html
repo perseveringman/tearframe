@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShadowEnglish — AI 影子跟读</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'SF Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              50: '#fafbfc',
+              100: '#f5f6f8',
+              200: '#e8eaed',
+              300: '#dadce0',
+            },
+            mac: {
+              window: '#f6f6f6',
+              titlebar: '#ececec',
+              sidebar: '#f5f5f5',
+              hover: 'rgba(0,0,0,0.04)',
+              active: 'rgba(0,0,0,0.08)',
+            },
+            accent: {
+              DEFAULT: '#4f46e5',
+              light: '#6366f1',
+              dark: '#4338ca',
+              50: '#eef2ff',
+              100: '#e0e7ff',
+            },
+            score: {
+              high: '#22c55e',
+              mid: '#f59e0b',
+              low: '#ef4444',
+            }
+          },
+          boxShadow: {
+            'mac': '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+            'mac-lg': '0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04)',
+            'mac-xl': '0 8px 30px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04)',
+            'glow': '0 0 20px rgba(79,70,229,0.15)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --sidebar-w: 220px;
+    }
+    * { scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
+    *::-webkit-scrollbar { width: 6px; }
+    *::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+    body {
+      font-family: 'Inter', SF Pro Display, -apple-system, system-ui, sans-serif;
+      background: #e8e8e8;
+      overflow: hidden;
+    }
+
+    /* Mac Window Chrome */
+    .mac-window {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(40px) saturate(1.8);
+      -webkit-backdrop-filter: blur(40px) saturate(1.8);
+      border-radius: 12px;
+      box-shadow: 0 22px 70px rgba(0,0,0,0.13), 0 8px 22px rgba(0,0,0,0.08), inset 0 0 0 0.5px rgba(255,255,255,0.5);
+      overflow: hidden;
+    }
+    .titlebar {
+      background: linear-gradient(180deg, rgba(245,245,245,0.95) 0%, rgba(235,235,235,0.9) 100%);
+      border-bottom: 0.5px solid rgba(0,0,0,0.08);
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      -webkit-app-region: drag;
+    }
+    .traffic-light {
+      width: 12px; height: 12px; border-radius: 50%;
+      margin-right: 8px;
+      position: relative;
+      transition: transform 0.15s ease;
+    }
+    .traffic-light:hover { transform: scale(1.15); }
+    .tl-red { background: #ff5f57; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.06); }
+    .tl-yellow { background: #febc2e; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.06); }
+    .tl-green { background: #28c840; box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.06); }
+
+    /* Sidebar */
+    .sidebar-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; margin: 2px 8px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      color: #5f6368; cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .sidebar-item:hover { background: rgba(0,0,0,0.04); color: #202124; }
+    .sidebar-item.active {
+      background: rgba(79,70,229,0.08);
+      color: #4f46e5;
+    }
+    .sidebar-item.active::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 18px; background: #4f46e5; border-radius: 0 2px 2px 0;
+    }
+
+    /* Card System */
+    .glass-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      border-color: rgba(0,0,0,0.1);
+    }
+
+    /* Flip Card */
+    .flip-card { perspective: 1200px; }
+    .flip-card-inner {
+      position: relative; width: 100%; height: 100%;
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 20px;
+    }
+    .flip-card-back { transform: rotateY(180deg); }
+
+    /* Audio Wave Animation */
+    .wave-bar {
+      display: inline-block;
+      width: 3px; background: #4f46e5; border-radius: 2px;
+      animation: wave 0.8s ease-in-out infinite;
+    }
+    @keyframes wave {
+      0%, 100% { height: 8px; opacity: 0.5; }
+      50% { height: 28px; opacity: 1; }
+    }
+
+    /* Recording Pulse */
+    .record-pulse {
+      animation: recordPulse 2s ease-in-out infinite;
+    }
+    @keyframes recordPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+      50% { box-shadow: 0 0 0 16px rgba(239,68,68,0); }
+    }
+
+    /* Radar Chart */
+    .radar-polygon {
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Progress Ring */
+    .progress-ring-circle {
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Fade transitions */
+    .page { opacity: 0; pointer-events: none; position: absolute; inset: 0; transition: opacity 0.3s ease; overflow-y: auto; }
+    .page.active { opacity: 1; pointer-events: all; }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* Subtle shimmer for skeleton/loading */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Custom range input */
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: #e5e7eb; outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+      background: #4f46e5; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.15); border: 2px solid white;
+    }
+
+    /* Number counter animation */
+    .count-up { transition: all 0.5s ease; }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+    }
+    .tooltip::after {
+      content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-6px);
+      background: #1f2937; color: white; font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .tooltip:hover::after { opacity: 1; }
+
+    /* Smooth button press */
+    .btn-press:active { transform: scale(0.97); }
+
+    /* Decorative grain overlay */
+    .grain::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.015;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex items-center justify-center grain">
+
+  <!-- Main Mac Window -->
+  <div class="mac-window w-[1150px] h-[760px] flex flex-col relative">
+
+    <!-- Title Bar -->
+    <div class="titlebar shrink-0">
+      <div class="flex items-center gap-2">
+        <div class="traffic-light tl-red"></div>
+        <div class="traffic-light tl-yellow"></div>
+        <div class="traffic-light tl-green"></div>
+      </div>
+      <div class="flex-1 text-center text-[13px] font-medium text-gray-500 -ml-[68px]">
+        ShadowEnglish
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="flex flex-1 overflow-hidden">
+
+      <!-- Sidebar -->
+      <nav class="w-[220px] bg-[#f5f5f5]/80 border-r border-black/5 flex flex-col shrink-0 select-none">
+        <div class="p-4 pb-2">
+          <div class="flex items-center gap-2.5 px-3 py-2">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-glow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            </div>
+            <div>
+              <div class="text-[13px] font-bold text-gray-800">ShadowEnglish</div>
+              <div class="text-[10px] text-gray-400 font-medium">v1.0 Beta</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-2 pt-2 space-y-0.5">
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-1.5 mt-2">学习</div>
+          <div class="sidebar-item active" data-page="home" onclick="navigate('home')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            仪表盘
+          </div>
+          <div class="sidebar-item" data-page="shadowing" onclick="navigate('shadowing')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            影子跟读
+          </div>
+          <div class="sidebar-item" data-page="review" onclick="navigate('review')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            每日复习
+            <span class="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">12</span>
+          </div>
+
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-1.5 mt-4">数据</div>
+          <div class="sidebar-item" data-page="progress" onclick="navigate('progress')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            学习画像
+          </div>
+
+          <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-1.5 mt-4">设置</div>
+          <div class="sidebar-item" data-page="settings" onclick="navigate('settings')">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            偏好设置
+          </div>
+        </div>
+
+        <div class="mt-auto p-4">
+          <div class="glass-card p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span class="text-[11px] font-semibold text-gray-600">今日已学</span>
+            </div>
+            <div class="text-xl font-bold text-gray-800">42<span class="text-sm font-normal text-gray-400 ml-0.5">分钟</span></div>
+            <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: 70%"></div>
+            </div>
+            <div class="text-[10px] text-gray-400 mt-1">目标 60 分钟</div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Main Pages -->
+      <main class="flex-1 relative bg-gradient-to-br from-white via-gray-50/50 to-indigo-50/20">
+
+        <!-- ==================== HOME / DASHBOARD ==================== -->
+        <div id="page-home" class="page active p-8">
+          <div class="max-w-3xl mx-auto">
+            <!-- Welcome -->
+            <div class="mb-8">
+              <h1 class="text-[28px] font-bold text-gray-900 mb-1">早安，Ryan 👋</h1>
+              <p class="text-gray-500 text-[15px]">连续学习 <span class="font-semibold text-indigo-600">12</span> 天，今天继续突破自己</p>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+              <div class="glass-card p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
+                  </div>
+                  <span class="text-[11px] font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+15%</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800">156</div>
+                <div class="text-[12px] text-gray-400 mt-0.5">累计跟读句数</div>
+              </div>
+              <div class="glass-card p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  </div>
+                  <span class="text-[11px] font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">+8%</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800">8.2</div>
+                <div class="text-[12px] text-gray-400 mt-0.5">平均流利度</div>
+              </div>
+              <div class="glass-card p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                  </div>
+                  <span class="text-[11px] font-medium text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">12 待复习</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800">89</div>
+                <div class="text-[12px] text-gray-400 mt-0.5">已掌握卡片</div>
+              </div>
+            </div>
+
+            <!-- Today's Tasks -->
+            <div class="glass-card p-6 mb-6">
+              <div class="flex items-center justify-between mb-5">
+                <h2 class="text-[16px] font-bold text-gray-800">今日任务</h2>
+                <span class="text-[12px] text-gray-400">3/4 完成</span>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-green-50/60 border border-green-100/50">
+                  <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-[14px] font-semibold text-gray-700 line-through decoration-green-400/50">完成 20 句影子跟读</div>
+                    <div class="text-[12px] text-gray-400 mt-0.5">准确度 82%，流利度 76%</div>
+                  </div>
+                  <span class="text-[11px] text-green-600 font-medium">已完成</span>
+                </div>
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-green-50/60 border border-green-100/50">
+                  <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="flex-1">
+                    <div class="text-[14px] font-semibold text-gray-700 line-through decoration-green-400/50">复习昨日生成的 8 张卡片</div>
+                    <div class="text-[12px] text-gray-400 mt-0.5">正确率 87.5%，FSRS 已更新</div>
+                  </div>
+                  <span class="text-[11px] text-green-600 font-medium">已完成</span>
+                </div>
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-indigo-50/50 border border-indigo-100/50 cursor-pointer btn-press hover:bg-indigo-50 transition-colors" onclick="navigate('review')">
+                  <div class="w-6 h-6 rounded-full border-2 border-indigo-400 shrink-0"></div>
+                  <div class="flex-1">
+                    <div class="text-[14px] font-semibold text-gray-800">复习今日卡片队列 (12 张)</div>
+                    <div class="text-[12px] text-gray-400 mt-0.5">预计 8 分钟 · 包含 3 张新卡</div>
+                  </div>
+                  <button class="px-4 py-1.5 bg-indigo-600 text-white text-[12px] font-semibold rounded-lg hover:bg-indigo-700 transition-colors">开始复习</button>
+                </div>
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-white border border-gray-100 cursor-pointer btn-press hover:bg-gray-50 transition-colors" onclick="navigate('shadowing')">
+                  <div class="w-6 h-6 rounded-full border-2 border-gray-300 shrink-0"></div>
+                  <div class="flex-1">
+                    <div class="text-[14px] font-semibold text-gray-800">AI 口语脱敏练习 (15 分钟)</div>
+                    <div class="text-[12px] text-gray-400 mt-0.5">基于你的弱项图谱定制话题</div>
+                  </div>
+                  <button class="px-4 py-1.5 bg-gray-800 text-white text-[12px] font-semibold rounded-lg hover:bg-gray-900 transition-colors">开始练习</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weekly Activity -->
+            <div class="glass-card p-6">
+              <div class="flex items-center justify-between mb-5">
+                <h2 class="text-[16px] font-bold text-gray-800">本周学习热力</h2>
+                <div class="flex gap-3 text-[12px] text-gray-400">
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-indigo-200"></span> 跟读</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-purple-200"></span> 复习</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-orange-200"></span> AI 对话</span>
+                </div>
+              </div>
+              <div class="flex items-end justify-between gap-3 h-32 px-2">
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 28px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 16px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 8px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">周一</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 42px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 24px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 12px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">周二</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 18px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 32px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 0px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">周三</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 56px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 20px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 20px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">周四</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 34px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 12px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 16px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">周五</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 48px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 28px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 10px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">周六</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center gap-2">
+                  <div class="w-full flex flex-col-reverse gap-1">
+                    <div class="w-full rounded-md bg-indigo-500/80" style="height: 22px"></div>
+                    <div class="w-full rounded-md bg-purple-400/70" style="height: 0px"></div>
+                    <div class="w-full rounded-md bg-orange-300/60" style="height: 0px"></div>
+                  </div>
+                  <span class="text-[10px] text-gray-400 font-medium">今天</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SHADOWING ==================== -->
+        <div id="page-shadowing" class="page p-8">
+          <div class="max-w-3xl mx-auto">
+            <div class="mb-6">
+              <h1 class="text-[24px] font-bold text-gray-900 mb-1">影子跟读</h1>
+              <p class="text-gray-500 text-[14px]">选择材料，听一句跟一句，AI 实时评测四维发音</p>
+            </div>
+
+            <!-- Material Selector -->
+            <div class="glass-card p-5 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[14px] font-bold text-gray-800 truncate">TED Talk: The Surprising Science of Happiness</div>
+                  <div class="text-[12px] text-gray-400 mt-0.5">Dan Gilbert · 12 分钟 · 234 句</div>
+                </div>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 text-[12px] font-semibold rounded-xl hover:bg-gray-200 transition-colors btn-press">更换材料</button>
+              </div>
+              <!-- Progress bar -->
+              <div class="mt-4 flex items-center gap-3">
+                <span class="text-[11px] text-gray-400 font-medium w-10">23%</span>
+                <div class="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full transition-all duration-500" style="width: 23%"></div>
+                </div>
+                <span class="text-[11px] text-gray-400 font-medium">54 / 234</span>
+              </div>
+            </div>
+
+            <!-- Player Area -->
+            <div class="glass-card p-6 mb-5">
+              <!-- Sentence Display -->
+              <div class="text-center mb-8">
+                <div class="inline-block px-4 py-1.5 bg-indigo-50 text-indigo-600 text-[11px] font-bold rounded-full mb-4">第 54 句</div>
+                <div class="text-[22px] font-semibold text-gray-800 leading-relaxed mb-2">"The secret of happiness, you see, is not found in seeking more, but in developing the capacity to enjoy less."</div>
+                <div class="text-[15px] text-gray-400">幸福的秘诀，不在于追求更多，而在于培养享受更少的能力。</div>
+              </div>
+
+              <!-- Waveform Visualizer -->
+              <div class="flex items-center justify-center gap-[3px] h-12 mb-6" id="waveform">
+                <script>
+                  (function(){
+                    const wf = document.getElementById('waveform');
+                    for(let i=0;i<60;i++){
+                      const h = 6 + Math.random()*20;
+                      const bar = document.createElement('div');
+                      bar.className='rounded-full bg-indigo-200';
+                      bar.style.cssText=`width:3px;height:${h}px;transition:height 0.2s`;
+                      wf.appendChild(bar);
+                    }
+                  })();
+                </script>
+              </div>
+
+              <!-- Controls -->
+              <div class="flex items-center justify-center gap-4 mb-6">
+                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors btn-press" onclick="prevSentence()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+                </button>
+                <button id="playBtn" class="w-14 h-14 rounded-full bg-gray-900 flex items-center justify-center hover:bg-gray-800 transition-all shadow-mac-lg btn-press" onclick="togglePlay()">
+                  <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg id="pauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                </button>
+                <button id="recordBtn" class="w-14 h-14 rounded-full bg-red-500 flex items-center justify-center hover:bg-red-600 transition-all shadow-lg shadow-red-200 btn-press" onclick="toggleRecord()">
+                  <svg id="micIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  <svg id="stopIcon" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="none" style="display:none"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                </button>
+                <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors btn-press" onclick="nextSentence()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                </button>
+              </div>
+
+              <!-- Recording Timer -->
+              <div id="recordTimer" class="text-center hidden">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-full">
+                  <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                  <span class="text-[13px] font-mono font-semibold" id="timerText">00:00</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Result Panel -->
+            <div id="scorePanel" class="glass-card p-6 hidden">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="text-[16px] font-bold text-gray-800">发音评测结果</h3>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[20px] font-bold text-gray-800">78.5</span>
+                  <span class="text-[12px] text-gray-400">综合</span>
+                </div>
+              </div>
+
+              <div class="flex gap-6">
+                <!-- Radar Chart -->
+                <div class="flex-shrink-0">
+                  <svg width="200" height="200" viewBox="0 0 200 200">
+                    <!-- Grid -->
+                    <g stroke="#e5e7eb" stroke-width="1" fill="none">
+                      <polygon points="100,30 170,100 100,170 30,100"/>
+                      <polygon points="100,47 153,100 100,153 47,100"/>
+                      <polygon points="100,65 135,100 100,135 65,100"/>
+                      <polygon points="100,82 118,100 100,118 82,100"/>
+                    </g>
+                    <!-- Axes -->
+                    <g stroke="#d1d5db" stroke-width="1">
+                      <line x1="100" y1="30" x2="100" y2="170"/>
+                      <line x1="30" y1="100" x2="170" y2="100"/>
+                    </g>
+                    <!-- Data polygon -->
+                    <polygon points="100,52 156,88 106,162 44,94" fill="rgba(79,70,229,0.15)" stroke="#4f46e5" stroke-width="2" class="radar-polygon"/>
+                    <!-- Points -->
+                    <g fill="#4f46e5">
+                      <circle cx="100" cy="52" r="4"/><circle cx="156" cy="88" r="4"/><circle cx="106" cy="162" r="4"/><circle cx="44" cy="94" r="4"/>
+                    </g>
+                    <!-- Labels -->
+                    <text x="100" y="22" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="600">准确度 85</text>
+                    <text x="182" y="104" text-anchor="start" fill="#6b7280" font-size="11" font-weight="600">流利度 72</text>
+                    <text x="100" y="186" text-anchor="middle" fill="#6b7280" font-size="11" font-weight="600">完整度 68</text>
+                    <text x="18" y="104" text-anchor="end" fill="#6b7280" font-size="11" font-weight="600">韵律 80</text>
+                  </svg>
+                </div>
+
+                <!-- Details -->
+                <div class="flex-1 space-y-3">
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-green-50/70 border border-green-100/50">
+                    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600 font-bold text-[12px]">85</div>
+                    <div class="flex-1">
+                      <div class="text-[13px] font-semibold text-gray-700">准确度</div>
+                      <div class="text-[11px] text-gray-400">音素发音基本正确</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-yellow-50/70 border border-yellow-100/50">
+                    <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold text-[12px]">72</div>
+                    <div class="flex-1">
+                      <div class="text-[13px] font-semibold text-gray-700">流利度</div>
+                      <div class="text-[11px] text-gray-400">中间有 2 处明显停顿</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-red-50/70 border border-red-100/50">
+                    <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center text-red-600 font-bold text-[12px]">68</div>
+                    <div class="flex-1">
+                      <div class="text-[13px] font-semibold text-gray-700">完整度</div>
+                      <div class="text-[11px] text-gray-400">漏读了 "developing the"</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-green-50/70 border border-green-100/50">
+                    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center text-green-600 font-bold text-[12px]">80</div>
+                    <div class="flex-1">
+                      <div class="text-[13px] font-semibold text-gray-700">韵律匹配</div>
+                      <div class="text-[11px] text-gray-400">语调起伏与原声接近</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-3 mt-5 pt-5 border-t border-gray-100">
+                <button class="flex-1 py-2.5 bg-indigo-600 text-white text-[13px] font-semibold rounded-xl hover:bg-indigo-700 transition-colors btn-press" onclick="addToCards()">加入重点练习卡片</button>
+                <button class="flex-1 py-2.5 bg-gray-100 text-gray-600 text-[13px] font-semibold rounded-xl hover:bg-gray-200 transition-colors btn-press" onclick="nextSentence()">继续下一句</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== REVIEW ==================== -->
+        <div id="page-review" class="page p-8">
+          <div class="max-w-2xl mx-auto h-full flex flex-col">
+            <div class="mb-5">
+              <h1 class="text-[24px] font-bold text-gray-900 mb-1">每日复习</h1>
+              <p class="text-gray-500 text-[14px]">基于 FSRS 算法调度，今日 12 张卡片待复习</p>
+            </div>
+
+            <!-- Progress -->
+            <div class="flex items-center gap-3 mb-6">
+              <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500" id="reviewProgress" style="width: 0%"></div>
+              </div>
+              <span class="text-[13px] font-medium text-gray-500"><span id="reviewDone">0</span> / 12</span>
+            </div>
+
+            <!-- Flip Card -->
+            <div class="flex-1 flex items-center justify-center">
+              <div class="flip-card w-full max-w-lg" id="flipCard" onclick="flipCard()">
+                <div class="flip-card-inner" style="height: 380px">
+                  <!-- Front -->
+                  <div class="flip-card-front glass-card p-8 flex flex-col items-center justify-center cursor-pointer">
+                    <div class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[11px] font-bold rounded-full mb-6">词汇卡</div>
+                    <div class="text-[32px] font-bold text-gray-800 mb-3">develop the capacity</div>
+                    <div class="text-[15px] text-gray-400 mb-6">培养...的能力</div>
+                    <div class="text-[12px] text-gray-300">点击卡片查看详情与例句</div>
+                  </div>
+                  <!-- Back -->
+                  <div class="flip-card-back glass-card p-8 flex flex-col cursor-pointer" style="background: linear-gradient(135deg, #fafbff 0%, #f0f4ff 100%)">
+                    <div class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[11px] font-bold rounded-full mb-4 self-start">词汇卡</div>
+                    <div class="text-[24px] font-bold text-gray-800 mb-2">develop the capacity</div>
+                    <div class="text-[14px] text-gray-500 mb-4">/dɪˈveləp ðə kəˈpæsɪti/</div>
+                    <div class="flex-1">
+                      <div class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-2">释义</div>
+                      <div class="text-[14px] text-gray-700 mb-4">培养某种能力；发展某种潜能。常用于正式或学术语境。</div>
+                      <div class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-2">例句</div>
+                      <div class="text-[14px] text-gray-700 italic">"We need to <span class="font-semibold text-indigo-600">develop the capacity</span> to adapt to rapid changes."</div>
+                      <div class="text-[12px] text-gray-400 mt-1">我们需要培养适应快速变化的能力。</div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                      <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                        <span class="px-2 py-0.5 bg-gray-100 rounded-md">来源: TED Talk 影子跟读</span>
+                        <span class="px-2 py-0.5 bg-gray-100 rounded-md">错误类型: 漏读</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SRS Buttons -->
+            <div class="flex gap-3 mt-6" id="srsButtons">
+              <button class="flex-1 py-3 bg-red-50 text-red-600 text-[13px] font-semibold rounded-xl hover:bg-red-100 transition-colors btn-press border border-red-100" onclick="rateCard('again')">
+                <div class="text-[16px] font-bold">Again</div>
+                <div class="text-[11px] opacity-70">&lt; 1 分钟</div>
+              </button>
+              <button class="flex-1 py-3 bg-orange-50 text-orange-600 text-[13px] font-semibold rounded-xl hover:bg-orange-100 transition-colors btn-press border border-orange-100" onclick="rateCard('hard')">
+                <div class="text-[16px] font-bold">Hard</div>
+                <div class="text-[11px] opacity-70">2 天</div>
+              </button>
+              <button class="flex-1 py-3 bg-blue-50 text-blue-600 text-[13px] font-semibold rounded-xl hover:bg-blue-100 transition-colors btn-press border border-blue-100" onclick="rateCard('good')">
+                <div class="text-[16px] font-bold">Good</div>
+                <div class="text-[11px] opacity-70">5 天</div>
+              </button>
+              <button class="flex-1 py-3 bg-green-50 text-green-600 text-[13px] font-semibold rounded-xl hover:bg-green-100 transition-colors btn-press border border-green-100" onclick="rateCard('easy')">
+                <div class="text-[16px] font-bold">Easy</div>
+                <div class="text-[11px] opacity-70">12 天</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PROGRESS ==================== -->
+        <div id="page-progress" class="page p-8">
+          <div class="max-w-3xl mx-auto">
+            <div class="mb-6">
+              <h1 class="text-[24px] font-bold text-gray-900 mb-1">学习画像</h1>
+              <p class="text-gray-500 text-[14px]">基于 TiMem 记忆系统的长期学习者画像</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-5 mb-5">
+              <!-- Ability Radar -->
+              <div class="glass-card p-6">
+                <h3 class="text-[14px] font-bold text-gray-700 mb-4">能力画像</h3>
+                <div class="flex justify-center">
+                  <svg width="220" height="220" viewBox="0 0 220 220">
+                    <!-- 5-axis grid -->
+                    <g stroke="#e5e7eb" stroke-width="1" fill="none">
+                      <polygon points="110,25 198,90 163,190 57,190 22,90"/>
+                      <polygon points="110,50 176,98 150,172 70,172 44,98"/>
+                      <polygon points="110,75 154,106 138,155 82,155 66,106"/>
+                      <polygon points="110,100 131,109 125,137 95,137 89,109"/>
+                    </g>
+                    <g stroke="#d1d5db" stroke-width="1">
+                      <line x1="110" y1="25" x2="110" y2="190"/><line x1="22" y1="90" x2="198" y2="90"/><line x1="57" y1="190" x2="163" y2="25"/><line x1="163" y1="190" x2="57" y2="25"/>
+                    </g>
+                    <polygon points="110,43 182,93 148,177 72,177 38,93" fill="rgba(79,70,229,0.12)" stroke="#4f46e5" stroke-width="2"/>
+                    <g fill="#4f46e5"><circle cx="110" cy="43" r="4"/><circle cx="182" cy="93" r="4"/><circle cx="148" cy="177" r="4"/><circle cx="72" cy="177" r="4"/><circle cx="38" cy="93" r="4"/></g>
+                    <text x="110" y="16" text-anchor="middle" fill="#6b7280" font-size="10" font-weight="600">发音准确度 78</text>
+                    <text x="210" y="95" text-anchor="start" fill="#6b7280" font-size="10" font-weight="600">流利度 65</text>
+                    <text x="170" y="205" text-anchor="middle" fill="#6b7280" font-size="10" font-weight="600">口腔肌肉 72</text>
+                    <text x="50" y="205" text-anchor="middle" fill="#6b7280" font-size="10" font-weight="600">听力理解 85</text>
+                    <text x="10" y="95" text-anchor="end" fill="#6b7280" font-size="10" font-weight="600">主动词汇 58</text>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Error Distribution -->
+              <div class="glass-card p-6">
+                <h3 class="text-[14px] font-bold text-gray-700 mb-4">弱项图谱</h3>
+                <div class="space-y-4">
+                  <div>
+                    <div class="flex justify-between text-[12px] mb-1.5"><span class="text-gray-600 font-medium">/θ/ vs /s/ 混淆</span><span class="text-gray-400">23 次</span></div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-red-400 rounded-full" style="width: 85%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-[12px] mb-1.5"><span class="text-gray-600 font-medium">句末降调</span><span class="text-gray-400">18 次</span></div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-orange-400 rounded-full" style="width: 65%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-[12px] mb-1.5"><span class="text-gray-600 font-medium">连读省略</span><span class="text-gray-400">15 次</span></div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-yellow-400 rounded-full" style="width: 55%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-[12px] mb-1.5"><span class="text-gray-600 font-medium">重音位置</span><span class="text-gray-400">11 次</span></div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-blue-400 rounded-full" style="width: 42%"></div></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-[12px] mb-1.5"><span class="text-gray-600 font-medium">长元音缩短</span><span class="text-gray-400">8 次</span></div>
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-green-400 rounded-full" style="width: 30%"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fluency Trend -->
+            <div class="glass-card p-6 mb-5">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-[14px] font-bold text-gray-700">流利度趋势 (30 天)</h3>
+                <div class="flex items-center gap-1 text-[12px] text-green-600 font-medium">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  +12.3%
+                </div>
+              </div>
+              <div class="h-40 relative">
+                <svg width="100%" height="100%" viewBox="0 0 600 160" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="rgba(79,70,229,0.2)"/>
+                      <stop offset="100%" stop-color="rgba(79,70,229,0)"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,120 C40,115 80,110 120,105 C160,100 200,95 240,90 C280,85 320,80 360,75 C400,70 440,60 480,55 C520,50 560,45 600,35 L600,160 L0,160 Z" fill="url(#trendGrad)"/>
+                  <path d="M0,120 C40,115 80,110 120,105 C160,100 200,95 240,90 C280,85 320,80 360,75 C400,70 440,60 480,55 C520,50 560,45 600,35" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round"/>
+                  <circle cx="600" cy="35" r="5" fill="#4f46e5" stroke="white" stroke-width="2"/>
+                  <!-- Grid lines -->
+                  <line x1="0" y1="40" x2="600" y2="40" stroke="#f3f4f6" stroke-width="1"/>
+                  <line x1="0" y1="80" x2="600" y2="80" stroke="#f3f4f6" stroke-width="1"/>
+                  <line x1="0" y1="120" x2="600" y2="120" stroke="#f3f4f6" stroke-width="1"/>
+                </svg>
+                <div class="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-gray-400 px-1">
+                  <span>5/4</span><span>5/10</span><span>5/16</span><span>5/22</span><span>5/28</span><span>今天</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-4 gap-4">
+              <div class="glass-card p-4 text-center">
+                <div class="text-[11px] text-gray-400 mb-1">累计学习时长</div>
+                <div class="text-[20px] font-bold text-gray-800">38.5<span class="text-[12px] font-normal text-gray-400">h</span></div>
+              </div>
+              <div class="glass-card p-4 text-center">
+                <div class="text-[11px] text-gray-400 mb-1">总跟读句数</div>
+                <div class="text-[20px] font-bold text-gray-800">156</div>
+              </div>
+              <div class="glass-card p-4 text-center">
+                <div class="text-[11px] text-gray-400 mb-1">已掌握卡片</div>
+                <div class="text-[20px] font-bold text-gray-800">89</div>
+              </div>
+              <div class="glass-card p-4 text-center">
+                <div class="text-[11px] text-gray-400 mb-1">连续学习</div>
+                <div class="text-[20px] font-bold text-gray-800">12<span class="text-[12px] font-normal text-gray-400">天</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SETTINGS ==================== -->
+        <div id="page-settings" class="page p-8">
+          <div class="max-w-2xl mx-auto">
+            <div class="mb-6">
+              <h1 class="text-[24px] font-bold text-gray-900 mb-1">偏好设置</h1>
+              <p class="text-gray-500 text-[14px]">管理 API 密钥、学习偏好与系统配置</p>
+            </div>
+
+            <div class="space-y-5">
+              <!-- API Keys -->
+              <div class="glass-card p-6">
+                <h3 class="text-[14px] font-bold text-gray-700 mb-4 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                  API 密钥
+                </h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">DeepSeek API Key</label>
+                    <div class="flex gap-2">
+                      <input type="password" value="sk-ds-v4-xxxxxxxxxxxx" class="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all" readonly>
+                      <button class="px-4 py-2.5 bg-gray-100 text-gray-600 text-[12px] font-semibold rounded-xl hover:bg-gray-200 transition-colors btn-press">编辑</button>
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-1.5">用于卡片生成与学习日报。当前使用 V4-Pro / Flash 路由。</div>
+                  </div>
+                  <div>
+                    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">腾讯云 SOE SecretId</label>
+                    <div class="flex gap-2">
+                      <input type="password" value="AKIDxxxxxxxxxxxxxxxx" class="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all" readonly>
+                      <button class="px-4 py-2.5 bg-gray-100 text-gray-600 text-[12px] font-semibold rounded-xl hover:bg-gray-200 transition-colors btn-press">编辑</button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-[12px] font-semibold text-gray-600 block mb-1.5">TiMem API Token</label>
+                    <div class="flex gap-2">
+                      <input type="password" value="timem_xxxxxxxxxxxxxx" class="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-[13px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all" readonly>
+                      <button class="px-4 py-2.5 bg-gray-100 text-gray-600 text-[12px] font-semibold rounded-xl hover:bg-gray-200 transition-colors btn-press">编辑</button>
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-1.5">长期学习者画像记忆系统。</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Learning Preferences -->
+              <div class="glass-card p-6">
+                <h3 class="text-[14px] font-bold text-gray-700 mb-4 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                  学习偏好
+                </h3>
+                <div class="space-y-5">
+                  <div>
+                    <div class="flex justify-between mb-2">
+                      <label class="text-[12px] font-semibold text-gray-600">每日学习目标 (分钟)</label>
+                      <span class="text-[12px] font-bold text-indigo-600" id="goalValue">60</span>
+                    </div>
+                    <input type="range" min="15" max="120" value="60" class="w-full" oninput="document.getElementById('goalValue').textContent=this.value">
+                    <div class="flex justify-between text-[10px] text-gray-400 mt-1"><span>15</span><span>120</span></div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between mb-2">
+                      <label class="text-[12px] font-semibold text-gray-600">每日新卡上限</label>
+                      <span class="text-[12px] font-bold text-indigo-600" id="cardLimitValue">10</span>
+                    </div>
+                    <input type="range" min="5" max="30" value="10" class="w-full" oninput="document.getElementById('cardLimitValue').textContent=this.value">
+                    <div class="flex justify-between text-[10px] text-gray-400 mt-1"><span>5</span><span>30</span></div>
+                  </div>
+                  <div class="flex items-center justify-between py-2">
+                    <div>
+                      <div class="text-[13px] font-semibold text-gray-700">自动播放原声</div>
+                      <div class="text-[11px] text-gray-400">跟读前自动播放参考音频</div>
+                    </div>
+                    <button class="w-11 h-6 bg-indigo-500 rounded-full relative transition-colors btn-press" onclick="toggleSwitch(this)">
+                      <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm transition-all"></div>
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between py-2">
+                    <div>
+                      <div class="text-[13px] font-semibold text-gray-700">每日日报推送</div>
+                      <div class="text-[11px] text-gray-400">学习结束后自动生成日报</div>
+                    </div>
+                    <button class="w-11 h-6 bg-indigo-500 rounded-full relative transition-colors btn-press" onclick="toggleSwitch(this)">
+                      <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm transition-all"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- System -->
+              <div class="glass-card p-6">
+                <h3 class="text-[14px] font-bold text-gray-700 mb-4 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                  系统
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between py-2">
+                    <div>
+                      <div class="text-[13px] font-semibold text-gray-700">启动时检查更新</div>
+                    </div>
+                    <button class="w-11 h-6 bg-gray-300 rounded-full relative transition-colors btn-press" onclick="toggleSwitch(this)">
+                      <div class="w-4 h-4 bg-white rounded-full absolute top-1 left-1 shadow-sm transition-all"></div>
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between py-2">
+                    <div>
+                      <div class="text-[13px] font-semibold text-gray-700">数据自动备份</div>
+                      <div class="text-[11px] text-gray-400">每日自动导出 SQLite 到 iCloud</div>
+                    </div>
+                    <button class="w-11 h-6 bg-indigo-500 rounded-full relative transition-colors btn-press" onclick="toggleSwitch(this)">
+                      <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm transition-all"></div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ============ NAVIGATION ============
+    function navigate(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+      });
+    }
+
+    // ============ SHADOWING ============
+    let isPlaying = false;
+    let isRecording = false;
+    let recordTimer = null;
+    let recordSeconds = 0;
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById('playIcon').style.display = isPlaying ? 'none' : 'block';
+      document.getElementById('pauseIcon').style.display = isPlaying ? 'block' : 'none';
+      // Animate waveform
+      const bars = document.getElementById('waveform').children;
+      for (let bar of bars) {
+        bar.style.animation = isPlaying ? `wave ${0.4 + Math.random() * 0.5}s ease-in-out infinite` : 'none';
+        bar.style.height = isPlaying ? (8 + Math.random() * 24) + 'px' : '12px';
+      }
+    }
+
+    function toggleRecord() {
+      if (isRecording) {
+        // Stop recording
+        isRecording = false;
+        clearInterval(recordTimer);
+        document.getElementById('micIcon').style.display = 'block';
+        document.getElementById('stopIcon').style.display = 'none';
+        document.getElementById('recordBtn').classList.remove('record-pulse');
+        document.getElementById('recordTimer').classList.add('hidden');
+        recordSeconds = 0;
+        // Show score after a delay
+        setTimeout(() => {
+          document.getElementById('scorePanel').classList.remove('hidden');
+        }, 800);
+      } else {
+        // Start recording
+        isRecording = true;
+        document.getElementById('micIcon').style.display = 'none';
+        document.getElementById('stopIcon').style.display = 'block';
+        document.getElementById('recordBtn').classList.add('record-pulse');
+        document.getElementById('recordTimer').classList.remove('hidden');
+        document.getElementById('scorePanel').classList.add('hidden');
+        recordSeconds = 0;
+        recordTimer = setInterval(() => {
+          recordSeconds++;
+          const m = Math.floor(recordSeconds / 60).toString().padStart(2, '0');
+          const s = (recordSeconds % 60).toString().padStart(2, '0');
+          document.getElementById('timerText').textContent = `${m}:${s}`;
+        }, 1000);
+      }
+    }
+
+    function nextSentence() {
+      document.getElementById('scorePanel').classList.add('hidden');
+      // Reset for demo
+      isRecording = false;
+      clearInterval(recordTimer);
+      document.getElementById('micIcon').style.display = 'block';
+      document.getElementById('stopIcon').style.display = 'none';
+      document.getElementById('recordBtn').classList.remove('record-pulse');
+      document.getElementById('recordTimer').classList.add('hidden');
+    }
+
+    function prevSentence() {
+      nextSentence();
+    }
+
+    function addToCards() {
+      const btn = event.target;
+      btn.textContent = '已加入卡片队列 ✓';
+      btn.classList.add('bg-green-600');
+      setTimeout(() => {
+        btn.textContent = '加入重点练习卡片';
+        btn.classList.remove('bg-green-600');
+      }, 2000);
+    }
+
+    // ============ REVIEW / FLIP CARD ============
+    let reviewCount = 0;
+    const totalCards = 12;
+    const cardData = [
+      { type: '词汇卡', front: 'develop the capacity', back: '/dɪˈveləp ðə kəˈpæsɪti/', meaning: '培养某种能力；发展某种潜能。常用于正式或学术语境。', example: 'We need to develop the capacity to adapt to rapid changes.', trans: '我们需要培养适应快速变化的能力。' },
+      { type: '句式卡', front: 'The secret of... is not found in..., but in...', back: '...的秘诀，不在于...，而在于...', meaning: '用于表达某事物的真正关键在于后者而非前者。', example: 'The secret of success is not found in luck, but in persistence.', trans: '成功的秘诀不在于运气，而在于坚持。' },
+      { type: '口语短语', front: 'get the hang of', back: '/ɡet ðə hæŋ əv/', meaning: '掌握...的要领；熟悉...的做法', example: "You'll get the hang of it after a few tries.", trans: '试几次后你就会掌握要领的。' },
+      { type: '错误纠正', front: '"developing" 不要吞掉 /ɪŋ/', back: '词尾 -ing 要清晰发出 /ɪŋ/ 音，不要读成 /ɪn/ 或省略', meaning: '进行时态标记 -ing 的尾音是常见吞音点，需刻意练习。', example: 'I am develo-ping new skills.', trans: '注意 /pɪŋ/ 的清晰收尾' },
+      { type: '场景卡', front: '餐厅点餐', back: 'Restaurant Ordering', meaning: '完整对话场景：从入座到结账的常用表达。', example: "Could I get the check, please? / I'll take the grilled salmon.", trans: '请给我账单。/ 我要烤三文鱼。' },
+    ];
+    let currentCardIdx = 0;
+
+    function flipCard() {
+      document.getElementById('flipCard').classList.toggle('flipped');
+    }
+
+    function rateCard(rating) {
+      flipCard();
+      reviewCount++;
+      document.getElementById('reviewDone').textContent = reviewCount;
+      document.getElementById('reviewProgress').style.width = (reviewCount / totalCards * 100) + '%';
+
+      // Cycle to next card
+      setTimeout(() => {
+        currentCardIdx = (currentCardIdx + 1) % cardData.length;
+        const card = cardData[currentCardIdx];
+        const front = document.querySelector('.flip-card-front');
+        const back = document.querySelector('.flip-card-back');
+        // Update front
+        front.querySelector('div:first-child').textContent = card.type;
+        front.querySelector('div:nth-child(2)').textContent = card.front;
+        front.querySelector('div:nth-child(3)').textContent = card.back;
+        // Update back
+        back.querySelector('div:first-child').textContent = card.type;
+        back.querySelector('div:nth-child(2)').textContent = card.front;
+        back.querySelector('div:nth-child(3)').textContent = card.back.length > 30 ? card.back.substring(0, 30) + '...' : card.back;
+        const content = back.querySelector('div:nth-child(4)');
+        content.innerHTML = `
+          <div class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-2">释义</div>
+          <div class="text-[14px] text-gray-700 mb-4">${card.meaning}</div>
+          <div class="text-[12px] font-bold text-gray-400 uppercase tracking-wider mb-2">例句</div>
+          <div class="text-[14px] text-gray-700 italic">"${card.example}"</div>
+          <div class="text-[12px] text-gray-400 mt-1">${card.trans}</div>
+        `;
+      }, 350);
+    }
+
+    // ============ SETTINGS ============
+    function toggleSwitch(btn) {
+      const knob = btn.querySelector('div');
+      const isOn = btn.classList.contains('bg-indigo-500');
+      if (isOn) {
+        btn.classList.remove('bg-indigo-500');
+        btn.classList.add('bg-gray-300');
+        knob.style.right = 'auto';
+        knob.style.left = '4px';
+      } else {
+        btn.classList.remove('bg-gray-300');
+        btn.classList.add('bg-indigo-500');
+        knob.style.left = 'auto';
+        knob.style.right = '4px';
+      }
+    }
+
+    // ============ INIT ============
+    // Animate waveform on load
+    window.addEventListener('load', () => {
+      const bars = document.getElementById('waveform').children;
+      for (let bar of bars) {
+        bar.style.height = (6 + Math.random() * 16) + 'px';
+      }
+    });
+  </script>
+</body>
+</html>

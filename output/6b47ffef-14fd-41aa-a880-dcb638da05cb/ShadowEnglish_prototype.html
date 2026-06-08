@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowEnglish — 交互原型</title>
+<style>
+/* ============ 设计系统 Design Tokens ============ */
+:root{
+  /* 品牌色 — 暖橙到珊瑚的渐变，传递「开口说」的活力 */
+  --brand-50:#fff4ed;  --brand-100:#ffe5d3; --brand-200:#ffc8a6;
+  --brand-300:#ffa06f; --brand-400:#ff7a3c; --brand-500:#f55a17;
+  --brand-600:#e2440a; --brand-700:#bb330d;
+
+  /* 中性色 — 极浅暖灰底，高级感来自层次而非纯白 */
+  --bg:#f7f6f3;        --surface:#ffffff;   --surface-2:#fbfaf8;
+  --line:#ece9e3;      --line-strong:#ddd8cf;
+  --ink:#1c1a17;       --ink-2:#56524b;     --ink-3:#8a857c;  --ink-4:#b4afa5;
+
+  /* 功能色 */
+  --green:#1faa6c;  --green-bg:#e6f6ee;
+  --amber:#e8951a;  --amber-bg:#fcf2dd;
+  --red:#e0463c;    --red-bg:#fbe7e5;
+  --blue:#3b7df0;   --blue-bg:#e8f0fe;
+  --purple:#7c5cff; --purple-bg:#efebff;
+
+  /* 阴影 — 柔和分层 */
+  --sh-sm:0 1px 2px rgba(28,26,23,.04), 0 1px 3px rgba(28,26,23,.06);
+  --sh-md:0 2px 8px rgba(28,26,23,.05), 0 8px 24px rgba(28,26,23,.06);
+  --sh-lg:0 8px 30px rgba(28,26,23,.10), 0 24px 60px rgba(28,26,23,.08);
+  --sh-brand:0 8px 24px rgba(245,90,23,.28);
+
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:24px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","PingFang SC","Helvetica Neue",sans-serif;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--font);
+  background:linear-gradient(135deg,#e9e6df 0%,#ddd9d0 100%);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:28px;
+}
+
+/* ============ macOS 窗口外壳 ============ */
+.window{
+  width:1240px; height:820px;
+  background:var(--bg);
+  border-radius:14px;
+  box-shadow:var(--sh-lg), 0 0 0 1px rgba(0,0,0,.04);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  position:relative;
+}
+.titlebar{
+  height:46px; flex-shrink:0;
+  display:flex; align-items:center;
+  padding:0 18px;
+  background:rgba(251,250,248,.7);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--line);
+  -webkit-app-region:drag;
+  position:relative; z-index:30;
+}
+.traffic{display:flex; gap:8px}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+.titlebar .title{
+  position:absolute; left:0; right:0; text-align:center;
+  font-size:13px; font-weight:600; color:var(--ink-3);
+  pointer-events:none;
+}
+
+.body{flex:1; display:flex; overflow:hidden}
+
+/* ============ 侧边栏 ============ */
+.sidebar{
+  width:228px; flex-shrink:0;
+  background:rgba(251,250,248,.65);
+  backdrop-filter:saturate(180%) blur(20px);
+  border-right:1px solid var(--line);
+  display:flex; flex-direction:column;
+  padding:14px 12px;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:8px 10px 16px}
+.logo{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(140deg,var(--brand-400),var(--brand-600));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--sh-brand);
+}
+.logo svg{width:19px;height:19px}
+.brand .name{font-size:15px;font-weight:700;letter-spacing:-.2px}
+.brand .tag{font-size:11px;color:var(--ink-3);margin-top:1px}
+
+.nav-label{font-size:11px;font-weight:600;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px 4px}
+.nav-item{
+  display:flex; align-items:center; gap:11px;
+  padding:9px 12px; margin:2px 0; border-radius:10px;
+  font-size:13.5px; font-weight:500; color:var(--ink-2);
+  cursor:pointer; transition:.16s; position:relative;
+}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;stroke-width:1.9}
+.nav-item:hover{background:rgba(0,0,0,.035); color:var(--ink)}
+.nav-item.active{background:var(--surface); color:var(--brand-600); box-shadow:var(--sh-sm); font-weight:600}
+.nav-item.active svg{color:var(--brand-500)}
+.nav-item .badge{
+  margin-left:auto; font-size:11px; font-weight:700;
+  background:var(--brand-500); color:#fff;
+  min-width:19px;height:19px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center; padding:0 5px;
+}
+
+.streak{
+  margin-top:auto; background:var(--surface); border:1px solid var(--line);
+  border-radius:14px; padding:13px; box-shadow:var(--sh-sm);
+}
+.streak .top{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.streak .fire{font-size:16px}
+.streak .num{font-size:26px;font-weight:800;letter-spacing:-1px;margin:6px 0 2px;color:var(--ink)}
+.streak .num b{color:var(--brand-500)}
+.streak .sub{font-size:11.5px;color:var(--ink-3)}
+.streak .week{display:flex;gap:5px;margin-top:11px}
+.streak .day{flex:1;height:5px;border-radius:3px;background:var(--line-strong)}
+.streak .day.on{background:linear-gradient(90deg,var(--brand-400),var(--brand-500))}
+
+/* ============ 主内容区 ============ */
+.main{flex:1; overflow-y:auto; position:relative}
+.main::-webkit-scrollbar{width:9px}
+.main::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:5px;border:2px solid var(--bg)}
+.page{display:none; padding:30px 38px 40px; animation:fade .35s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.page-head h1{font-size:25px;font-weight:800;letter-spacing:-.6px}
+.page-head .desc{font-size:13.5px;color:var(--ink-3);margin-top:4px}
+.btn{
+  font-family:inherit;font-size:13px;font-weight:600;
+  padding:9px 16px;border-radius:10px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.16s;
+}
+.btn svg{width:16px;height:16px;stroke-width:2}
+.btn-primary{background:linear-gradient(140deg,var(--brand-400),var(--brand-600));color:#fff;box-shadow:var(--sh-brand)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(245,90,23,.36)}
+.btn-ghost{background:var(--surface);color:var(--ink-2);border:1px solid var(--line-strong);box-shadow:var(--sh-sm)}
+.btn-ghost:hover{background:var(--surface-2);color:var(--ink)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-sm)}
+
+/* ============ 首页 Dashboard ============ */
+.greet{font-size:20px;font-weight:700;margin-bottom:2px}
+.hero{
+  position:relative; overflow:hidden;
+  background:linear-gradient(125deg,#fff7f0 0%,#ffece0 55%,#ffe2d0 100%);
+  border:1px solid var(--brand-100);
+  border-radius:var(--r-xl); padding:26px 28px; margin-bottom:22px;
+  display:flex; align-items:center; gap:28px;
+}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,122,60,.16),transparent 70%)}
+.hero .ring{position:relative;width:128px;height:128px;flex-shrink:0}
+.hero .ring svg{transform:rotate(-90deg)}
+.hero .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.hero .ring .ctr .pct{font-size:30px;font-weight:800;letter-spacing:-1px;color:var(--brand-600)}
+.hero .ring .ctr .lbl{font-size:11px;color:var(--ink-3);font-weight:600}
+.hero .info{flex:1;z-index:1}
+.hero .info h2{font-size:21px;font-weight:800;letter-spacing:-.4px}
+.hero .info p{font-size:13.5px;color:var(--ink-2);margin:7px 0 16px;line-height:1.5}
+.hero .tasks{display:flex;gap:10px}
+.tasktag{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.7);border:1px solid var(--brand-100);padding:7px 12px;border-radius:10px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.tasktag.done{color:var(--green);opacity:.8}
+.tasktag .ck{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink-4);display:flex;align-items:center;justify-content:center}
+.tasktag.done .ck{background:var(--green);border-color:var(--green)}
+.tasktag .ck svg{width:9px;height:9px;color:#fff;stroke-width:3.5}
+
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.stat{padding:18px 20px}
+.stat .ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat .ic svg{width:19px;height:19px;stroke-width:2}
+.stat .v{font-size:27px;font-weight:800;letter-spacing:-.8px;display:flex;align-items:baseline;gap:6px}
+.stat .v .u{font-size:13px;font-weight:600;color:var(--ink-3)}
+.stat .k{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.stat .trend{font-size:11.5px;font-weight:700;margin-top:9px;display:inline-flex;align-items:center;gap:3px}
+.trend.up{color:var(--green)}.trend.flat{color:var(--ink-3)}
+
+.cols{display:grid;grid-template-columns:1.55fr 1fr;gap:16px}
+.sect-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
+.sect-head h3{font-size:15px;font-weight:700}
+.sect-head a{font-size:12.5px;color:var(--brand-600);font-weight:600;cursor:pointer}
+
+/* 趋势折线图 */
+.chart{padding:14px 20px 20px}
+.chart svg{width:100%;height:148px;overflow:visible}
+.chart .legend{display:flex;gap:16px;padding:6px 20px 0}
+.chart .legend span{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.chart .legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+/* 错误分布 */
+.errlist{padding:8px 20px 18px}
+.errrow{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.errrow:last-child{border:none}
+.errrow .ph{font-family:"SF Mono",ui-monospace,monospace;font-size:13px;font-weight:700;width:46px;color:var(--ink)}
+.errrow .bar{flex:1;height:7px;border-radius:4px;background:var(--line);overflow:hidden}
+.errrow .bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--red),#f17a72)}
+.errrow .ct{font-size:12px;font-weight:700;color:var(--ink-3);width:30px;text-align:right}
+
+/* ============ 影子跟读页 ============ */
+.shadow-wrap{display:grid;grid-template-columns:1fr 320px;gap:18px}
+.player{padding:0;overflow:hidden}
+.material-bar{display:flex;align-items:center;gap:13px;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.material-bar .cover{width:46px;height:46px;border-radius:11px;background:linear-gradient(140deg,#5b8def,#3b5fd0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.material-bar .cover svg{width:22px;height:22px;color:#fff}
+.material-bar .mt{font-size:14.5px;font-weight:700}
+.material-bar .ms{font-size:12px;color:var(--ink-3);margin-top:2px}
+.material-bar .prog{margin-left:auto;font-size:12.5px;font-weight:600;color:var(--ink-3)}
+
+.transcript{padding:8px 14px;max-height:328px;overflow-y:auto}
+.transcript::-webkit-scrollbar{width:7px}
+.transcript::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:4px}
+.sent{padding:13px 16px;border-radius:13px;margin:5px 0;cursor:pointer;transition:.16s;position:relative}
+.sent:hover{background:var(--surface-2)}
+.sent.active{background:var(--brand-50);box-shadow:inset 0 0 0 1.5px var(--brand-200)}
+.sent.done{opacity:.82}
+.sent .num{font-size:10.5px;font-weight:700;color:var(--ink-4);letter-spacing:.5px}
+.sent .en{font-size:15.5px;font-weight:600;line-height:1.45;margin:3px 0 4px;color:var(--ink)}
+.sent.active .en{color:var(--brand-700)}
+.sent .zh{font-size:12.5px;color:var(--ink-3)}
+.sent .mini{position:absolute;right:14px;top:13px;display:flex;gap:4px}
+.sent .mini .s{width:22px;height:22px;border-radius:7px;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;color:#fff}
+
+/* 跟读控制台 */
+.console{padding:22px 20px;display:flex;flex-direction:column;align-items:center;border-top:1px solid var(--line);background:var(--surface-2)}
+.wave{display:flex;align-items:center;justify-content:center;gap:3px;height:42px;margin-bottom:18px}
+.wave i{width:3.5px;border-radius:3px;background:var(--brand-300);transition:.2s}
+.controls{display:flex;align-items:center;gap:20px}
+.cbtn{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--line-strong);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.16s;box-shadow:var(--sh-sm)}
+.cbtn svg{width:20px;height:20px;color:var(--ink-2);stroke-width:2}
+.cbtn:hover{border-color:var(--brand-300);color:var(--brand-500)}
+.cbtn:hover svg{color:var(--brand-500)}
+.rec{width:72px;height:72px;border-radius:50%;background:linear-gradient(140deg,var(--brand-400),var(--brand-600));display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--sh-brand);transition:.18s;position:relative}
+.rec svg{width:28px;height:28px;color:#fff}
+.rec:hover{transform:scale(1.05)}
+.rec.recording{animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,90,23,.45)}70%{box-shadow:0 0 0 18px rgba(245,90,23,0)}100%{box-shadow:0 0 0 0 rgba(245,90,23,0)}}
+.console .hint{font-size:12.5px;color:var(--ink-3);margin-top:15px;font-weight:500}
+
+/* 四维评分面板 */
+.score-panel{padding:20px;display:flex;flex-direction:column}
+.score-panel h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.score-panel .sub{font-size:12px;color:var(--ink-3);margin-bottom:14px}
+.radar{position:relative;display:flex;justify-content:center;margin:4px 0 16px}
+.radar svg{width:218px;height:188px}
+.dims{display:flex;flex-direction:column;gap:10px}
+.dim{display:flex;align-items:center;gap:11px;cursor:pointer;padding:7px 10px;border-radius:10px;transition:.14s}
+.dim:hover{background:var(--surface-2)}
+.dim .nm{font-size:13px;font-weight:600;width:62px}
+.dim .track{flex:1;height:7px;border-radius:4px;background:var(--line);overflow:hidden}
+.dim .track i{display:block;height:100%;border-radius:4px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.dim .val{font-size:14px;font-weight:800;width:30px;text-align:right}
+.overall{margin-top:16px;padding:14px;border-radius:13px;background:linear-gradient(135deg,var(--green-bg),#d9f2e5);display:flex;align-items:center;gap:12px}
+.overall .big{font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--green)}
+.overall .txt{font-size:12.5px;color:var(--ink-2);font-weight:600;line-height:1.4}
+.score-panel .addbtn{margin-top:14px;width:100%;justify-content:center}
+
+.empty-score{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;color:var(--ink-4)}
+.empty-score svg{width:46px;height:46px;margin-bottom:14px;stroke-width:1.5}
+.empty-score p{font-size:13px;line-height:1.5}
+
+/* ============ 卡片复习页 ============ */
+.review-top{display:flex;gap:14px;margin-bottom:24px}
+.rt-stat{flex:1;padding:16px 18px;text-align:center}
+.rt-stat .v{font-size:25px;font-weight:800;letter-spacing:-.6px}
+.rt-stat .k{font-size:12px;color:var(--ink-3);margin-top:3px}
+.flashcard-area{display:flex;flex-direction:column;align-items:center}
+.fc-progress{width:100%;max-width:620px;display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.fc-progress .bar{flex:1;height:7px;border-radius:4px;background:var(--line)}
+.fc-progress .bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--brand-400),var(--brand-500));width:30%}
+.fc-progress .t{font-size:12.5px;font-weight:700;color:var(--ink-3)}
+.flashcard{width:100%;max-width:620px;height:320px;perspective:1600px;cursor:pointer}
+.fc-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.2,.85,.25,1);transform-style:preserve-3d}
+.flashcard.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-xl);background:var(--surface);border:1px solid var(--line);box-shadow:var(--sh-md);display:flex;flex-direction:column;padding:30px;overflow:hidden}
+.fc-back{transform:rotateY(180deg);background:linear-gradient(160deg,#fff,#fbf7f3)}
+.fc-tag{align-self:flex-start;font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;letter-spacing:.3px}
+.fc-tag.vocab{background:var(--blue-bg);color:var(--blue)}
+.fc-tag.sentence{background:var(--purple-bg);color:var(--purple)}
+.fc-tag.phrase{background:var(--amber-bg);color:var(--amber)}
+.fc-tag.error{background:var(--red-bg);color:var(--red)}
+.fc-tag.scene{background:var(--green-bg);color:var(--green)}
+.fc-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.fc-word{font-size:38px;font-weight:800;letter-spacing:-1px}
+.fc-pho{font-family:"SF Mono",monospace;font-size:17px;color:var(--ink-3);margin-top:8px}
+.fc-spk{margin-top:18px;width:46px;height:46px;border-radius:50%;background:var(--brand-50);border:1px solid var(--brand-100);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.fc-spk svg{width:22px;height:22px;color:var(--brand-500)}
+.fc-flip-hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:12px;color:var(--ink-4)}
+.fc-def{font-size:21px;font-weight:700;margin-bottom:14px}
+.fc-ex{font-size:14px;color:var(--ink-2);line-height:1.6;max-width:440px;background:var(--surface-2);padding:14px 18px;border-radius:13px;border:1px solid var(--line)}
+.fc-ex b{color:var(--brand-600)}
+.fc-rate{display:flex;gap:12px;margin-top:24px;width:100%;max-width:620px}
+.rate-btn{flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--line-strong);background:var(--surface);cursor:pointer;transition:.16s;text-align:center}
+.rate-btn:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.rate-btn .lab{font-size:14px;font-weight:700}
+.rate-btn .nx{font-size:11px;color:var(--ink-4);margin-top:3px}
+.rate-btn.again{border-color:#f3c6c2}.rate-btn.again .lab{color:var(--red)}
+.rate-btn.hard{border-color:#f3dcb0}.rate-btn.hard .lab{color:var(--amber)}
+.rate-btn.good{border-color:#bce3cf}.rate-btn.good .lab{color:var(--green)}
+.rate-btn.easy{border-color:#bcd2f5}.rate-btn.easy .lab{color:var(--blue)}
+
+/* ============ 学习画像页 ============ */
+.profile-hero{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.cefr{padding:24px 26px;background:linear-gradient(130deg,#f0ecff,#e7e0ff);border:1px solid #ddd3ff}
+.cefr .lab{font-size:12.5px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.5px}
+.cefr .lvl{font-size:46px;font-weight:800;letter-spacing:-2px;color:#5a3fd6;margin:6px 0}
+.cefr .desc{font-size:13px;color:var(--ink-2);line-height:1.5}
+.cefr .track{margin-top:16px;height:9px;border-radius:5px;background:rgba(255,255,255,.7);overflow:hidden}
+.cefr .track i{display:block;height:100%;width:62%;border-radius:5px;background:linear-gradient(90deg,#7c5cff,#5a3fd6)}
+.cefr .mark{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;font-weight:700;color:var(--ink-4)}
+
+.mastery{padding:22px}
+.mastery h3{font-size:15px;font-weight:700;margin-bottom:16px}
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut{position:relative;width:130px;height:130px;flex-shrink:0}
+.donut .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut .ctr .n{font-size:26px;font-weight:800;letter-spacing:-1px}
+.donut .ctr .l{font-size:11px;color:var(--ink-3)}
+.mleg{flex:1;display:flex;flex-direction:column;gap:11px}
+.mleg .row{display:flex;align-items:center;gap:9px;font-size:12.5px}
+.mleg .row i{width:11px;height:11px;border-radius:3px}
+.mleg .row .nm{font-weight:600}
+.mleg .row .ct{margin-left:auto;font-weight:700;color:var(--ink-3)}
+
+.profile-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.timeline{padding:20px 22px}
+.timeline h3{font-size:15px;font-weight:700;margin-bottom:18px}
+.tl-bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:10px}
+.tl-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%}
+.tl-col .stk{flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:3px}
+.tl-col .stk i{width:100%;border-radius:4px}
+.tl-col .stk .a{background:linear-gradient(180deg,var(--brand-300),var(--brand-500))}
+.tl-col .stk .b{background:#cfe8ff}
+.tl-col .lab{font-size:11px;color:var(--ink-3);font-weight:600}
+
+.weakmap{padding:20px 22px}
+.weakmap h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.weakmap .sub{font-size:12px;color:var(--ink-3);margin-bottom:14px}
+.weak-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.weak-item:last-child{border:none}
+.weak-item .ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.weak-item .ct{flex:1}
+.weak-item .ct .t{font-size:13px;font-weight:600}
+.weak-item .ct .d{font-size:11.5px;color:var(--ink-3);margin-top:1px}
+.weak-item .lv{font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px}
+
+/* AI 记忆画像卡 */
+.memory-card{padding:20px 22px;margin-top:16px;background:linear-gradient(135deg,#fff8f3,#fff);border:1px solid var(--brand-100)}
+.memory-card h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.memory-card .tm{font-size:10px;font-weight:700;color:var(--brand-600);background:var(--brand-50);padding:3px 8px;border-radius:6px}
+.memory-card p{font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+.memory-card p b{color:var(--brand-700);font-weight:700}
+
+/* ============ 设置页 ============ */
+.settings{max-width:720px}
+.set-group{margin-bottom:18px;padding:6px 0}
+.set-group .gt{font-size:12px;font-weight:700;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px;padding:0 4px 10px}
+.set-row{display:flex;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.set-row:last-child{border:none}
+.set-row .ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.set-row .ico svg{width:18px;height:18px;stroke-width:2}
+.set-row .meta{flex:1}
+.set-row .meta .t{font-size:14px;font-weight:600}
+.set-row .meta .d{font-size:12px;color:var(--ink-3);margin-top:2px}
+.set-input{font-family:"SF Mono",monospace;font-size:12.5px;padding:8px 12px;border-radius:9px;border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink-2);width:220px}
+.set-input:focus{outline:none;border-color:var(--brand-300)}
+.toggle{width:44px;height:26px;border-radius:13px;background:var(--line-strong);position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:var(--sh-sm);transition:.2s}
+.toggle.on{background:var(--brand-500)}
+.toggle.on::after{transform:translateX(18px)}
+.pill{font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px}
+.pill.ok{background:var(--green-bg);color:var(--green)}
+.pill.warn{background:var(--amber-bg);color:var(--amber)}
+
+/* 通用工具 */
+.toast{position:absolute;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:11px 20px;border-radius:12px;box-shadow:var(--sh-lg);opacity:0;transition:.3s;z-index:100;display:flex;align-items:center;gap:9px}
+.toast svg{width:16px;height:16px;color:var(--brand-300)}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar">
+    <div class="traffic"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+    <div class="title">ShadowEnglish</div>
+  </div>
+  <div class="body">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+        </div>
+        <div>
+          <div class="name">ShadowEnglish</div>
+          <div class="tag">让你张得开嘴</div>
+        </div>
+      </div>
+
+      <div class="nav-label">学习</div>
+      <div class="nav-item active" data-page="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        今日概览
+      </div>
+      <div class="nav-item" data-page="shadow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+        影子跟读
+      </div>
+      <div class="nav-item" data-page="review">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        卡片复习
+        <span class="badge">12</span>
+      </div>
+      <div class="nav-item" data-page="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        学习画像
+      </div>
+
+      <div class="nav-label">系统</div>
+      <div class="nav-item" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        设置
+      </div>
+
+      <div class="streak">
+        <div class="top"><span class="fire">🔥</span> 连续学习</div>
+        <div class="num"><b>23</b> 天</div>
+        <div class="sub">本周已练 5 天 · 超越 88% 用户</div>
+        <div class="week">
+          <span class="day on"></span><span class="day on"></span><span class="day on"></span><span class="day on"></span><span class="day on"></span><span class="day"></span><span class="day"></span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="main">
+      <!-- ===== 首页 ===== -->
+      <section class="page active" id="page-home">
+        <div class="page-head">
+          <div>
+            <div class="greet">下午好，Ryan 👋</div>
+            <div class="desc">坚持开口的第 23 天，今天也把词汇仓库装上传送带。</div>
+          </div>
+          <button class="btn btn-primary" onclick="go('shadow')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            开始今日训练
+          </button>
+        </div>
+
+        <div class="hero">
+          <div class="ring">
+            <svg viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="#ffd9bf" stroke-width="11"/>
+              <circle cx="60" cy="60" r="52" fill="none" stroke="url(#hg)" stroke-width="11" stroke-linecap="round" stroke-dasharray="326" stroke-dashoffset="98"/>
+              <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3c"/><stop offset="1" stop-color="#e2440a"/></linearGradient></defs>
+            </svg>
+            <div class="ctr"><div class="pct">70%</div><div class="lbl">今日完成</div></div>
+          </div>
+          <div class="info">
+            <h2>还差一点就达成今日目标</h2>
+            <p>已完成影子跟读与卡片复习，再做一组 AI 口语脱敏对话就满分啦。</p>
+            <div class="tasks">
+              <span class="tasktag done"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>影子跟读 · 8 句</span>
+              <span class="tasktag done"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>卡片复习 · 12 张</span>
+              <span class="tasktag"><span class="ck"></span>AI 口语脱敏 · 1 组</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid3">
+          <div class="card stat">
+            <div class="ic" style="background:var(--brand-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#f55a17" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="v">42<span class="u">分钟</span></div>
+            <div class="k">今日学习时长</div>
+            <div class="trend up">▲ 比昨天多 11 分钟</div>
+          </div>
+          <div class="card stat">
+            <div class="ic" style="background:var(--green-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#1faa6c" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></div>
+            <div class="v">82<span class="u">分</span></div>
+            <div class="k">本周平均跟读得分</div>
+            <div class="trend up">▲ 流利度提升 6%</div>
+          </div>
+          <div class="card stat">
+            <div class="ic" style="background:var(--purple-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+            <div class="v">348<span class="u">张</span></div>
+            <div class="k">已掌握卡片总数</div>
+            <div class="trend flat">今日新增 7 张</div>
+          </div>
+        </div>
+
+        <div class="cols">
+          <div class="card">
+            <div class="sect-head"><h3>流利度趋势</h3><a onclick="go('profile')">查看画像 →</a></div>
+            <div class="chart">
+              <svg viewBox="0 0 460 148" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a3c" stop-opacity=".22"/><stop offset="1" stop-color="#ff7a3c" stop-opacity="0"/></linearGradient>
+                </defs>
+                <line x1="0" y1="30" x2="460" y2="30" stroke="#ece9e3" stroke-width="1"/>
+                <line x1="0" y1="74" x2="460" y2="74" stroke="#ece9e3" stroke-width="1"/>
+                <line x1="0" y1="118" x2="460" y2="118" stroke="#ece9e3" stroke-width="1"/>
+                <path d="M0,110 L66,96 L132,100 L198,72 L264,78 L330,50 L396,46 L460,34 L460,148 L0,148 Z" fill="url(#area)"/>
+                <path d="M0,110 L66,96 L132,100 L198,72 L264,78 L330,50 L396,46 L460,34" fill="none" stroke="#f55a17" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M0,124 L66,118 L132,114 L198,108 L264,104 L330,96 L396,92 L460,86" fill="none" stroke="#3b7df0" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+                <g fill="#f55a17"><circle cx="330" cy="50" r="3.5"/><circle cx="396" cy="46" r="3.5"/><circle cx="460" cy="34" r="4"/></g>
+              </svg>
+              <div class="legend"><span><i style="background:#f55a17"></i>韵律匹配</span><span><i style="background:#3b7df0"></i>发音准确度</span><span style="margin-left:auto;color:var(--green);font-weight:600">近 8 周稳步上升</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="sect-head"><h3>高频弱项音素</h3><a onclick="go('profile')">全部 →</a></div>
+            <div class="errlist">
+              <div class="errrow"><span class="ph">/θ/</span><div class="bar"><i style="width:88%"></i></div><span class="ct">23</span></div>
+              <div class="errrow"><span class="ph">/r/</span><div class="bar"><i style="width:66%"></i></div><span class="ct">17</span></div>
+              <div class="errrow"><span class="ph">/v/</span><div class="bar"><i style="width:50%"></i></div><span class="ct">13</span></div>
+              <div class="errrow"><span class="ph">/æ/</span><div class="bar"><i style="width:38%"></i></div><span class="ct">9</span></div>
+              <div class="errrow"><span class="ph">/ð/</span><div class="bar"><i style="width:27%"></i></div><span class="ct">6</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ===== 影子跟读 ===== -->
+      <section class="page" id="page-shadow">
+        <div class="page-head">
+          <div>
+            <h1>影子跟读</h1>
+            <div class="desc">逐句播放 → 录音 → AI 四维评测，把口腔肌肉先练熟。</div>
+          </div>
+          <button class="btn btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>更换材料</button>
+        </div>
+
+        <div class="shadow-wrap">
+          <div class="card player">
+            <div class="material-bar">
+              <div class="cover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+              <div>
+                <div class="mt">A Cup of Coffee, Please</div>
+                <div class="ms">日常对话 · TED-style · 中级</div>
+              </div>
+              <div class="prog">第 4 / 8 句</div>
+            </div>
+
+            <div class="transcript" id="transcript">
+              <div class="sent done" data-i="0">
+                <div class="num">01</div>
+                <div class="en">Excuse me, could I get a coffee?</div>
+                <div class="zh">打扰一下，我能来杯咖啡吗？</div>
+                <div class="mini"><span class="s" style="background:#1faa6c">88</span></div>
+              </div>
+              <div class="sent done" data-i="1">
+                <div class="num">02</div>
+                <div class="en">Sure, what size would you like?</div>
+                <div class="zh">当然，您要什么尺寸？</div>
+                <div class="mini"><span class="s" style="background:#e8951a">74</span></div>
+              </div>
+              <div class="sent done" data-i="2">
+                <div class="num">03</div>
+                <div class="en">A medium latte, and could you make it less sweet?</div>
+                <div class="zh">中杯拿铁，能少放点糖吗？</div>
+                <div class="mini"><span class="s" style="background:#1faa6c">85</span></div>
+              </div>
+              <div class="sent active" data-i="3" onclick="selectSent(this)">
+                <div class="num">04 · 当前</div>
+                <div class="en">Of course. Would you like anything else with that?</div>
+                <div class="zh">没问题。还需要别的吗？</div>
+              </div>
+              <div class="sent" data-i="4" onclick="selectSent(this)">
+                <div class="num">05</div>
+                <div class="en">That's all for now, thank you so much.</div>
+                <div class="zh">暂时就这些，非常感谢。</div>
+              </div>
+              <div class="sent" data-i="5" onclick="selectSent(this)">
+                <div class="num">06</div>
+                <div class="en">It'll be ready in just a moment.</div>
+                <div class="zh">马上就好。</div>
+              </div>
+              <div class="sent" data-i="6" onclick="selectSent(this)">
+                <div class="num">07</div>
+                <div class="en">Take a seat and I'll bring it over.</div>
+                <div class="zh">请坐，我会端过去。</div>
+              </div>
+              <div class="sent" data-i="7" onclick="selectSent(this)">
+                <div class="num">08</div>
+                <div class="en">Have a wonderful day ahead!</div>
+                <div class="zh">祝你今天愉快！</div>
+              </div>
+            </div>
+
+            <div class="console">
+              <div class="wave" id="wave"></div>
+              <div class="controls">
+                <div class="cbtn" title="重听原声" onclick="toast('▶ 正在播放原声…')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div>
+                <div class="rec" id="recBtn" onclick="toggleRec()">
+                  <svg id="recIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+                </div>
+                <div class="cbtn" title="放慢 0.75x" onclick="toast('🐢 已切换 0.75x 慢速')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+              </div>
+              <div class="hint" id="recHint">点击麦克风跟读这一句</div>
+            </div>
+          </div>
+
+          <!-- 四维评分 -->
+          <div class="card score-panel" id="scorePanel">
+            <div class="empty-score" id="scoreEmpty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              <p>跟读完成后，<br>这里会显示四维 AI 评测</p>
+            </div>
+
+            <div id="scoreResult" style="display:none">
+              <h3>四维评测结果</h3>
+              <div class="sub">第 04 句 · "Of course. Would you…"</div>
+              <div class="radar">
+                <svg viewBox="0 0 218 188">
+                  <!-- 网格 -->
+                  <g stroke="#ece9e3" fill="none" stroke-width="1">
+                    <polygon points="109,18 195,94 109,170 23,94"/>
+                    <polygon points="109,46 167,94 109,142 51,94"/>
+                    <polygon points="109,74 139,94 109,114 79,94"/>
+                  </g>
+                  <g stroke="#ddd8cf" stroke-width="1"><line x1="109" y1="94" x2="109" y2="18"/><line x1="109" y1="94" x2="195" y2="94"/><line x1="109" y1="94" x2="109" y2="170"/><line x1="109" y1="94" x2="23" y2="94"/></g>
+                  <!-- 数据多边形: 准确度85 流利度78 完整度92 韵律70 -->
+                  <polygon points="109,29 176,94 109,156 49,94" fill="rgba(245,90,23,.18)" stroke="#f55a17" stroke-width="2.5"/>
+                  <g fill="#f55a17"><circle cx="109" cy="29" r="3.5"/><circle cx="176" cy="94" r="3.5"/><circle cx="109" cy="156" r="3.5"/><circle cx="49" cy="94" r="3.5"/></g>
+                  <g font-size="11" font-weight="700" fill="#56524b" font-family="-apple-system">
+                    <text x="109" y="10" text-anchor="middle">准确度</text>
+                    <text x="200" y="98" text-anchor="start">流利度</text>
+                    <text x="109" y="184" text-anchor="middle">韵律</text>
+                    <text x="18" y="98" text-anchor="end">完整度</text>
+                  </g>
+                </svg>
+              </div>
+              <div class="dims">
+                <div class="dim" onclick="toast('准确度详情：/θ/ 在 thank 中略偏 /s/')"><span class="nm">准确度</span><div class="track"><i style="width:85%;background:var(--green)"></i></div><span class="val" style="color:var(--green)">85</span></div>
+                <div class="dim" onclick="toast('流利度：句中 0.6s 停顿偏长')"><span class="nm">流利度</span><div class="track"><i style="width:78%;background:var(--amber)"></i></div><span class="val" style="color:var(--amber)">78</span></div>
+                <div class="dim" onclick="toast('完整度：所有单词均已朗读')"><span class="nm">完整度</span><div class="track"><i style="width:92%;background:var(--green)"></i></div><span class="val" style="color:var(--green)">92</span></div>
+                <div class="dim" onclick="toast('韵律：句末升降调与原声差异较大')"><span class="nm">韵律</span><div class="track"><i style="width:70%;background:var(--amber)"></i></div><span class="val" style="color:var(--amber)">70</span></div>
+              </div>
+              <div class="overall">
+                <div class="big">81</div>
+                <div class="txt">不错！主要弱项在<b style="color:var(--amber)">韵律语调</b>，<br>建议跟着原声的升降调再读一遍。</div>
+              </div>
+              <button class="btn btn-ghost addbtn" onclick="toast('✓ 已加入卡片生成队列')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>加入重点练习</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ===== 卡片复习 ===== -->
+      <section class="page" id="page-review">
+        <div class="page-head">
+          <div>
+            <h1>每日卡片复习</h1>
+            <div class="desc">来自今天跟读与对话的真实素材 · FSRS 智能调度。</div>
+          </div>
+        </div>
+
+        <div class="review-top">
+          <div class="card rt-stat"><div class="v" style="color:var(--red)">4</div><div class="k">待复习 (到期)</div></div>
+          <div class="card rt-stat"><div class="v" style="color:var(--blue)">8</div><div class="k">今日新卡</div></div>
+          <div class="card rt-stat"><div class="v" style="color:var(--green)">96%</div><div class="k">本周正确率</div></div>
+          <div class="card rt-stat"><div class="v">3<span style="font-size:14px;color:var(--ink-3)">min</span></div><div class="k">预计用时</div></div>
+        </div>
+
+        <div class="flashcard-area">
+          <div class="fc-progress">
+            <span class="t" id="fcCount">4 / 12</span>
+            <div class="bar"><i id="fcBar"></i></div>
+          </div>
+
+          <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="fc-inner">
+              <div class="fc-face fc-front">
+                <span class="fc-tag error">错误纠正卡 · 发音</span>
+                <div class="fc-body">
+                  <div class="fc-word">thank</div>
+                  <div class="fc-pho">/θæŋk/</div>
+                  <div class="fc-spk" onclick="event.stopPropagation();toast('🔊 thank /θæŋk/')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></div>
+                </div>
+                <div class="fc-flip-hint">点击卡片翻面 ·  你在跟读中把 /θ/ 发成了 /s/</div>
+              </div>
+              <div class="fc-face fc-back">
+                <span class="fc-tag error">纠音要点</span>
+                <div class="fc-body">
+                  <div class="fc-def">舌尖轻触上齿，送气出声</div>
+                  <div class="fc-ex">/θ/ 是<b>清辅音</b>，舌尖伸到上下齿之间轻轻送气，不要变成 /s/（齿龈音）。<br><br>对比练习：<b>think</b> /θ/ vs <b>sink</b> /s/</div>
+                </div>
+                <div class="fc-flip-hint">回忆得怎么样？选择下方难度</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="fc-rate">
+            <div class="rate-btn again" onclick="rate('又忘了')"><div class="lab">重来</div><div class="nx">&lt; 1 分钟</div></div>
+            <div class="rate-btn hard" onclick="rate('有点难')"><div class="lab">困难</div><div class="nx">2 天后</div></div>
+            <div class="rate-btn good" onclick="rate('记住了')"><div class="lab">良好</div><div class="nx">4 天后</div></div>
+            <div class="rate-btn easy" onclick="rate('很简单')"><div class="lab">简单</div><div class="nx">9 天后</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 学习画像 ===== -->
+      <section class="page" id="page-profile">
+        <div class="page-head">
+          <div>
+            <h1>学习画像</h1>
+            <div class="desc">由 TiMem 长期记忆树自动归纳 · 数据越练越准。</div>
+          </div>
+          <button class="btn btn-ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><polyline points="21 3 21 9 15 9" transform="scale(-1,1) translate(-24,0)"/></svg>导出周报</button>
+        </div>
+
+        <div class="profile-hero">
+          <div class="card cefr">
+            <div class="lab">CEFR 能力评估</div>
+            <div class="lvl">B1+</div>
+            <div class="desc">能就熟悉话题进行连贯对话，正逐步向 B2 迈进。口语流利度是当前突破口。</div>
+            <div class="track"><i></i></div>
+            <div class="mark"><span>A1</span><span>A2</span><span>B1</span><span style="color:#5a3fd6">B2</span><span>C1</span></div>
+          </div>
+          <div class="card mastery">
+            <h3>卡片掌握分布</h3>
+            <div class="donut-wrap">
+              <div class="donut">
+                <svg viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="48" fill="none" stroke="#1faa6c" stroke-width="16" stroke-dasharray="166 302" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                  <circle cx="60" cy="60" r="48" fill="none" stroke="#e8951a" stroke-width="16" stroke-dasharray="90 302" stroke-dashoffset="-166" transform="rotate(-90 60 60)"/>
+                  <circle cx="60" cy="60" r="48" fill="none" stroke="#e0463c" stroke-width="16" stroke-dasharray="45 302" stroke-dashoffset="-256" transform="rotate(-90 60 60)"/>
+                </svg>
+                <div class="ctr"><div class="n">487</div><div class="l">总卡片</div></div>
+              </div>
+              <div class="mleg">
+                <div class="row"><i style="background:#1faa6c"></i><span class="nm">已牢固掌握</span><span class="ct">348</span></div>
+                <div class="row"><i style="background:#e8951a"></i><span class="nm">复习中</span><span class="ct">94</span></div>
+                <div class="row"><i style="background:#e0463c"></i><span class="nm">易遗忘</span><span class="ct">45</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-grid">
+          <div class="card timeline">
+            <h3>近 7 天学习时长（分钟）</h3>
+            <div class="tl-bars">
+              <div class="tl-col"><div class="stk"><i class="a" style="height:18px"></i><i class="b" style="height:8px"></i></div><div class="lab">周一</div></div>
+              <div class="tl-col"><div class="stk"><i class="a" style="height:42px"></i><i class="b" style="height:14px"></i></div><div class="lab">周二</div></div>
+              <div class="tl-col"><div class="stk"><i class="a" style="height:30px"></i><i class="b" style="height:10px"></i></div><div class="lab">周三</div></div>
+              <div class="tl-col"><div class="stk"><i class="a" style="height:55px"></i><i class="b" style="height:22px"></i></div><div class="lab">周四</div></div>
+              <div class="tl-col"><div class="stk"><i class="a" style="height:38px"></i><i class="b" style="height:16px"></i></div><div class="lab">周五</div></div>
+              <div class="tl-col"><div class="stk"><i class="a" style="height:0"></i><i class="b" style="height:0"></i></div><div class="lab" style="color:var(--ink-4)">周六</div></div>
+              <div class="tl-col"><div class="stk"><i class="a" style="height:62px"></i><i class="b" style="height:20px"></i></div><div class="lab">今天</div></div>
+            </div>
+            <div class="chart"><div class="legend" style="padding-left:0"><span><i style="background:var(--brand-500)"></i>影子跟读</span><span><i style="background:#cfe8ff"></i>卡片复习</span></div></div>
+          </div>
+
+          <div class="card weakmap">
+            <h3>弱项图谱</h3>
+            <div class="sub">跨会话关联，重点攻克这些</div>
+            <div class="weak-item"><div class="ic" style="background:var(--red-bg)">🗣️</div><div class="ct"><div class="t">齿擦音 /θ/ /ð/</div><div class="d">出现 29 次错误 · 多发成 /s/ /z/</div></div><span class="lv" style="background:var(--red-bg);color:var(--red)">高</span></div>
+            <div class="weak-item"><div class="ic" style="background:var(--amber-bg)">🎵</div><div class="ct"><div class="t">句末升降调</div><div class="d">疑问句语调常读成陈述句</div></div><span class="lv" style="background:var(--amber-bg);color:var(--amber)">中</span></div>
+            <div class="weak-item"><div class="ic" style="background:var(--amber-bg)">⏱️</div><div class="ct"><div class="t">连读与停顿</div><div class="d">句中停顿偏多，影响流利度</div></div><span class="lv" style="background:var(--amber-bg);color:var(--amber)">中</span></div>
+            <div class="weak-item"><div class="ic" style="background:var(--green-bg)">📝</div><div class="ct"><div class="t">过去时态口语化</div><div class="d">已明显改善，继续保持</div></div><span class="lv" style="background:var(--green-bg);color:var(--green)">低</span></div>
+          </div>
+        </div>
+
+        <div class="card memory-card">
+          <h3>🧠 AI 长期画像 <span class="tm">TiMem · 本周更新</span></h3>
+          <p>过去 4 周里，你的<b>发音准确度</b>稳定在 85 分左右，进步主要来自<b>流利度</b>（+9%）。模型观察到：你在<b>日常点单、问路类场景</b>表现自然，但遇到<b>抽象话题（如表达观点）</b>时停顿明显增多。建议下周把训练材料从「生活对话」过渡到「轻量观点表达」，同时持续专项攻克 <b>/θ/ 音</b>——它已是你连续 3 周的头号弱项。</p>
+        </div>
+      </section>
+
+      <!-- ===== 设置 ===== -->
+      <section class="page" id="page-settings">
+        <div class="page-head"><div><h1>设置</h1><div class="desc">API 密钥、学习偏好与音频设备。</div></div></div>
+        <div class="settings">
+          <div class="set-group">
+            <div class="gt">API 密钥</div>
+            <div class="card">
+              <div class="set-row">
+                <div class="ico" style="background:var(--brand-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#f55a17" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3"/></svg></div>
+                <div class="meta"><div class="t">DeepSeek V4 API Key</div><div class="d">卡片生成 + 学习日报 + 画像归纳</div></div>
+                <input class="set-input" type="password" value="sk-••••••••••••3f9a">
+                <span class="pill ok">已连接</span>
+              </div>
+              <div class="set-row">
+                <div class="ico" style="background:var(--blue-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#3b7df0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>
+                <div class="meta"><div class="t">腾讯云智聆 SOE</div><div class="d">音素级发音评测 · SecretId / SecretKey</div></div>
+                <input class="set-input" type="password" value="AKID••••••••7b2c">
+                <span class="pill ok">已连接</span>
+              </div>
+              <div class="set-row">
+                <div class="ico" style="background:var(--purple-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#7c5cff" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20"/></svg></div>
+                <div class="meta"><div class="t">TiMem 长期记忆 API</div><div class="d">学习者画像时序记忆树</div></div>
+                <input class="set-input" type="password" value="tm-••••••免费层">
+                <span class="pill warn">免费额度</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="set-group">
+            <div class="gt">学习偏好</div>
+            <div class="card">
+              <div class="set-row">
+                <div class="ico" style="background:var(--green-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#1faa6c" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+                <div class="meta"><div class="t">每日新增卡片上限</div><div class="d">防止复习量膨胀导致弃坑（建议 ≤ 10）</div></div>
+                <input class="set-input" style="width:64px;text-align:center" value="10">
+              </div>
+              <div class="set-row">
+                <div class="ico" style="background:var(--amber-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#e8951a" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                <div class="meta"><div class="t">开启韵律评测</div><div class="d">本地 F0 + DTW 分析，零成本</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="set-row">
+                <div class="ico" style="background:var(--brand-50)"><svg viewBox="0 0 24 24" fill="none" stroke="#f55a17" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+                <div class="meta"><div class="t">每日学习提醒</div><div class="d">每天 20:00 推送当日日报</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="set-group">
+            <div class="gt">音频设备</div>
+            <div class="card">
+              <div class="set-row">
+                <div class="ico" style="background:var(--blue-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="#3b7df0" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg></div>
+                <div class="meta"><div class="t">输入麦克风</div><div class="d">用于录制跟读音频</div></div>
+                <span class="pill ok">MacBook Pro 麦克风</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+  <div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span id="toastMsg"></span></div>
+</div>
+<script>
+/* ---- 页面导航 ---- */
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  document.querySelector('.main').scrollTop=0;
+}
+document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>go(n.dataset.page)));
+
+/* ---- Toast ---- */
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ---- 波形条 ---- */
+const wave=document.getElementById('wave');
+const heights=[8,14,22,30,18,26,34,20,12,28,16,24,32,14,20,10,26,18,30,22,8];
+heights.forEach(h=>{const i=document.createElement('i');i.style.height=h+'px';wave.appendChild(i);});
+const bars=[...wave.children];
+let waveTimer=null;
+function animateWave(on){
+  if(on){
+    waveTimer=setInterval(()=>{bars.forEach(b=>{const h=4+Math.random()*36;b.style.height=h+'px';b.style.background='var(--brand-500)';});},120);
+  }else{
+    clearInterval(waveTimer);
+    bars.forEach((b,i)=>{b.style.height=heights[i]+'px';b.style.background='var(--brand-300)';});
+  }
+}
+
+/* ---- 录音切换 ---- */
+let recording=false;
+function toggleRec(){
+  const btn=document.getElementById('recBtn');
+  const hint=document.getElementById('recHint');
+  recording=!recording;
+  if(recording){
+    btn.classList.add('recording');
+    hint.textContent='🔴 录音中… 再次点击结束';
+    animateWave(true);
+  }else{
+    btn.classList.remove('recording');
+    hint.textContent='⏳ AI 正在评测…';
+    animateWave(false);
+    setTimeout(showScore,1100);
+  }
+}
+function showScore(){
+  document.getElementById('scoreEmpty').style.display='none';
+  document.getElementById('scoreResult').style.display='block';
+  document.getElementById('recHint').textContent='评测完成 → 看右侧四维结果';
+  // 把当前句标记为完成
+  const cur=document.querySelector('.sent.active');
+  if(cur && !cur.querySelector('.mini')){
+    const m=document.createElement('div');m.className='mini';
+    m.innerHTML='<span class="s" style="background:var(--green)">81</span>';
+    cur.appendChild(m);cur.classList.add('done');
+  }
+}
+
+/* ---- 选择句子 ---- */
+function selectSent(el){
+  document.querySelectorAll('.sent').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  el.querySelector('.num').textContent = String(parseInt(el.dataset.i)+1).padStart(2,'0')+' · 当前';
+  toast('▶ 播放原声：'+el.querySelector('.en').textContent.slice(0,28)+'…');
+}
+
+/* ---- 卡片翻转 + 评分 ---- */
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped');}
+let fcIndex=4, fcTotal=12;
+function rate(label){
+  const card=document.getElementById('flashcard');
+  card.classList.remove('flipped');
+  toast('已记录："'+label+'" · 下一张');
+  setTimeout(()=>{
+    fcIndex=Math.min(fcIndex+1,fcTotal);
+    document.getElementById('fcCount').textContent=fcIndex+' / '+fcTotal;
+    document.getElementById('fcBar').style.width=(fcIndex/fcTotal*100)+'%';
+  },350);
+}
+document.getElementById('fcBar').style.width=(fcIndex/fcTotal*100)+'%';
+</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>视频调色风格大全</title>
+<style>
+:root { --bg: #0f0f17; --card: #1a1a2e; --border: #2a2a4a; --accent: #53a8b6; --text: #e8e8e8; --muted: #999; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; padding: 40px 20px; }
+.container { max-width: 1200px; margin: 0 auto; }
+h1 { font-size: 2rem; margin-bottom: 8px; background: linear-gradient(135deg, #53a8b6, #e6a756); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.subtitle { color: var(--muted); margin-bottom: 40px; }
+.table-wrap { overflow-x: auto; margin-bottom: 40px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--card); color: var(--accent); font-weight: 600; position: sticky; top: 0; white-space: nowrap; }
+tr:hover td { background: rgba(83,168,182,0.04); }
+td:first-child { font-weight: 600; white-space: nowrap; min-width: 140px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin: 2px; }
+.tag-cool { background: rgba(91,155,213,0.15); color: #5b9bd5; }
+.tag-warm { background: rgba(230,167,86,0.15); color: #e6a756; }
+.tag-neutral { background: rgba(150,150,150,0.15); color: #aaa; }
+.tag-creative { background: rgba(180,100,200,0.15); color: #c88fd8; }
+.section { background: var(--card); border-radius: 16px; padding: 32px; margin-bottom: 24px; border: 1px solid var(--border); }
+.section h2 { font-size: 1.3rem; margin-bottom: 16px; color: var(--accent); }
+.ref-list { list-style: none; padding: 0; }
+.ref-list li { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.ref-list li:last-child { border: none; }
+.ref-list a { color: var(--accent); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+.ref-desc { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+.note { background: rgba(83,168,182,0.08); border-left: 3px solid var(--accent); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>视频调色风格大全</h1>
+<p class="subtitle">15 种主流调色风格 · 核心参数 · DaVinci Resolve 操作指南</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>调色风格</th>
+<th>视觉特征</th>
+<th>核心调色方法</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟦 Teal & Shadow<br><span class="tag tag-cool">冷调</span></td>
+<td>暗部青蓝色、整体冷调通透、高对比度、饱和度集中在青蓝色相</td>
+<td>① 暗部 Lift 偏青（R↓ B↑）<br>② 全局色温 -800~1200K<br>③ 曝光 +1~1.5 档<br>④ S 曲线拉对比<br>⑤ 青蓝色饱和度 +25%，暖色压制</td>
+<td>城市运动、街头文化、黄昏/夜景 MV</td>
+</tr>
+
+<tr>
+<td>🟧 Orange & Teal<br><span class="tag tag-warm">暖冷对比</span></td>
+<td>肤色偏暖橙、背景/阴影偏青蓝、强烈互补色对比</td>
+<td>① 阴影色轮：H220°（青蓝）S15<br>② 高光色轮：H35°（橙黄）S10<br>③ HSL：橙色饱和+20、蓝色饱和+25<br>④ 绿/紫色饱和度 -100（消除干扰）<br>⑤ 混合 70、平衡 -30</td>
+<td>好莱坞商业大片、漫威电影、广告</td>
+</tr>
+
+<tr>
+<td>🎞️ 胶片模拟<br><span class="tag tag-neutral">复古</span></td>
+<td>暗部不纯黑（发灰）、高光柔和滚降、颗粒感、色彩偏移</td>
+<td>① RGB 曲线暗部端点上提至 15-20<br>② 高光端点下压至 235-240<br>③ R/B 通道暗部微上提（注入色偏）<br>④ 饱和度 -15~20%<br>⑤ 添加颗粒 (Grain: 25, Size: 30)</td>
+<td>文艺片、独立电影、婚礼视频、人像</td>
+</tr>
+
+<tr>
+<td>🌅 Golden Hour<br><span class="tag tag-warm">暖调</span></td>
+<td>整体金色暖调、柔和光晕、肤色通透、暗部偏紫/棕</td>
+<td>① 色温 +1500~2000K（偏暖）<br>② Tint +5~10（偏品红）<br>③ 高光偏橙黄 (H40° S12)<br>④ 暗部偏深棕/酒红<br>⑤ 对比度轻微降低 -10<br>⑥ 高光软化 (Bloom/Glow)</td>
+<td>旅行 Vlog、浪漫场景、时尚广告</td>
+</tr>
+
+<tr>
+<td>🌙 Moody Dark<br><span class="tag tag-cool">暗调</span></td>
+<td>整体欠曝、大面积暗部、局部高光点缀、低饱和</td>
+<td>① 曝光 -0.5~1.0 档<br>② 对比度 +40~50<br>③ 高光仅保留核心光源<br>④ 饱和度 -20~30%<br>⑤ 暗部偏深蓝/深绿<br>⑥ 暗角 (Vignette) -20~30</td>
+<td>恐怖/悬疑片、暗黑音乐 MV、纪录片</td>
+</tr>
+
+<tr>
+<td>🔥 Bleach Bypass<br><span class="tag tag-neutral">高反差</span></td>
+<td>极高对比度、低饱和度、银色金属质感、肤色偏灰白</td>
+<td>① 饱和度 -40~60%<br>② 对比度 +50~70<br>③ 亮度与原图做"叠加"混合<br>④ 高光极亮、暗部极深<br>⑤ 可选：暗部微偏蓝/绿</td>
+<td>《拯救大兵瑞恩》《七宗罪》风格、战争片、犯罪片</td>
+</tr>
+
+<tr>
+<td>🌸 日系清新<br><span class="tag tag-warm">柔和</span></td>
+<td>高亮度、低对比、肤色偏粉/奶、绿色偏青、整体柔软</td>
+<td>① 曝光 +0.5~1.0 档<br>② 对比度 -15~25<br>③ 高光色轮偏暖粉 (H15° S8)<br>④ 绿色色相→偏青 (HSL: 绿色 H+30)<br>⑤ 阴影 +20~30（提亮暗部）<br>⑥ 饱和度 -10~15%</td>
+<td>生活 Vlog、美食视频、小红书内容、人像写真</td>
+</tr>
+
+<tr>
+<td>💜 赛博朋克<br><span class="tag tag-creative">创意</span></td>
+<td>高饱和霓虹色（紫/品红/青）、强对比、暗背景、发光感</td>
+<td>① 暗部极压（近纯黑）<br>② 饱和度 +40~60%（选择性：品红/青）<br>③ HSL：蓝→偏紫 (H+30)、绿→偏青<br>④ 高光偏品红/紫 (H300° S20)<br>⑤ 对比度 +40~50<br>⑥ 中间调偏蓝紫</td>
+<td>科幻片、游戏 CG、电子音乐 MV、城市夜景</td>
+</tr>
+
+<tr>
+<td>🏜️ 沙漠/荒野<br><span class="tag tag-warm">暖黄</span></td>
+<td>整体偏黄棕、天空去蓝、大地色系、干燥粗粝感</td>
+<td>① 色温 +1000~1500K<br>② 蓝色饱和度 -50~70%（天空去蓝）<br>③ 橙/黄色饱和度 +15~20%<br>④ 中间调偏暖黄 (Gamma 色轮 H50°)<br>⑤ 添加颗粒增加粗粝感<br>⑥ 高光过曝风格（Gain +0.2）</td>
+<td>《疯狂的麦克斯》《沙丘》、西部片、沙漠旅拍</td>
+</tr>
+
+<tr>
+<td>🌿 自然纪实<br><span class="tag tag-neutral">真实</span></td>
+<td>色彩真实还原、中性白平衡、适度对比、肤色准确</td>
+<td>① 精确白平衡校正<br>② 曝光归零（示波器 IRE 0-100）<br>③ 轻微 S 曲线（+10~15 对比）<br>④ 饱和度 +5~10%（微增活力）<br>⑤ 肤色限定保护<br>⑥ 锐度适度 +15~20</td>
+<td>纪录片、新闻报道、自然风光、企业宣传</td>
+</tr>
+
+<tr>
+<td>⬛ 高对比黑白<br><span class="tag tag-neutral">黑白</span></td>
+<td>无色彩、强明暗对比、丰富灰阶层次、戏剧性光影</td>
+<td>① 饱和度 → 0<br>② 对比度 +50~70<br>③ 通道混合器精调灰阶层次<br>④ 红色滤镜效果（R 通道权重加大）<br>⑤ 暗角 -20<br>⑥ 可选颗粒增加质感</td>
+<td>艺术片、人物肖像、时尚大片、情绪短片</td>
+</tr>
+
+<tr>
+<td>🌆 Day for Night<br><span class="tag tag-cool">特效</span></td>
+<td>日景伪装为夜景：整体深蓝暗调、月光感、高光保留</td>
+<td>① 曝光大幅降低 -2~3 档<br>② 色温大幅降低 -3000~4000K（极冷蓝）<br>③ 饱和度 -40~50%<br>④ 天空用遮罩单独压暗<br>⑤ 高光保留小范围做"月光"<br>⑥ 暗部偏深蓝 (H220° S30)</td>
+<td>低预算影视制作、MV 特殊效果</td>
+</tr>
+
+<tr>
+<td>🟡 Vintage 70s<br><span class="tag tag-warm">复古暖</span></td>
+<td>暖黄/棕色基调、褪色感、高光泛黄、低清晰度</td>
+<td>① 色温 +800~1200K<br>② 高光偏暖黄 (H50° S15)<br>③ 阴影偏深棕 (H30° S10)<br>④ RGB 曲线 B 通道暗部上提（褪蓝）<br>⑤ 清晰度/锐度 -10~15<br>⑥ 暗角 + 颗粒（重）</td>
+<td>复古主题视频、怀旧感广告、音乐回忆</td>
+</tr>
+
+<tr>
+<td>💎 High Key<br><span class="tag tag-neutral">明亮</span></td>
+<td>极高亮度、低对比、阴影极少、干净明亮、近乎无暗部</td>
+<td>① 曝光 +1~2 档<br>② 阴影提亮 +50~70<br>③ 对比度 -20~30<br>④ 高光 +20<br>⑤ 白色色阶 +15~20<br>⑥ 饱和度轻微降低 -5~10%</td>
+<td>美妆视频、产品广告、时尚/婚纱摄影</td>
+</tr>
+
+<tr>
+<td>🎭 Cross Process<br><span class="tag tag-creative">实验</span></td>
+<td>非自然偏色（强烈色偏）、高对比、饱和度极端、复古胶片错误冲洗感</td>
+<td>① R 曲线 S 型加强<br>② G 曲线反 S（中间调下压）<br>③ B 曲线暗部大幅上提、亮部下压<br>④ 对比度 +30~40<br>⑤ 饱和度 +20~30%<br>⑥ 每个通道独立大幅调整曲线</td>
+<td>实验短片、时尚杂志风、创意广告、LOMO 风格</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="note">
+<strong>💡 调色核心工具速记：</strong><br>
+<strong>Lift</strong>（暗部色彩/亮度）→ <strong>Gamma</strong>（中间调）→ <strong>Gain</strong>（亮部）｜ <strong>曲线</strong>（精细控制各通道）｜ <strong>HSL</strong>（针对特定色相调整）｜ <strong>色温/色调</strong>（全局冷暖）｜ <strong>Color Wheels</strong>（分区色偏）
+</div>
+
+<!-- 参考资料 -->
+<div class="section">
+<h2>📚 参考资料与学习路径</h2>
+
+<h3 style="margin-top:0; color: #e6a756;">入门教程</h3>
+<ul class="ref-list">
+<li>
+<a href="https://www.youtube.com/watch?v=mDwG0n7FYjQ" target="_blank">DaVinci Resolve Color Grading for Beginners (Waqas Qazi)</a>
+<div class="ref-desc">YouTube 免费，从零学达芬奇调色页面，涵盖色轮、曲线、示波器基础</div>
+</li>
+<li>
+<a href="https://www.youtube.com/watch?v=V0Nru3wL7gc" target="_blank">Casey Faris - DaVinci Resolve Color Grading Crash Course</a>
+<div class="ref-desc">1 小时速成课，覆盖 Lift/Gamma/Gain、节点系统、LUT 使用</div>
+</li>
+<li>
+<a href="https://www.bilibili.com/video/BV1hb421J71a/" target="_blank">Cinegrading Cine Teal & Orange LUTs 演示 (B站)</a>
+<div class="ref-desc">好莱坞青橙 LUT 使用演示，适合快速上手 Orange & Teal 风格</div>
+</li>
+</ul>
+
+<h3 style="color: #53a8b6;">进阶课程</h3>
+<ul class="ref-list">
+<li>
+<a href="https://www.myssc.net/73879.html" target="_blank">Vincent Color Film – Color Grading Masterclass (2025)</a>
+<div class="ref-desc">大师课程：像调色师一样看世界、达芬奇核心工具、实时调色演练，含练习素材</div>
+</li>
+<li>
+<a href="https://www.lowepost.com/" target="_blank">Lowepost - Professional Color Grading Courses</a>
+<div class="ref-desc">好莱坞调色师授课，分风格专题：胶片模拟、HDR 工作流、商业广告调色</div>
+</li>
+<li>
+<a href="https://colorgradingcentral.com/" target="_blank">Color Grading Central - How To Recreate The Look of Any Film</a>
+<div class="ref-desc">专攻电影风格还原，拆解知名电影的调色节点和参数</div>
+</li>
+</ul>
+
+<h3 style="color: #c88fd8;">风格参考与灵感</h3>
+<ul class="ref-list">
+<li>
+<a href="https://www.youtube.com/@colorgrading" target="_blank">Cullen Kelly (YouTube)</a>
+<div class="ref-desc">专业调色师频道，深度讲解色彩科学、调色理论、商业项目幕后</div>
+</li>
+<li>
+<a href="https://www.youtube.com/@dariomock" target="_blank">Dario Munteanu (YouTube)</a>
+<div class="ref-desc">各种电影 Look 还原教程：《银翼杀手》《沙丘》《小丑》等</div>
+</li>
+<li>
+<a href="https://www.toutiao.com/article/7481158228957479433/" target="_blank">1分钟掌握 Lightroom 青橙电影感调色 (头条)</a>
+<div class="ref-desc">中文快速上手青橙调色，含具体参数</div>
+</li>
+<li>
+<a href="https://tuchong.com/1107816/t/19934930/" target="_blank">四步教你调出日系复古胶片色调 (图虫)</a>
+<div class="ref-desc">日系胶片风格详细步骤：基本参数→曲线→相机校准→HSL</div>
+</li>
+<li>
+<a href="https://www.douban.com/group/topic/203947122/" target="_blank">PS 调色：青橙风和赛博朋克风 (豆瓣)</a>
+<div class="ref-desc">两种热门风格的详细 PS 操作步骤，含 HSL 调整参数</div>
+</li>
+</ul>
+
+<h3 style="color: #aaa;">工具与预设资源</h3>
+<ul class="ref-list">
+<li>
+<a href="https://www.blackmagicdesign.com/products/davinciresolve/" target="_blank">DaVinci Resolve (免费版)</a>
+<div class="ref-desc">业界标准调色软件，免费版已包含完整调色功能</div>
+</li>
+<li>
+<a href="https://luts.iwltbap.com/" target="_blank">IWLTBAP - 专业 LUT 预设包</a>
+<div class="ref-desc">多种电影风格 LUT：胶片模拟、电影级、复古、清新等</div>
+</li>
+<li>
+<a href="https://www.filmconvert.com/" target="_blank">FilmConvert Nitrate</a>
+<div class="ref-desc">精确的胶片模拟插件，支持多种相机 Profile + 胶片类型</div>
+</li>
+<li>
+<a href="https://juanmelara.com.au/blog/print-film-emulation" target="_blank">Juan Melara - Film Emulation Science</a>
+<div class="ref-desc">胶片模拟的科学方法：密度曲线、交叉冲洗原理、色彩科学深度解析</div>
+</li>
+</ul>
+</div>
+
+<!-- 学习建议 -->
+<div class="section">
+<h2>🎯 学习建议</h2>
+<ol style="padding-left: 20px; color: #d0d0d0;">
+<li style="margin-bottom:12px"><strong>先掌握示波器</strong> — 波形图(Waveform)、矢量示波器(Vectorscope)、直方图(Histogram) 是调色的"眼睛"</li>
+<li style="margin-bottom:12px"><strong>理解节点/层的工作流</strong> — 先一级校正（曝光/白平衡）→ 再风格化（色偏/曲线/HSL）→ 最后加质感（颗粒/暗角/锐化）</li>
+<li style="margin-bottom:12px"><strong>用 LOG 素材练习</strong> — LOG 素材保留了最大动态范围，是调色的最佳起点</li>
+<li style="margin-bottom:12px"><strong>拆片学习</strong> — 找喜欢的电影截帧，用示波器分析它的亮度分布和色彩偏向，然后尝试还原</li>
+<li style="margin-bottom:12px"><strong>建立自己的节点模板库</strong> — 每种风格做成可复用的 PowerGrade，逐渐积累</li>
+</ol>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowEnglish Memory 架构设计</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#1f2733; --sub:#5b6675; --line:#e6e9ef;
+    --blue:#2563eb; --green:#16a34a; --amber:#d97706; --red:#dc2626; --purple:#7c3aed;
+    --code-bg:#0f172a; --code-ink:#e2e8f0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    line-height:1.75;font-size:15px;}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 24px 80px;}
+  header{margin-bottom:40px;border-bottom:3px solid var(--blue);padding-bottom:24px;}
+  header .tag{display:inline-block;background:var(--blue);color:#fff;font-size:12px;
+    padding:3px 10px;border-radius:20px;letter-spacing:.5px;margin-bottom:14px;}
+  h1{font-size:30px;margin:0 0 8px;letter-spacing:-.5px;}
+  header .meta{color:var(--sub);font-size:13.5px;}
+  h2{font-size:22px;margin:48px 0 16px;padding-left:12px;border-left:5px solid var(--blue);}
+  h3{font-size:17px;margin:28px 0 10px;color:var(--ink);}
+  h4{font-size:14.5px;margin:18px 0 6px;color:var(--purple);}
+  p{margin:10px 0;color:#2b3340;}
+  .lead{font-size:16px;background:#eef4ff;border:1px solid #d4e2ff;border-radius:12px;
+    padding:18px 22px;color:#1e3a8a;}
+  .lead strong{color:#1d4ed8;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px 24px;margin:18px 0;box-shadow:0 1px 2px rgba(16,24,40,.04);}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:#1e293b;color:#fff;font-weight:600;}
+  tr:nth-child(even) td{background:#fafbfc;}
+  code{background:#eef1f6;padding:1.5px 6px;border-radius:5px;font-size:13px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;color:#9333ea;}
+  pre{background:var(--code-bg);color:var(--code-ink);border-radius:12px;padding:18px 20px;
+    overflow:auto;font-size:12.8px;line-height:1.65;
+    font-family:"SF Mono",Menlo,Consolas,monospace;}
+  pre code{background:none;color:inherit;padding:0;}
+  .ascii{background:#0f172a;color:#93c5fd;white-space:pre;font-size:12px;line-height:1.5;
+    border-radius:12px;padding:18px 20px;overflow:auto;
+    font-family:"SF Mono",Menlo,Consolas,monospace;}
+  blockquote{border-left:4px solid var(--green);background:#f0fdf4;margin:14px 0;
+    padding:10px 18px;color:#14532d;border-radius:0 8px 8px 0;}
+  .problem{border-left:4px solid var(--red);background:#fef2f2;padding:10px 18px;margin:10px 0;
+    border-radius:0 8px 8px 0;}
+  .problem b{color:var(--red);}
+  ul,ol{padding-left:22px;}
+  li{margin:6px 0;}
+  .pill{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;}
+  .p-l1{background:#fde68a;color:#92400e;} .p-l2{background:#bbf7d0;color:#166534;}
+  .p-l3{background:#ddd6fe;color:#5b21b6;}
+  .footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--sub);font-size:12.5px;}
+  .kicker{color:var(--sub);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <span class="tag">横纵分析 · 架构设计</span>
+  <h1>ShadowEnglish Memory 架构设计</h1>
+  <div class="meta">项目：<code>/Users/ryanbzhou/Documents/ai-english</code>（Electron + TS 英语听说练习应用）<br>
+  目标：把「日志式 memory」升级为真正能<strong>了解学习者水平</strong>的认知型记忆系统</div>
+</header>
+
+<p class="lead">现在的 memory 是一堆「带向量的练习流水」——它能检索「我以前在哪句话栽过」，但<strong>回答不了「我现在到底什么水平、哪个知识点掌握了、下一步该练什么」</strong>。要让它真正懂你，得在「事件层」之上叠一个会持续蒸馏、随时间衰减、按知识点建模的「画像层」，并把界面里那一堆写死的假数据换成从这一层算出来的真实状态。</p>
+
+<h2>一、现状解剖：现有 memory 到底是什么</h2>
+<p class="kicker">纵向 · Diachronic</p>
+<h3>现在有什么</h3>
+<table>
+  <tr><th>文件</th><th>职责</th></tr>
+  <tr><td><code>ai/memory-agent.ts</code></td><td>跟读/复习结果 → <code>MemoryDraft</code> → 写库 + 触发向量化</td></tr>
+  <tr><td><code>database.ts</code></td><td><code>memory_items</code> + <code>memory_embeddings</code>（sqlite-vec，1024 维 Doubao Vision）</td></tr>
+  <tr><td><code>shared/types.ts</code></td><td><code>MemoryItem</code> / 5 种 <code>MemoryItemType</code></td></tr>
+</table>
+<p>记忆类型只有 5 种：<code>weak_area</code>、<code>pronunciation_error</code>、<code>scene_preference</code>、<code>review_performance</code>、<code>cefr_profile</code>。写入只有两个触发点（跟读完拆 3 条、复习完写 1 条），检索是「有 key 走向量、否则降级 LIKE」。</p>
+
+<h3>它的真实问题（逐条对照「了解学习水平」）</h3>
+<div class="problem"><b>问题 1 · 只有事件没有画像。</b> 每行都是一次练习的快照，靠 dedupeKey 并列堆叠，没有任何东西把它们聚合成「这个人当前的掌握度」。记忆越攒越多，但「我现在水平如何」没有一条记录能直接回答。</div>
+<div class="problem"><b>问题 2 · getProgress() 几乎全是写死的假数据（最致命）。</b> <code>cefrLevel:'B1+'</code>、<code>streakDays:23</code>、<code>masteredCards:Math.max(348,…)</code>、<code>fluencyTrend</code> 曲线、<code>fallbackErrors</code> 假音素表……界面上「你的学习水平」展示的全是 demo 假数据，跟真实练习几乎不挂钩。</div>
+<div class="problem"><b>问题 3 · 没有知识点（skill）维度。</b> 弱项是自由文本 <code>detail.label</code>，按「材料+句子 index」组织。无法回答「/θ/ 我练了 8 次现在掌握度多少」——因为 /θ/ 不是一等公民。</div>
+<div class="problem"><b>问题 4 · 记忆不会衰减。</b> <code>strength</code> 写入即静止。上个月练好的音今天仍被认为「很强」，没有遗忘机制。</div>
+<div class="problem"><b>问题 5 · 单事件拆条，没有蒸馏。</b> 一句跟读直接炸 3 条，练 100 句就是 300 条原始流水，噪声大、矛盾无人仲裁。</div>
+<div class="problem"><b>问题 6 · 检索结果没人用。</b> <code>searchLongTermMemory</code> 有了，但出题/推荐代码里没有任何地方调用它。存了不用，闭环没闭上。</div>
+<blockquote>一句话：它是「练习日志 + 向量索引」，不是「学习者模型」。它记得发生过什么，但不理解你现在是谁。</blockquote>
+
+<h2>二、业界三套可借鉴范式</h2>
+<p class="kicker">横向 · Synchronic</p>
+
+<h3>① 认知记忆四象限</h3>
+<table>
+  <tr><th>类型</th><th>映射到 ShadowEnglish</th><th>现状</th></tr>
+  <tr><td>情节 Episodic</td><td>「6/3 练第4句，/θ/→/s/，得分71」</td><td>✅ 现有 memory_items</td></tr>
+  <tr><td>语义 Semantic</td><td>「/θ/ 掌握度 0.4」「B1 级，连读弱」</td><td>❌ 完全缺失（本次核心）</td></tr>
+  <tr><td>程序 Procedural</td><td>「出题优先 /θ/+升降调，锁 B1」</td><td>❌ 散在 hardcode</td></tr>
+  <tr><td>工作 Working</td><td>当前 session 临时上下文</td><td>用完即弃</td></tr>
+</table>
+<p>现状只实现了 Episodic。要懂水平，必须补 Semantic（画像层），并从 Episodic 蒸馏出来。</p>
+
+<h3>② Mem0 流水线：提取 → 存储 → 检索 → 更新</h3>
+<ul>
+  <li><b>提取去噪</b>：事件不直接入库，先提炼「事实/偏好/关系」，滤掉无效信息。</li>
+  <li><b>混合检索</b>：语义向量 + BM25 关键词 + 实体匹配并行打分，而非只靠余弦。</li>
+  <li><b>更新而非堆叠</b>：新事实与旧记忆比对、合并、解决矛盾，保持精简（entity linking）。</li>
+</ul>
+
+<h3>③ 知识追踪 BKT / FSRS</h3>
+<ul>
+  <li><b>BKT</b>：每个知识点维护掌握概率 <code>p(L)</code>，每次答题贝叶斯更新。轻量、可解释、单机能跑、冷启动友好。</li>
+  <li><b>FSRS</b>：本项目<b>已装 <code>ts-fsrs</code></b>，cards 表已有 fsrs 字段——记忆稳定度随时间衰减的现成轮子。</li>
+</ul>
+<blockquote>启发：用 BKT 思路给每个 skill 维护掌握概率（现在水平），用 FSRS 思路让画像随时间衰减（会遗忘）。两个轮子项目里都已有一半。</blockquote>
+
+<h2>三、目标架构：三层 + 一条流水线</h2>
+<p class="kicker">横纵交汇 · Insight</p>
+<div class="card">
+<div class="ascii">┌──────────────────────────────────────────────────────────┐
+│ <span style="color:#c4b5fd">L3 程序记忆/调度策略</span>  "下一步练什么"——出题/推荐/复习  │
+│    ← 读 L2 画像，不存原始数据，纯策略函数                  │
+├──────────────────────────────────────────────────────────┤
+│ <span style="color:#86efac">L2 学习者画像/语义记忆</span>  ★本次新增核心★                │
+│    learner_profile : 全局水平(CEFR/四维/streak…)          │
+│    skill_mastery    : 每知识点掌握度 + 衰减 + 趋势         │
+│    ← 由 L1 经"蒸馏流水线"聚合，会随时间衰减               │
+├──────────────────────────────────────────────────────────┤
+│ <span style="color:#fcd34d">L1 情节记忆/事件</span>  ＝现有 memory_items（保留）        │
+│    每次跟读/复习原始快照 + 1024维向量                     │
+│    职责收窄：只做"原始证据"+"语义检索回放"               │
+└──────────────────────────────────────────────────────────┘</div>
+</div>
+
+<h3>写入运行图</h3>
+<div class="card">
+<div class="ascii">跟读/复习发生
+   │
+   ├─① 原始事件落 <span style="color:#fcd34d">L1 memory_items</span> ──▶ 异步向量化(现状不变)
+   │
+   └─② 触发蒸馏 ▼
+   ┌──────────────────────────────────────────────┐
+   │ <span style="color:#7dd3fc">蒸馏流水线 ConsolidationPipeline</span>              │
+   │ a.归一化  label/phoneme → skillId (实体链接)   │
+   │ b.增量更新 对命中 skill 跑 BKT 贝叶斯更新       │
+   │ c.衰减结算 按距上次练习天数做遗忘衰减           │
+   │ d.解决矛盾 同 skill 多信号加权(近因+置信度)     │
+   └────────┬───────────────────────┬──────────────┘
+            ▼                       ▼
+   <span style="color:#86efac">skill_mastery</span> ───汇总──▶ <span style="color:#86efac">learner_profile</span></div>
+</div>
+
+<h3>读取运行图（闭环关键）</h3>
+<div class="card">
+<div class="ascii">getProgress() ───▶ 读 L2 聚合 ──▶ <span style="color:#86efac">真实水平面板(不再写死!)</span>
+                       ▲
+generateCards() ───────┤ L3 调度：取掌握度最低 &amp; 接近遗忘的 skill
+getRecommendations() ──┤        + L1 语义检索相似历史错误
+                       ▼
+              出题/推荐/复习排序 ◀── 闭环闭上：存了就用</div>
+</div>
+
+<h2>四、数据结构设计</h2>
+<h4>新增 skill_catalog（让知识点成为一等公民 · 地基）</h4>
+<pre><code>CREATE TABLE skill_catalog (
+  id        TEXT PRIMARY KEY,   -- 'phoneme:θ' / 'prosody:question-intonation'
+  category  TEXT NOT NULL,      -- pronunciation|prosody|fluency|grammar|vocab
+  label     TEXT NOT NULL,      -- '齿擦音 /θ/'
+  cefr_band TEXT,
+  aliases   TEXT DEFAULT '[]',  -- 实体链接: ['/θ/','th音','齿擦音']
+  created_at INTEGER NOT NULL
+);</code></pre>
+<p>冷启动预置 30–50 个常见 skill 种子，第一次用就能归类。</p>
+
+<h4>新增 skill_mastery（Semantic 层核心）</h4>
+<pre><code>CREATE TABLE skill_mastery (
+  skill_id       TEXT PRIMARY KEY,
+  mastery        REAL DEFAULT 0.3,  -- BKT 掌握概率 p(L)
+  confidence     REAL DEFAULT 0.2,  -- 证据越多越可信
+  stability_days REAL DEFAULT 1.0,  -- FSRS 稳定度，越高衰减越慢
+  exposures      INTEGER DEFAULT 0,
+  correct        INTEGER DEFAULT 0,
+  trend          REAL DEFAULT 0,    -- 最近趋势 +升 -降
+  last_practiced INTEGER,
+  updated_at     INTEGER NOT NULL
+);</code></pre>
+
+<h4>新增 learner_profile（全局画像 · 单行表）</h4>
+<pre><code>CREATE TABLE learner_profile (
+  user_id         TEXT PRIMARY KEY DEFAULT 'local',
+  estimated_cefr  TEXT,   -- 由 skill_mastery 反推，不再写死 'B1+'
+  cefr_confidence REAL,
+  avg_accuracy    REAL, avg_fluency REAL, avg_prosody REAL,
+  streak_days     INTEGER,  total_minutes INTEGER,
+  strongest_skills TEXT, weakest_skills TEXT,  -- JSON
+  updated_at      INTEGER NOT NULL
+);</code></pre>
+<p><b>现有 <code>memory_items</code> 不删不改</b>，职责收窄为 L1 情节层：只存原始证据 + 语义检索，聚合型记忆搬到 L2。</p>
+
+<h2>五、核心算法（轻量·单机·可解释）</h2>
+<h4>BKT 掌握度更新</h4>
+<pre><code>function bayesUpdate(prior, correct, pS=0.1, pG=0.2, pT=0.15){
+  const pObs = correct ? prior*(1-pS)+(1-prior)*pG
+                       : prior*pS+(1-prior)*(1-pG);
+  const post = correct ? prior*(1-pS)/pObs : prior*pS/pObs;
+  return post + (1-post)*pT;          // 练后有概率"学会"
+}</code></pre>
+<blockquote>选 BKT 不选 DKT：本地 Electron、无训练数据、要可解释、要冷启动——BKT 全中；DKT 需大量数据训 RNN，单机不划算。</blockquote>
+
+<h4>时间衰减（让记忆会遗忘）</h4>
+<pre><code>function decayMastery(m, stabilityDays, daysSince, floor=0.2){
+  const r = Math.exp(-daysSince / Math.max(stabilityDays,0.5)); // 艾宾浩斯/FSRS
+  return floor + (m-floor)*r;
+}
+// 练对→抬高 stability(更牢、衰减更慢)；练错→压低。ts-fsrs 可直接复用</code></pre>
+<p><b>CEFR 反推</b>：不再写死 'B1+'，用各 skill 掌握度按 band 加权聚合落到最近等级，证据少时 confidence 低、界面诚实标「估计中」。</p>
+
+<h2>六、落地代码骨架</h2>
+<p>新增 <code>src/main/ai/learner-model.ts</code> 收 L2 逻辑；<code>memory-agent.ts</code> 写完 L1 后调用：</p>
+<pre><code>// recordShadowingMemories 末尾追加：
+const signals = result.score.details.map(d => ({
+  skillId: resolveSkillId(db, d.label, d.label.match(/\/[^/]+\//)?.[0]),
+  correct: d.severity === 'good',
+  weight:  d.severity === 'bad' ? 1 : 0.6,
+}));
+consolidate(db, signals);   // ← L1 之外，更新 L2 画像</code></pre>
+<p><code>getProgress()</code> 改造（核心闭环——假数据换真画像）：</p>
+<pre><code>const profile = this.getLearnerProfile();
+const weak = this.getAllSkillMastery().sort((a,b)=>a.mastery-b.mastery).slice(0,4);
+return {
+  cefrLevel: profile.estimatedCefr ?? '估计中',     // 真实反推
+  streakDays: profile.streakDays,                   // 真实连续天数
+  weakAreas: weak.map(s => ({ title:s.label,
+    detail:`掌握度 ${(s.mastery*100)|0}% · 练习 ${s.exposures} 次`,
+    level: s.mastery<0.4?'高':s.mastery<0.7?'中':'低', category:s.category })),
+  // …其余真实统计…
+};</code></pre>
+
+<h2>七、为什么这套真正实用</h2>
+<table>
+  <tr><th>能力</th><th>怎么实现的</th></tr>
+  <tr><td>回答得了「我什么水平」</td><td><code>learner_profile</code> + <code>skill_mastery</code> 直接、可解释、动态变化</td></tr>
+  <tr><td>界面不再骗人</td><td><code>getProgress</code> 从假数据切真画像</td></tr>
+  <tr><td>闭环闭上</td><td>记忆被出题/推荐/复习实际消费</td></tr>
+  <tr><td>会遗忘会回升</td><td>衰减 + 复练回升，贴合真实记忆规律</td></tr>
+  <tr><td>单机轻量</td><td>BKT + ts-fsrs(已有) + SQLite，全本地无需训练</td></tr>
+  <tr><td>渐进可落地</td><td>L1 全保留，加 3 表 + 1 文件，改 3 处调用，不推倒重来</td></tr>
+</table>
+
+<h2>八、落地路线</h2>
+<table>
+  <tr><th>阶段</th><th>动作</th><th>产出</th></tr>
+  <tr><td><span class="pill p-l1">P0</span></td><td>建 skill_catalog + 种子；写 resolveSkillId 实体链接</td><td>弱项能被归类</td></tr>
+  <tr><td><span class="pill p-l2">P1</span></td><td>建 skill_mastery + learner-model.ts；接 consolidate</td><td>画像开始积累</td></tr>
+  <tr><td><span class="pill p-l2">P2</span></td><td><b>改造 getProgress 用真实数据</b></td><td>面板不再写死（体感最强）</td></tr>
+  <tr><td><span class="pill p-l3">P3</span></td><td>card-generator / recommender 读 L2 + L1 检索</td><td>闭环闭上，对症下药</td></tr>
+  <tr><td><span class="pill p-l3">P4</span></td><td>接 ts-fsrs 精化 stability；CEFR 反推调参</td><td>衰减与等级更准</td></tr>
+</table>
+<blockquote>建议从 P2 反推优先级：「界面展示假数据」是最直接痛点，把 getProgress 接真，哪怕画像粗糙，体感提升最大。</blockquote>
+
+<div class="footer">
+  <b>信息来源：</b>Agent 记忆四象限（CSDN《Agent记忆架构设计2026》、博客园 LLM Agent 综述、统一记忆框架综述）· Mem0 记忆层（知乎《初探 Mem0》、hobbytp Mem0 工作流、Mem0 v3 算法）· 知识追踪 BKT/DKT（知乎 BKT、CSDN DKT）· FSRS/SuperMemo/艾宾浩斯遗忘曲线（apsgo SuperMemo、本项目已集成 ts-fsrs）· Reflection Memory（iThome）<br><br>
+  <b>方法论：</b>横纵分析法（数字生命卡兹克）——纵向解剖现有 memory 缺陷，横向对照业界三套范式，交汇出适配本项目的分层架构。
+</div>
+</div>
+</body>
+</html>
