@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>参考：色轮分区调色速查卡</title>
+<style>
+  body { font-family: -apple-system, 'PingFang SC', sans-serif; max-width: 700px; margin: 2rem auto; padding: 1rem; line-height: 1.7; color: #222; }
+  h1 { font-size: 1.4rem; border-bottom: 2px solid #b388ff; padding-bottom: 0.3rem; }
+  h2 { font-size: 1.1rem; color: #0f3460; margin-top: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid #eee; }
+  th { background: #f5f8fa; color: #555; font-size: 0.8rem; }
+  .highlight { background: #f3e5f5; padding: 0.8rem; border-left: 3px solid #b388ff; margin: 1rem 0; font-size: 0.9rem; }
+  .recipe { background: #f8f8f8; border-radius: 8px; padding: 1rem; margin: 0.8rem 0; }
+  .recipe h3 { font-size: 0.95rem; margin: 0 0 0.5rem 0; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; margin-right: 4px; }
+  code { background: #e8f4fd; padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+  @media print { body { font-size: 10pt; } }
+</style>
+</head>
+<body>
+<h1>🎨 色轮分区调色速查卡</h1>
+
+<div class="highlight">
+  <strong>核心原则：</strong>动作要小！色轮极其敏感。宁可太淡也不要太浓。高级感 = 克制。
+</div>
+
+<h2>三区域影响范围</h2>
+<table>
+  <tr><th>色轮</th><th>专业名</th><th>影响区域</th><th>角色</th></tr>
+  <tr><td>阴影</td><td>Lift</td><td>暗部最强 → 亮部渐弱至0</td><td>环境氛围底色</td></tr>
+  <tr><td>中间调</td><td>Gamma</td><td>中间最强 → 两端渐弱（覆盖最广）</td><td>画面整体基调</td></tr>
+  <tr><td>高光</td><td>Gain</td><td>亮部最强 → 暗部渐弱至0</td><td>光源色彩/肤色倾向</td></tr>
+</table>
+
+<h2>三种经典配方</h2>
+
+<div class="recipe">
+  <h3>🎬 A. 经典电影感（Teal & Orange）</h3>
+  <table>
+    <tr><td>阴影</td><td><span class="dot" style="background:hsl(195,70%,40%)"></span>青/蓝绿</td></tr>
+    <tr><td>中间调</td><td><span class="dot" style="background:hsl(35,30%,50%)"></span>微暖或不动</td></tr>
+    <tr><td>高光</td><td><span class="dot" style="background:hsl(30,70%,65%)"></span>橙/暖黄</td></tr>
+  </table>
+  <p style="font-size:0.8rem;color:#666;">适合：城市、旅行、人像、万能款</p>
+</div>
+
+<div class="recipe">
+  <h3>🌅 B. 暖调怀旧（Golden Hour）</h3>
+  <table>
+    <tr><td>阴影</td><td><span class="dot" style="background:hsl(270,30%,35%)"></span>紫/蓝紫</td></tr>
+    <tr><td>中间调</td><td><span class="dot" style="background:hsl(35,50%,55%)"></span>暖橙</td></tr>
+    <tr><td>高光</td><td><span class="dot" style="background:hsl(45,60%,70%)"></span>黄/金色</td></tr>
+  </table>
+  <p style="font-size:0.8rem;color:#666;">适合：日落、回忆、治愈 Vlog</p>
+</div>
+
+<div class="recipe">
+  <h3>🧊 C. 冷调高级感（Cool Cinematic）</h3>
+  <table>
+    <tr><td>阴影</td><td><span class="dot" style="background:hsl(220,60%,30%)"></span>深蓝</td></tr>
+    <tr><td>中间调</td><td><span class="dot" style="background:hsl(200,20%,45%)"></span>微冷或不动</td></tr>
+    <tr><td>高光</td><td><span class="dot" style="background:hsl(190,30%,70%)"></span>青白/冷白</td></tr>
+  </table>
+  <p style="font-size:0.8rem;color:#666;">适合：夜景、科技感、孤独/沉思</p>
+</div>
+
+<h2>"做过了"的判断标志 🚨</h2>
+<table>
+  <tr><th>表现</th><th>说明</th></tr>
+  <tr><td>白色物体明显偏蓝/偏橙</td><td>色轮拖太远</td></tr>
+  <tr><td>肤色变绿/变紫</td><td>中间调/高光方向错误</td></tr>
+  <tr><td>像加了"劣质滤镜"</td><td>所有色轮往回收 50%</td></tr>
+</table>
+
+<h2>前置条件 ✅</h2>
+<p>色轮调色<strong>必须</strong>在一级校色之后进行。未校色的灰片/偏色片用色轮 = 不可控结果。</p>
+
+<p style="font-size: 0.8rem; color: #999; margin-top: 2rem;">Created: Lesson 03 | Last updated: 2026-06-09</p>
+</body>
+</html>

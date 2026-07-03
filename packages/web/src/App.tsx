@@ -5,6 +5,8 @@ import { AuthorPage } from "./pages/AuthorPage";
 import { CanvasPage } from "./pages/CanvasPage";
 import { CollectionDetailPage } from "./pages/CollectionDetailPage";
 import { CollectionsPage } from "./pages/CollectionsPage";
+import { HighlightDetailPage } from "./pages/HighlightDetailPage";
+import { HighlightsPage } from "./pages/HighlightsPage";
 import { ProtocolPage } from "./pages/ProtocolPage";
 import { SampleDetailPage } from "./pages/SampleDetailPage";
 import { SamplesPage } from "./pages/SamplesPage";
@@ -25,6 +27,8 @@ export function App() {
             <Route path="samples/:id" element={<SampleDetailPage />} />
             <Route path="collections" element={<CollectionsPage />} />
             <Route path="collections/:id" element={<CollectionDetailPage />} />
+            <Route path="highlights" element={<HighlightsPage />} />
+            <Route path="highlights/:id" element={<HighlightDetailPage />} />
             <Route path="teardowns/:id" element={<TeardownPage />} />
             <Route path="teardowns/:id/canvas" element={<CanvasPage />} />
             <Route path="templates" element={<TemplatesPage />} />

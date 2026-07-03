@@ -3,6 +3,7 @@ import {
   authorProfiler,
   clipExtractor,
   collectionService,
+  highlightService,
   masterImportService,
   memoryService,
   preprocessor,
@@ -209,6 +210,110 @@ export const MCP_TOOLS = [
     name: "teardown.list",
     description: "列出拉片任务/产物，可按 sample_id 或 status 过滤。",
     inputSchema: { type: "object", properties: { sample_id: { type: "string" }, status: { type: "string" } } }
+  },
+  {
+    name: "highlight.start",
+    description: "启动快速口播剪辑模式。只要求 transcript，不要求 shots/frames；适合 YouTube/播客/大量口播视频，agent 先分析字幕并提交关键片段，再由 highlight.materialize_clips 物理裁剪。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        sample_id: { type: "string" },
+        mode: { type: "string", enum: ["talking_head_fast"], default: "talking_head_fast" },
+        agent_name: { type: "string" },
+        goal: { type: "string", description: "本次想剪出的重点，如“产品洞察”“英语学习方法”“适合短视频二创的强观点”。" },
+        max_clip_count: { type: "number" },
+        min_duration_sec: { type: "number" },
+        max_duration_sec: { type: "number" },
+        pad_sec: { type: "number", description: "物理裁剪时在片段前后增加的安全余量，默认 1 秒。" },
+        auto_preprocess_transcript: { type: "boolean", default: true }
+      },
+      required: ["sample_id"]
+    }
+  },
+  {
+    name: "highlight.list",
+    description: "列出快速口播剪辑任务，可按 sample_id 或 status 过滤。",
+    inputSchema: { type: "object", properties: { sample_id: { type: "string" }, status: { type: "string", enum: ["running", "done", "failed"] } } }
+  },
+  {
+    name: "highlight.get",
+    description: "读取快速口播剪辑任务及已提交的关键片段。",
+    inputSchema: { type: "object", properties: { highlight_id: { type: "string" } }, required: ["highlight_id"] }
+  },
+  {
+    name: "highlight.get_workspace",
+    description: "读取快速剪辑工作区：任务、样片和 transcript。支持按时间窗或关键词过滤字幕，避免一次把长字幕全部塞给 agent。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        highlight_id: { type: "string" },
+        start_sec: { type: "number" },
+        end_sec: { type: "number" },
+        q: { type: "string" },
+        max_segments: { type: "number", default: 240 }
+      },
+      required: ["highlight_id"]
+    }
+  },
+  {
+    name: "highlight.suggest_segments",
+    description: "从 transcript 本地生成候选口播片段，不调用 LLM。它用关键词、转折/方法/结论等文本线索和目标时长做启发式排序，agent 可基于候选再提交最终片段。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        highlight_id: { type: "string" },
+        keywords: { type: "array", items: { type: "string" } },
+        target_duration_sec: { type: "number", default: 45 },
+        max_candidates: { type: "number", default: 12 }
+      },
+      required: ["highlight_id"]
+    }
+  },
+  {
+    name: "highlight.submit_segments",
+    description: "提交 agent 基于 transcript 选出的关键口播片段。该操作只落结构化文本和时间码，不做视觉拉片，也不会要求逐 shot storyboard。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        highlight_id: { type: "string" },
+        segments: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              start_sec: { type: "number" },
+              end_sec: { type: "number" },
+              title: { type: "string" },
+              transcript_excerpt: { type: "string" },
+              reason: { type: "string" },
+              tags: { type: "array", items: { type: "string" } },
+              confidence: { type: "number" }
+            },
+            required: ["start_sec", "end_sec", "title", "reason"]
+          }
+        }
+      },
+      required: ["highlight_id", "segments"]
+    }
+  },
+  {
+    name: "highlight.materialize_clips",
+    description: "把已提交的关键口播片段用 ffmpeg 裁成独立 clip samples。要求样片有本地源视频；YouTube 样片应先通过 sample.import 导入。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        highlight_id: { type: "string" },
+        segment_ids: { type: "array", items: { type: "string" } },
+        pad_sec: { type: "number" },
+        overwrite: { type: "boolean", default: false }
+      },
+      required: ["highlight_id"]
+    }
+  },
+  {
+    name: "highlight.finalize",
+    description: "完成快速口播剪辑任务。它不会触发精品拉片记忆评分，只表示关键片段已经提交/裁剪完成。",
+    inputSchema: { type: "object", properties: { highlight_id: { type: "string" } }, required: ["highlight_id"] }
   },
   {
     name: "teardown.start",
@@ -419,6 +524,33 @@ export async function callMcpTool(name: string, args: Record<string, unknown>) {
     await collectionService.reorderClips(String(args.collection_id), args.order as string[]);
     return { reordered: true };
   }
+  if (name === "highlight.start") return highlightService.start(args as never);
+  if (name === "highlight.list") return { items: await highlightService.list(args as never) };
+  if (name === "highlight.get") return highlightService.get(String(args.highlight_id));
+  if (name === "highlight.get_workspace") {
+    return highlightService.getWorkspace(String(args.highlight_id), {
+      start_sec: args.start_sec != null ? Number(args.start_sec) : undefined,
+      end_sec: args.end_sec != null ? Number(args.end_sec) : undefined,
+      q: args.q != null ? String(args.q) : undefined,
+      max_segments: numericArg(args.max_segments, 240)
+    });
+  }
+  if (name === "highlight.suggest_segments") {
+    return highlightService.suggestSegments(String(args.highlight_id), {
+      keywords: Array.isArray(args.keywords) ? (args.keywords as string[]) : undefined,
+      target_duration_sec: args.target_duration_sec != null ? Number(args.target_duration_sec) : undefined,
+      max_candidates: numericArg(args.max_candidates, 12)
+    });
+  }
+  if (name === "highlight.submit_segments") return highlightService.submitSegments(String(args.highlight_id), args.segments as never);
+  if (name === "highlight.materialize_clips") {
+    return highlightService.materializeClips(String(args.highlight_id), {
+      segment_ids: Array.isArray(args.segment_ids) ? (args.segment_ids as string[]) : undefined,
+      pad_sec: args.pad_sec != null ? Number(args.pad_sec) : undefined,
+      overwrite: args.overwrite === true
+    });
+  }
+  if (name === "highlight.finalize") return highlightService.finalize(String(args.highlight_id));
   if (name === "teardown.list") return { items: await teardownService.list(args as never) };
   if (name === "teardown.start") return teardownService.start(args as never);
   if (name === "teardown.get") return teardownService.get(String(args.teardown_id));

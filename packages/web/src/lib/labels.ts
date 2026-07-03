@@ -19,6 +19,7 @@ export const videoCategoryLabels: Record<VideoCategory, string> = {
   product_story: "产品故事",
   interview: "访谈",
   film: "影视",
+  "film-scene": "电影片段",
   generic_short: "通用短视频"
 };
 

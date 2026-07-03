@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Things 3 任务全景分类</title>
+<style>
+:root { --bg: #f5f5f7; --card: #fff; --border: #e5e5ea; --text: #1d1d1f; --sub: #86868b; --radius: 14px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; }
+.page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+header { margin-bottom: 36px; }
+header h1 { font-size: 2em; font-weight: 700; letter-spacing: -0.02em; }
+header p { color: var(--sub); margin-top: 4px; }
+
+/* Stats bar */
+.stats { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.stat { background: var(--card); border-radius: 10px; padding: 14px 20px; flex: 1; min-width: 120px; box-shadow: 0 1px 3px rgba(0,0,0,.06); text-align: center; }
+.stat .n { font-size: 1.8em; font-weight: 700; }
+.stat .l { font-size: .78em; color: var(--sub); margin-top: 2px; }
+
+/* Nav */
+.nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; position: sticky; top: 0; background: var(--bg); padding: 12px 0; z-index: 10; }
+.nav button { border: none; background: var(--card); color: var(--text); padding: 7px 16px; border-radius: 20px; font-size: .88em; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: all .15s; font-weight: 500; }
+.nav button:hover { background: #e8e8ed; }
+.nav button.active { background: #1d1d1f; color: #fff; }
+.nav button .count { opacity: .5; margin-left: 4px; font-weight: 400; }
+
+/* Category */
+.category { background: var(--card); border-radius: var(--radius); padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05); display: none; }
+.category.visible { display: block; }
+.cat-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.cat-head h2 { font-size: 1.25em; }
+.cat-head .badge { background: #f0f0f0; color: var(--sub); font-size: .75em; padding: 2px 10px; border-radius: 12px; }
+.cat-desc { color: var(--sub); font-size: .9em; margin-bottom: 18px; }
+
+/* Sub-group */
+.subgroup { margin-bottom: 20px; }
+.subgroup h3 { font-size: .92em; color: var(--sub); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+
+/* Task item */
+.task { padding: 10px 14px; border-radius: 10px; margin-bottom: 6px; transition: background .12s; }
+.task:hover { background: #f8f8fa; }
+.task .title { font-weight: 500; word-break: break-word; }
+.task .title a { color: #007aff; text-decoration: none; }
+.task .title a:hover { text-decoration: underline; }
+.task .meta { font-size: .82em; color: var(--sub); margin-top: 3px; }
+.task .notes { font-size: .82em; color: #6e6e73; margin-top: 4px; padding-left: 12px; border-left: 2px solid #e5e5ea; max-height: 60px; overflow: hidden; }
+.task .proj-tag { display: inline-block; background: #f0f0f5; color: #636366; font-size: .75em; padding: 1px 8px; border-radius: 8px; margin-left: 6px; }
+
+/* Color coding per category */
+.cat-action .cat-head h2 { color: #ff3b30; }
+.cat-orbit .cat-head h2 { color: #5856d6; }
+.cat-reading .cat-head h2 { color: #ff9500; }
+.cat-links .cat-head h2 { color: #007aff; }
+.cat-ideas .cat-head h2 { color: #af52de; }
+.cat-learning .cat-head h2 { color: #34c759; }
+.cat-life .cat-head h2 { color: #ff2d55; }
+.cat-trash .cat-head h2 { color: #8e8e93; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .page { padding: 20px 16px 60px; }
+  .stats { gap: 8px; }
+  .stat { padding: 10px 12px; }
+  .stat .n { font-size: 1.4em; }
+  .category { padding: 20px 16px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Things 3 · 任务全景分类</h1>
+  <p>305 条未完成任务，重新按性质分为 8 大类 · 2026-06-30</p>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="n" style="color:#ff3b30">18</div><div class="l">真正的行动</div></div>
+  <div class="stat"><div class="n" style="color:#5856d6">53</div><div class="l">Orbit / 产品开发</div></div>
+  <div class="stat"><div class="n" style="color:#ff9500">50</div><div class="l">阅读清单</div></div>
+  <div class="stat"><div class="n" style="color:#007aff">43</div><div class="l">链接 / 书签</div></div>
+  <div class="stat"><div class="n" style="color:#af52de">47</div><div class="l">灵感 / 想法</div></div>
+  <div class="stat"><div class="n" style="color:#34c759">42</div><div class="l">学习探索</div></div>
+  <div class="stat"><div class="n" style="color:#ff2d55">18</div><div class="l">生活 / Side Projects</div></div>
+  <div class="stat"><div class="n" style="color:#8e8e93">34</div><div class="l">应删除</div></div>
+</div>
+
+<nav class="nav" id="nav">
+  <button class="active" data-cat="all">全部 <span class="count">305</span></button>
+  <button data-cat="action">🔥 真正的行动 <span class="count">18</span></button>
+  <button data-cat="orbit">🪐 Orbit 开发 <span class="count">53</span></button>
+  <button data-cat="reading">📚 阅读清单 <span class="count">50</span></button>
+  <button data-cat="links">🔗 链接书签 <span class="count">43</span></button>
+  <button data-cat="ideas">💡 灵感想法 <span class="count">47</span></button>
+  <button data-cat="learning">🌱 学习探索 <span class="count">42</span></button>
+  <button data-cat="life">🏠 生活 & Side Projects <span class="count">18</span></button>
+  <button data-cat="trash">🗑️ 建议删除 <span class="count">34</span></button>
+</nav>
+
+<!-- ===================== 1. 真正的行动 ===================== -->
+<div class="category cat-action visible" data-cat="action">
+<div class="cat-head"><h2>🔥 真正的行动</h2><div class="badge">18 条</div></div>
+<p class="cat-desc">有明确完成标志、有时间紧迫性、可以立刻动手的条目。这些才应该留在 Things 里。</p>
+
+<div class="subgroup">
+<h3>紧急 / 有外部依赖</h3>
+<div class="task"><div class="title">leancloud 停服，需要把大同网站的留言服务迁移一下，顺便梳理下大同服务的列表</div><div class="meta">外部服务停服，硬性截止</div></div>
+<div class="task"><div class="title">把数据中心部署上线</div></div>
+<div class="task"><div class="title">n8n订阅到期时间 20270129</div><div class="meta">有截止日期</div></div>
+<div class="task"><div class="title">obsidian 续费</div><div class="meta">有截止日期</div></div>
+</div>
+
+<div class="subgroup">
+<h3>Bug 修复</h3>
+<div class="task"><div class="title">现在 auto agent 没有展示 think 标签和工具调用等等，只有气泡</div></div>
+<div class="task"><div class="title">每次点开任务的对话，都会重新流式一遍</div></div>
+<div class="task"><div class="title">inbox的agent审批消息在终端审批过后，没有更新状态</div><div class="meta proj-tag">orbit</div></div>
+<div class="task"><div class="title">编辑物品会覆盖成默认图</div><div class="meta proj-tag">家庭收纳</div></div>
+</div>
+
+<div class="subgroup">
+<h3>明确的工程任务</h3>
+<div class="task"><div class="title">合入 mermaid 分支</div></div>
+<div class="task"><div class="title">mermaid 支持主题</div></div>
+<div class="task"><div class="title">截图服务压测</div></div>
+<div class="task"><div class="title">twitter 跑通生产级内容</div></div>
+<div class="task"><div class="title">翻新大同页面</div></div>
+</div>
+
+<div class="subgroup">
+<h3>复盘 / 规划</h3>
+<div class="task"><div class="title">复盘五月做的事情</div></div>
+<div class="task"><div class="title">做一次复盘，梳理下到现在做了什么，还要做什么，优先级是什么，至少得有个年规划</div></div>
+<div class="task"><div class="title">things 整理</div></div>
+<div class="task"><div class="title">复盘一月</div><div class="meta proj-tag">如何复盘</div></div>
+<div class="task"><div class="title">英语学习研究</div><div class="meta">确定学习方法并开始</div></div>
+</div>
+</div>
+
+<!-- ===================== 2. Orbit 开发 ===================== -->
+<div class="category cat-orbit" data-cat="orbit">
+<div class="cat-head"><h2>🪐 Orbit / 产品开发</h2><div class="badge">53 条</div></div>
+<p class="cat-desc">所有和 Orbit 产品设计、功能开发、架构思考相关的条目。应迁移到 Orbit 项目看板或 GitHub Issues。</p>
+
+<div class="subgroup">
+<h3>核心功能设计</h3>
+<div class="task"><div class="title">终端agent生成的产物应该放在哪</div></div>
+<div class="task"><div class="title">终端标题应该要可以修改，且AI会自动修改标题</div></div>
+<div class="task"><div class="title">定时任务，应该是个对话列表 + 对话详情</div></div>
+<div class="task"><div class="title">设计一个通用对话流</div></div>
+<div class="task"><div class="title">产物预览</div></div>
+<div class="task"><div class="title">国际化</div></div>
+<div class="task"><div class="title">支持copilot cli</div></div>
+<div class="task"><div class="title">agent 应该要有一个看板能看到 agent 做了哪些事情</div></div>
+<div class="task"><div class="title">ai会话做成插件，可以直接画ui？还是说应该让Dashboard或者review接管</div></div>
+<div class="task"><div class="title">会生成设计方案文档，文档有一个精美的阅读器，阅读器可以单独窗口打开</div></div>
+<div class="task"><div class="title">操作依然需要记录，应该做在orbit的接口层，每个接口产生语义化的操作日志</div></div>
+<div class="task"><div class="title">外部可以拖入一些材料到 files 目录</div></div>
+<div class="task"><div class="title">各种右键应该要能打开文件夹</div></div>
+<div class="task"><div class="title">高亮的笔记浮框显示逻辑</div></div>
+<div class="task"><div class="title">让orbit的chrome插件，让浏览器文章变成阅读性强的多彩标注能力</div><div class="meta proj-tag">想法</div></div>
+</div>
+
+<div class="subgroup">
+<h3>架构 / 技术</h3>
+<div class="task"><div class="title">先实现LLM接口</div></div>
+<div class="task"><div class="title">然后实现一个通用的只做prompt来，输出结果的单次对话的接口</div></div>
+<div class="task"><div class="title">02_Areas/ 扁平，标签分组，每个 area 是一个独立目录。那如何为目录做标签？</div></div>
+<div class="task"><div class="title">runtime发现</div></div>
+<div class="task"><div class="title">runtime工具自动更新</div></div>
+<div class="task"><div class="title">agent配置skills等等之后，怎么在对应的runtime生效的</div></div>
+<div class="task"><div class="title">切换vault实现切换工作区</div></div>
+<div class="task"><div class="title">除了vault，是否还有其他数据依赖，导致在使用应用时两个工作区没有真正隔离</div></div>
+<div class="task"><div class="title">git worktree 最方便的创建，可视化，装依赖，验证，提pr或直接合主干，销毁，一整套</div></div>
+<div class="task"><div class="title">借助git，你能随时看到git的diff变更，随时通过ai自动提交</div></div>
+</div>
+
+<div class="subgroup">
+<h3>Orbit 功能页面 / UI</h3>
+<div class="task"><div class="title">工作台页面</div></div>
+<div class="task"><div class="title">每日笔记</div></div>
+<div class="task"><div class="title">每日待办</div></div>
+<div class="task"><div class="title">每日操作时间轴</div></div>
+<div class="task"><div class="title">新样式</div></div>
+<div class="task"><div class="title">LOGO</div></div>
+<div class="task"><div class="title">截图</div></div>
+<div class="task"><div class="title">给agent设置一套动物园头像</div></div>
+<div class="task"><div class="title">动物要和能力解绑，形成二维的多对多</div></div>
+</div>
+
+<div class="subgroup">
+<h3>竞品调研</h3>
+<div class="task"><div class="title">omnifocus 4 调研</div></div>
+<div class="task"><div class="title">linear 和 omnifocus4 对比</div></div>
+<div class="task"><div class="title">两者对orbit有什么启发</div></div>
+<div class="task"><div class="title">tiptap 深度调研</div></div>
+<div class="task"><div class="title">orbit中除了tiptap的基础功能，怎么结合orbit里独特的内容</div></div>
+<div class="task"><div class="title">multica 深度调研</div></div>
+<div class="task"><div class="title">orbit能借鉴什么</div></div>
+</div>
+
+<div class="subgroup">
+<h3>Dashboard / Review</h3>
+<div class="task"><div class="title">做了什么任务</div></div>
+<div class="task"><div class="title">读了什么</div></div>
+<div class="task"><div class="title">写了什么笔记</div></div>
+<div class="task"><div class="title">偏向分析和建议</div></div>
+<div class="task"><div class="title">偏向纪实</div></div>
+<div class="task"><div class="title">每日每周每月回顾</div></div>
+<div class="task"><div class="title">规划多个项目的任务</div></div>
+<div class="task"><div class="title">看各种信息</div></div>
+<div class="task"><div class="title">验收功能</div></div>
+<div class="task"><div class="title">上面这些怎么尽可能让agent自动化</div></div>
+<div class="task"><div class="title">提供各种agent来执行日常任务，但这个日常任务放在哪</div></div>
+</div>
+</div>
+
+<!-- ===================== 3. 阅读清单 ===================== -->
+<div class="category cat-reading" data-cat="reading">
+<div class="cat-head"><h2>📚 阅读清单</h2><div class="badge">50 条</div></div>
+<p class="cat-desc">书名、书单推荐。这些是「参考清单」，不是任务。应合并为 Obsidian 的一个阅读清单页面。</p>
+
+<div class="subgroup">
+<h3>投资 / 财务（11 本）</h3>
+<div class="task"><div class="title">聪明的投资者</div></div>
+<div class="task"><div class="title">金钱心理学</div></div>
+<div class="task"><div class="title">股票大作手回忆录</div></div>
+<div class="task"><div class="title">大衰退</div></div>
+<div class="task"><div class="title">投资中我相信的事</div></div>
+<div class="task"><div class="title">通往财富自由之路</div></div>
+<div class="task"><div class="title">Seven Stages of Money Maturity</div></div>
+<div class="task"><div class="title">Just Keep Buying</div></div>
+<div class="task"><div class="title">The Wealth Ladder</div></div>
+<div class="task"><div class="title">李笑来的书</div></div>
+<div class="task"><div class="title">当众所周知成为共识</div></div>
+</div>
+
+<div class="subgroup">
+<h3>思维 / 认知（12 本）</h3>
+<div class="task"><div class="title">反脆弱</div></div>
+<div class="task"><div class="title">黑天鹅</div></div>
+<div class="task"><div class="title">非对称风险</div></div>
+<div class="task"><div class="title">随机漫步的傻瓜</div></div>
+<div class="task"><div class="title">肥尾效应</div></div>
+<div class="task"><div class="title">第一性原理</div></div>
+<div class="task"><div class="title">框架的胜利</div></div>
+<div class="task"><div class="title">认知进阶，你的大脑为什么会骗你</div></div>
+<div class="task"><div class="title">A Mind For Numbers</div></div>
+<div class="task"><div class="title">Range: Why Generalists Triumph In A Specialized World</div></div>
+<div class="task"><div class="title">Hidden Potential</div></div>
+<div class="task"><div class="title">Don't Believe Everything You Think</div></div>
+</div>
+
+<div class="subgroup">
+<h3>心理 / 生活（9 本）</h3>
+<div class="task"><div class="title">微习惯</div></div>
+<div class="task"><div class="title">贪婪的多巴胺</div></div>
+<div class="task"><div class="title">反倦怠能量站</div></div>
+<div class="task"><div class="title">不上班的这几年</div></div>
+<div class="task"><div class="title">从内耗到心流</div></div>
+<div class="task"><div class="title">好好学习</div></div>
+<div class="task"><div class="title">Mindsight</div></div>
+<div class="task"><div class="title">Good Energy</div></div>
+<div class="task"><div class="title">东京8平米</div></div>
+</div>
+
+<div class="subgroup">
+<h3>文学 / 文化（8 本）</h3>
+<div class="task"><div class="title">美丽新世界</div></div>
+<div class="task"><div class="title">一九八四</div></div>
+<div class="task"><div class="title">局外人</div></div>
+<div class="task"><div class="title">鞋狗</div></div>
+<div class="task"><div class="title">日本文化核心</div></div>
+<div class="task"><div class="title">枪炮、病菌与钢铁</div></div>
+<div class="task"><div class="title">Understanding Media: The Extension of Man 理解媒介</div></div>
+<div class="task"><div class="title">万维钢的书</div></div>
+</div>
+
+<div class="subgroup">
+<h3>精读书单（3 本）</h3>
+<div class="task"><div class="title">献给阿尔吉侬的花束</div><div class="notes">克莱因壶、球状闪电、永恒的终结</div></div>
+<div class="task"><div class="title">银河系漫游指南</div></div>
+<div class="task"><div class="title">太阳的阴影</div></div>
+</div>
+
+<div class="subgroup">
+<h3>英语 / 语言学习（2 本）</h3>
+<div class="task"><div class="title">Echo: Rebuilding the Natural Reflex of Language</div></div>
+<div class="task"><div class="title">用notebooklm速读了100本书之后，我悟了</div><div class="notes">分析notebooklm怎么把一本书的知识组织成ppt</div></div>
+</div>
+
+<div class="subgroup">
+<h3>书单来源 / 链接（5 条）</h3>
+<div class="task"><div class="title">Ryan Holiday 的 2026 阅读清单</div></div>
+<div class="task"><div class="title">2026一年，读完让油管大神Dankoe逆袭的书籍</div></div>
+<div class="task"><div class="title"><a href="https://member.onenewbite.com/c/9ef217/2025">onenewbite 书单</a></div></div>
+<div class="task"><div class="title">美国豆瓣 2025年度纽约时报亚马逊最佳70+</div></div>
+<div class="task"><div class="title">好震撼 我突然意识到天赋就是天，赋…</div></div>
+</div>
+</div>
+
+<!-- ===================== 4. 链接书签 ===================== -->
+<div class="category cat-links" data-cat="links">
+<div class="cat-head"><h2>🔗 链接 / 书签</h2><div class="badge">43 条</div></div>
+<p class="cat-desc">纯链接或链接+标题的收藏。没有行动描述，本质是「稍后阅读」。应迁移到专门的阅读工具。</p>
+
+<div class="subgroup">
+<h3>小红书笔记（12 条）</h3>
+<div class="task"><div class="title">用 Skill 拯救你的 AI 网页设计审美！</div></div>
+<div class="task"><div class="title">全网疯传的 NotebookLM 进阶的 16 个神级提示</div></div>
+<div class="task"><div class="title">保姆级教程｜Moltbot部署并接入MiniMax流程</div></div>
+<div class="task"><div class="title">告别AI直男审美！这个开源UI/UX插件太香了</div></div>
+<div class="task"><div class="title">建议都学习一下这套Claude Code工作流！</div></div>
+<div class="task"><div class="title">2026靠这10个AI技能，拉开差距</div></div>
+<div class="task"><div class="title">把各种各样日常的东西用ai做成另一个东西</div></div>
+<div class="task"><div class="title">翁家翌：OpenAI，GPT，强化学习，Infra 后训练</div></div>
+<div class="task"><div class="title">AI到底能不能用来学语言？3个最有趣实用的邪修…</div></div>
+<div class="task"><div class="title">Anthropic黑客松冠军开源的Claude Code配置</div></div>
+<div class="task"><div class="title">@高高Lindsey 博主主页</div><div class="meta proj-tag">博主模仿</div></div>
+<div class="task"><div class="title">做一个导入音频，改造成各种风格的乐曲的应用</div></div>
+</div>
+
+<div class="subgroup">
+<h3>文章 / 视频链接（10 条）</h3>
+<div class="task"><div class="title"><a href="https://mp.weixin.qq.com/s/_aFSuWPLX2LZMvCW5eaJ-w">微信公众号文章</a></div></div>
+<div class="task"><div class="title"><a href="https://www.bilibili.com/video/BV194igB3EH2/">B站视频</a></div></div>
+<div class="task"><div class="title"><a href="https://km.woa.com/articles/show/650478">KM 文章</a></div></div>
+<div class="task"><div class="title"><a href="https://www.youtube.com/watch?v=FKTxC9pl-WM">YouTube 视频</a></div><div class="meta proj-tag">速读youtube</div></div>
+<div class="task"><div class="title"><a href="https://medium.com/learn-love-code/learnings-from-learning-how-to-learn-19d149920dc4">Medium: Learning How to Learn</a></div></div>
+<div class="task"><div class="title"><a href="https://www.kaggle.com/whitepaper-introduction-to-agents">Kaggle: Introduction to Agents</a></div></div>
+<div class="task"><div class="title"><a href="https://youanalysis.com/report/nZumoTzTQbj4">YouAnalysis 报告</a></div></div>
+<div class="task"><div class="title"><a href="https://github.com/shareAI-lab/learn-claude-code">学习 coding agent</a></div></div>
+<div class="task"><div class="title"><a href="https://github.com/jackyzha0/quartz">基于 quartz 创建项目并部署</a></div></div>
+<div class="task"><div class="title">karpathy 推文</div></div>
+</div>
+
+<div class="subgroup">
+<h3>AI 对话链接（5 条）</h3>
+<div class="task"><div class="title"><a href="https://gemini.google.com/app/03c7cc028c001069">问 ai（Gemini）</a></div><div class="meta proj-tag">如何学习</div></div>
+<div class="task"><div class="title"><a href="https://gemini.google.com/app/2cf9670951086586">通过课程大纲让AI写完整内容</a></div></div>
+<div class="task"><div class="title"><a href="https://gemini.google.com/app/878defe715885fdf">如何持续做重要的事情</a></div></div>
+<div class="task"><div class="title"><a href="https://gemini.google.com/app">如何学习做一个自媒体的知识型博主？</a></div></div>
+<div class="task"><div class="title"><a href="https://gemini.google.com/app/ef13a80410d2a33a">coding agent（Gemini）</a></div><div class="meta proj-tag">25天谷歌agents学习挑战</div></div>
+</div>
+
+<div class="subgroup">
+<h3>竞品 / 调研链接（4 条）</h3>
+<div class="task"><div class="title"><a href="https://www.perplexity.ai/search/diao-yan-omnifocus-4-de-she-ji-bBkqjtHRSuyvCfyy2dBx0Q">omnifocus 4 调研（Perplexity）</a></div></div>
+<div class="task"><div class="title"><a href="https://gemini.google.com/app/b3a3f7ba6bc9d364">linear和omnifocus4 对比（Gemini）</a></div></div>
+<div class="task"><div class="title"><a href="https://github.com/multica-ai/multica">multica 深度调研</a></div></div>
+<div class="task"><div class="title"><a href="https://www.nytimes.com/interactive/2023/01/31/technology/elon-musk-tweets.html">纽约时报 Elon Musk 推特数据分析</a></div></div>
+</div>
+
+<div class="subgroup">
+<h3>其他（7 条）</h3>
+<div class="task"><div class="title">onyx</div></div>
+<div class="task"><div class="title">Aura</div></div>
+<div class="task"><div class="title">Stash</div></div>
+<div class="task"><div class="title">Khalil</div></div>
+<div class="task"><div class="title">3个相册</div></div>
+<div class="task"><div class="title">项目概述 / 下载链接 / 项目使用说明</div><div class="meta">看起来是某个应用的待办</div></div>
+</div>
+</div>
+
+<!-- ===================== 5. 灵感想法 ===================== -->
+<div class="category cat-ideas" data-cat="ideas">
+<div class="cat-head"><h2>💡 灵感 / 想法</h2><div class="badge">47 条</div></div>
+<p class="cat-desc">「做一个XX」「思考XX」类的创意种子。没有拆解成可执行步骤。应放入 Obsidian 灵感笔记，酝酿成熟后再转为项目。</p>
+
+<div class="subgroup">
+<h3>产品 / 应用创意</h3>
+<div class="task"><div class="title">做一个霍格沃兹风格的提示词手账本样式的提示词笔记本</div></div>
+<div class="task"><div class="title">图片孵化器</div></div>
+<div class="task"><div class="title">全知识app</div></div>
+<div class="task"><div class="title">做一个读书skills，拆书，获取导图，获取知识间的关联</div></div>
+<div class="task"><div class="title">ios 个人应用，解决手机记录问题</div></div>
+<div class="task"><div class="title">做一个画布是像树一样生长的，节点从文章中分析关键概念</div></div>
+<div class="task"><div class="title">做一个导入音频，改造成各种风格的乐曲的应用</div></div>
+<div class="task"><div class="title">AI分析金句位置，自动剪辑出来，每段视频1-3分钟</div></div>
+<div class="task"><div class="title">商店图</div></div>
+<div class="task"><div class="title">AI能力封装</div></div>
+<div class="task"><div class="title">用户注册？</div></div>
+<div class="task"><div class="title">数据上报分析</div></div>
+<div class="task"><div class="title">模板 / 装饰 / 物料</div></div>
+</div>
+
+<div class="subgroup">
+<h3>AI / Agent 构想</h3>
+<div class="task"><div class="title">chat过程中，生成知识图谱</div></div>
+<div class="task"><div class="title">知识图谱不是单个的，可以从多个角度来做多个图谱</div></div>
+<div class="task"><div class="title">让ai每周去根据记录的内容去发现一些新的东西</div></div>
+<div class="task"><div class="title">让ai去找出新的卡片主题，或者把一个卡片拆分成多个卡片</div></div>
+<div class="task"><div class="title">可以把每周与AI对话的提问收集起来，让AI帮助提升提问的水平</div></div>
+<div class="task"><div class="title">通过ai来制作某个知识的教学图册</div></div>
+<div class="task"><div class="title">翻译agent</div></div>
+<div class="task"><div class="title">research agent</div><div class="meta proj-tag">417-419周末待办</div></div>
+<div class="task"><div class="title">继续调研别的，并给出我想要的agent架构</div></div>
+<div class="task"><div class="title">对各种格式数据转换成 agent 友好的数据格式</div></div>
+<div class="task"><div class="title">基于第一性原理，AI生图生视频…都能拆分成各种结构，组合生成巨量的提示词模板</div></div>
+</div>
+
+<div class="subgroup">
+<h3>内容 / 数据系统构想</h3>
+<div class="task"><div class="title">针对一个研究方向做 deep research</div><div class="notes">web search，数据清洗，数据存储，数据分析</div></div>
+<div class="task"><div class="title">针对某个博主做过往数据的完整抓取，然后对本地数据进行分析</div></div>
+<div class="task"><div class="title">分析某个人的所有feed</div></div>
+<div class="task"><div class="title">根据feed流分析某段时间的重要事件</div></div>
+<div class="task"><div class="title">arvix论文分析</div></div>
+<div class="task"><div class="title">定下的数据结构和各种平台上传上来的数据结构不一样怎么办？</div></div>
+<div class="task"><div class="title">对应渠道抓取（x 文章 / x 推文 / 小红书）</div></div>
+<div class="task"><div class="title">自行search / 自动化逻辑</div></div>
+<div class="task"><div class="title">llm-wiki</div></div>
+<div class="task"><div class="title">分析某个代码库</div></div>
+</div>
+
+<div class="subgroup">
+<h3>生活灵感</h3>
+<div class="task"><div class="title">思考怎么记录每一刻，家里的摄像头应该怎么放</div></div>
+<div class="task"><div class="title">记录冥想的每一次，到后面看变化</div></div>
+<div class="task"><div class="title">我的壁垒是什么，build in public，加上时间的沉淀。时间是唯一的壁垒</div></div>
+<div class="task"><div class="title">语音能不能记录录音时的位置信息</div></div>
+<div class="task"><div class="title">面向大众记录笔记</div></div>
+<div class="task"><div class="title">拍照存储物品</div></div>
+</div>
+</div>
+
+<!-- ===================== 6. 学习探索 ===================== -->
+<div class="category cat-learning" data-cat="learning">
+<div class="cat-head"><h2>🌱 学习 / 探索</h2><div class="badge">42 条</div></div>
+<p class="cat-desc">「学习XX」「研究XX」「思考XX」类条目。有学习意图但缺乏具体行动步骤。需要转化为「输出XX笔记」的可执行形式。</p>
+
+<div class="subgroup">
+<h3>AI / Agent 学习</h3>
+<div class="task"><div class="title">day1</div><div class="meta proj-tag">25天谷歌agents学习挑战</div></div>
+<div class="task"><div class="title">提问</div><div class="meta proj-tag">25天谷歌agents学习挑战</div></div>
+<div class="task"><div class="title">继续分解 adk 的源码，直到实现一个 agent 框架 demo</div></div>
+<div class="task"><div class="title">看 adk 的源码，画出路线图</div></div>
+<div class="task"><div class="title">写 km 文章</div><div class="meta proj-tag">25天谷歌agents学习挑战</div></div>
+<div class="task"><div class="title">mao 说的多 agent 协作模式，现在发展到什么程度</div></div>
+<div class="task"><div class="title">是否是 A2A 这个模式</div></div>
+<div class="task"><div class="title">google 的框架能否帮助我完成这个应用</div></div>
+<div class="task"><div class="title">copilot能做什么</div></div>
+<div class="task"><div class="title">体验各种 ai 产品</div></div>
+</div>
+
+<div class="subgroup">
+<h3>学习方法论</h3>
+<div class="task"><div class="title">学习flomo AI洞察里面的各种各样的预设思考模板</div></div>
+<div class="task"><div class="title">从heptabase得到的灵感</div><div class="notes">分成卡片去记录知识点…</div></div>
+<div class="task"><div class="title">四层学习框架</div><div class="notes">概念层→原理层→工程层→应用层</div></div>
+<div class="task"><div class="title">从ai的回答结构中去学习思考框架</div></div>
+<div class="task"><div class="title">每一次学习都需要了解到知识引出的一连串知识…不断得到丰富的知识地图</div></div>
+<div class="task"><div class="title">核心是保持主体性，是我主动学习</div></div>
+<div class="task"><div class="title">先理清"学习"这个领域有哪些理论和核心内容，画出领域地图</div></div>
+<div class="task"><div class="title">一套自底向上的问题集 / 一套自顶向下的问题集 / 扩展问题集</div></div>
+<div class="task"><div class="title">如何持续做重要的事情</div></div>
+<div class="task"><div class="title">提出问题，解决问题类型</div></div>
+</div>
+
+<div class="subgroup">
+<h3>设计学习</h3>
+<div class="task"><div class="title">学习不同的设计风格</div></div>
+<div class="task"><div class="title">学习设计的历史</div></div>
+<div class="task"><div class="title">设计有哪些门类</div></div>
+<div class="task"><div class="title">我要学的设计是什么门类</div></div>
+<div class="task"><div class="title">ai设计发展现状</div></div>
+<div class="task"><div class="title">学习能让ai生成出指定风格的提示词</div></div>
+<div class="task"><div class="title">如何熟练的画一个信息量很大的信息图</div></div>
+</div>
+
+<div class="subgroup">
+<h3>写作 / 内容创作</h3>
+<div class="task"><div class="title">当我确定了主题之后，接下来怎么办</div><div class="meta proj-tag">学习写作</div></div>
+<div class="task"><div class="title">如何快速的找到表达内容里的核心点</div><div class="meta proj-tag">学习写作</div></div>
+<div class="task"><div class="title">ai帮助检查写作的质量</div><div class="notes">1. 检查有没有跑题 2. 检查有没有没说清楚的地方</div></div>
+<div class="task"><div class="title">找到自己想做风格的一个人，拉片，各种分析</div><div class="meta proj-tag">做视频</div></div>
+<div class="task"><div class="title">看 how to speak</div></div>
+<div class="task"><div class="title">写的笔记应该要带一个类似时间的标识</div></div>
+</div>
+
+<div class="subgroup">
+<h3>工具学习</h3>
+<div class="task"><div class="title">在obsidian里使用excalidraw</div><div class="meta proj-tag">学习obsidian</div></div>
+<div class="task"><div class="title">quickadd</div><div class="meta proj-tag">学习obsidian</div></div>
+<div class="task"><div class="title">搞一下周记本</div><div class="meta proj-tag">学习obsidian</div></div>
+<div class="task"><div class="title">整理obsidian的流程，分解成多个永久卡片，并写一个MOC</div><div class="meta proj-tag">学习obsidian</div></div>
+<div class="task"><div class="title">学习一些键盘快捷键</div></div>
+</div>
+</div>
+
+<!-- ===================== 7. 生活 & Side Projects ===================== -->
+<div class="category cat-life" data-cat="life">
+<div class="cat-head"><h2>🏠 生活 & Side Projects</h2><div class="badge">18 条</div></div>
+<p class="cat-desc">个人生活事务、小项目和旅行相关。</p>
+
+<div class="subgroup">
+<h3>英语学习</h3>
+<div class="task"><div class="title">以前学习为什么学不会</div><div class="meta proj-tag">我重新学习英语这件事</div></div>
+<div class="task"><div class="title">现在应该怎么学习</div><div class="meta proj-tag">我重新学习英语这件事</div></div>
+<div class="task"><div class="title">研究英语如何学习</div></div>
+<div class="task"><div class="title">通过做一个英语学习软件去思考，软件希望你怎么学习英语</div></div>
+</div>
+
+<div class="subgroup">
+<h3>家庭收纳 App</h3>
+<div class="task"><div class="title">子分类，比如水上运动的放在哪里</div></div>
+<div class="task"><div class="title">水上运动又分成潜水的和游泳的</div></div>
+<div class="task"><div class="title">需要一个集合功能，比如旅行物品</div></div>
+<div class="task"><div class="title">收纳系统性学习</div></div>
+</div>
+
+<div class="subgroup">
+<h3>Honie（iOS App）</h3>
+<div class="task"><div class="title">增加和系统对齐的相机能力</div></div>
+<div class="task"><div class="title">学习swift 的各种动画的术语</div></div>
+<div class="task"><div class="title">跑通image到figma到codex的流程</div></div>
+<div class="task"><div class="title">月份限定本子和收纳架</div></div>
+<div class="task"><div class="title">图标集合生图工作流</div></div>
+<div class="task"><div class="title">描边做成高级设置和模板</div></div>
+</div>
+
+<div class="subgroup">
+<h3>其他</h3>
+<div class="task"><div class="title">在中国注册公司有哪些需要知道的事</div><div class="meta proj-tag">一人公司准备</div></div>
+<div class="task"><div class="title">拍一些蓝色照片和视频</div><div class="meta proj-tag">神户</div></div>
+<div class="task"><div class="title">台北101攀登视频</div></div>
+<div class="task"><div class="title">通过和ai聊天，思考黄金大涨的原因…</div></div>
+</div>
+</div>
+
+<!-- ===================== 8. 建议删除 ===================== -->
+<div class="category cat-trash" data-cat="trash">
+<div class="cat-head"><h2>🗑️ 建议删除</h2><div class="badge">34 条</div></div>
+<p class="cat-desc">Things 自带教程、空白条目、已过期的周末待办、无信息的碎片。删除不会损失任何价值。</p>
+
+<div class="subgroup">
+<h3>Things 自带教程（约 22 条）</h3>
+<div class="task"><div class="title">电子邮件、文件和网页链接</div></div>
+<div class="task"><div class="title">将待办事项转换为项目</div></div>
+<div class="task"><div class="title">为待办事项添加标签</div></div>
+<div class="task"><div class="title">滑动进行快速操作</div></div>
+<div class="task"><div class="title">逐步操作</div></div>
+<div class="task"><div class="title">任何问题？我们随时为您解答！</div></div>
+<div class="task"><div class="title">继续关注我们</div></div>
+<div class="task"><div class="title">添加小组件</div></div>
+<div class="task"><div class="title">计划您的晚上</div></div>
+<div class="task"><div class="title">设置提醒事项</div></div>
+<div class="task"><div class="title">使用""标记为备注添加结构</div></div>
+<div class="task"><div class="title">让您的待办事项重复</div></div>
+<div class="task"><div class="title">拖动加号按钮！</div></div>
+<div class="task"><div class="title">快速添加到收件箱</div></div>
+<div class="task"><div class="title">试试使用 Siri</div></div>
+<div class="task"><div class="title">为这款应用程序评分</div></div>
+<div class="task"><div class="title">转换为项目</div></div>
+<div class="task"><div class="title">在其他设备上获取 Things</div></div>
+<div class="task"><div class="title">同步您的设备</div></div>
+<div class="task"><div class="title">搜索和导航</div></div>
+<div class="task"><div class="title">things的功能好在哪里</div><div class="meta">笔记，非任务</div></div>
+<div class="task"><div class="title">每周照片 × 2</div><div class="meta proj-tag">每周照片</div></div>
+</div>
+
+<div class="subgroup">
+<h3>空白 / 无信息条目（约 7 条）</h3>
+<div class="task"><div class="title">(空白标题)</div><div class="meta">共 7 条无标题无备注的空任务</div></div>
+</div>
+
+<div class="subgroup">
+<h3>过期 / 无意义</h3>
+<div class="task"><div class="title">10.昨日青春 9.初吻 8.浪浪山…</div><div class="meta">歌单/影单</div></div>
+<div class="task"><div class="title">把cursor，v0，repilt 花光</div><div class="meta proj-tag">417-419周末待办</div></div>
+<div class="task"><div class="title">选两个人进行分析</div><div class="meta">无上下文</div></div>
+<div class="task"><div class="title">开始做数据分析</div><div class="meta">过于模糊</div></div>
+<div class="task"><div class="title">测试题的五个选项究竟代表什么意思</div><div class="meta">无上下文</div></div>
+<div class="task"><div class="title">这道题目缺少对成长来时路的提问…</div><div class="meta">笔记碎片</div></div>
+</div>
+</div>
+
+</div><!-- end .page -->
+
+<script>
+document.querySelectorAll('.nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('.category').forEach(c => {
+      c.classList.toggle('visible', cat === 'all' || c.dataset.cat === cat);
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ import { config } from "../config";
 import { createSqliteDatabase } from "../db/sqlite";
 import { GraphBuilder } from "./GraphBuilder";
 import { AuthorProfiler } from "./AuthorProfiler";
+import { HighlightService } from "./HighlightService";
 import { JobService } from "./JobService";
 import { MasterImportService } from "./MasterImportService";
 import { MemoryService } from "./MemoryService";
@@ -52,4 +53,7 @@ export const preprocessor = new PreprocessService(
   sourceService,
   db
 );
+export const highlightService = new HighlightService(db, services.samples, preprocessor, storage, videoMetadata, {
+  maxDownloadHeight: config.maxDownloadHeight
+});
 export const authorProfiler = new AuthorProfiler(db);

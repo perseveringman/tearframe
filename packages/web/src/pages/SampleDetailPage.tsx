@@ -106,12 +106,20 @@ export function SampleDetailPage() {
           <ArrowLeft className="size-4" />
           返回样片库
         </Link>
-        {current?.source_url ? (
-          <a href={current.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-900">
-            原始链接
-            <ExternalLink className="size-4" />
-          </a>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          {current && !isMaster ? (
+            <Link to={`/highlights?sample_id=${sampleId}`} className="inline-flex items-center gap-2 rounded-lg border border-cyan-200 bg-cyan-50 px-2.5 py-1.5 text-xs font-semibold text-cyan-800 transition hover:border-cyan-300 hover:bg-cyan-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-cyan-900 dark:bg-cyan-950/40 dark:text-cyan-200 dark:hover:bg-cyan-950/70">
+              <Scissors className="size-4" />
+              快速剪辑
+            </Link>
+          ) : null}
+          {current?.source_url ? (
+            <a href={current.source_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-900">
+              原始链接
+              <ExternalLink className="size-4" />
+            </a>
+          ) : null}
+        </div>
       </div>
 
       <section className="relative shrink-0 overflow-hidden rounded-xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">

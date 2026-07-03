@@ -65,6 +65,47 @@ export type StoryboardBeat = {
   submitted_at?: string;
 };
 
+export type HighlightSegment = {
+  id: string;
+  highlight_id: string;
+  rank: number;
+  start_sec: number;
+  end_sec: number;
+  title: string;
+  transcript_excerpt?: string | null;
+  reason: string;
+  tags: string[];
+  confidence?: number | null;
+  clip_sample_id?: string | null;
+  created_at: string;
+};
+
+export type HighlightRun = {
+  id: string;
+  sample_id: string;
+  mode: "talking_head_fast";
+  agent_name?: string | null;
+  goal?: string | null;
+  max_clip_count?: number | null;
+  min_duration_sec?: number | null;
+  max_duration_sec?: number | null;
+  pad_sec: number;
+  status: "running" | "done" | "failed";
+  created_at: string;
+  finished_at?: string | null;
+  error?: string | null;
+  segments: HighlightSegment[];
+};
+
+export type HighlightCandidate = {
+  start_sec: number;
+  end_sec: number;
+  duration_sec: number;
+  transcript_excerpt: string;
+  score: number;
+  reasons: string[];
+};
+
 export type TemplateRecord = {
   id: string;
   type: CardType;
@@ -257,6 +298,61 @@ export function getTeardown(id: string) {
 
 export function getTeardownGraph(id: string) {
   return api<CanvasGraph>(`/teardowns/${id}/graph`);
+}
+
+export function listHighlights(query: Record<string, string | undefined> = {}) {
+  return api<{ items: HighlightRun[] }>(`/highlights${queryString(query)}`);
+}
+
+export function startHighlight(input: {
+  sample_id: string;
+  agent_name?: string;
+  goal?: string;
+  max_clip_count?: number;
+  min_duration_sec?: number;
+  max_duration_sec?: number;
+  pad_sec?: number;
+  auto_preprocess_transcript?: boolean;
+}) {
+  return api<HighlightRun>("/highlights", { method: "POST", body: JSON.stringify(input) });
+}
+
+export function getHighlight(id: string) {
+  return api<HighlightRun>(`/highlights/${id}`);
+}
+
+export function getHighlightWorkspace(id: string, query: Record<string, string | number | undefined> = {}) {
+  return api<{
+    run: HighlightRun;
+    sample: Sample;
+    transcript: {
+      source: string;
+      language?: string;
+      total_segments: number;
+      returned_segments: number;
+      truncated: boolean;
+      segments: Array<{ start_sec: number; end_sec: number; text: string; speaker?: string }>;
+    };
+  }>(`/highlights/${id}/workspace${queryString(query)}`);
+}
+
+export function suggestHighlightSegments(id: string, input: { keywords?: string[]; target_duration_sec?: number; max_candidates?: number } = {}) {
+  return api<{ items: HighlightCandidate[] }>(`/highlights/${id}/suggest`, { method: "POST", body: JSON.stringify(input) });
+}
+
+export function submitHighlightSegments(
+  id: string,
+  segments: Array<{ start_sec: number; end_sec: number; title: string; transcript_excerpt?: string; reason: string; tags?: string[]; confidence?: number }>
+) {
+  return api<HighlightSegment[]>(`/highlights/${id}/segments`, { method: "PUT", body: JSON.stringify({ segments }) });
+}
+
+export function materializeHighlightClips(id: string, input: { segment_ids?: string[]; pad_sec?: number; overwrite?: boolean } = {}) {
+  return api<{ items: Array<{ segment: HighlightSegment; sample: Sample }> }>(`/highlights/${id}/materialize`, { method: "POST", body: JSON.stringify(input) });
+}
+
+export function finalizeHighlight(id: string) {
+  return api<HighlightRun>(`/highlights/${id}/finalize`, { method: "POST" });
 }
 
 export function getMemoryDigest(teardownId: string) {

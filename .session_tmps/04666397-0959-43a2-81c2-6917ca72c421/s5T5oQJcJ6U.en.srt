@@ -1,0 +1,1544 @@
+1
+00:00:00,000 --> 00:00:03,840
+I realized the other day I've been
+
+2
+00:00:01,360 --> 00:00:05,520
+teaching stuff for 10 years. I was a
+
+3
+00:00:03,840 --> 00:00:07,600
+voice coach for 6 years and I've been
+
+4
+00:00:05,520 --> 00:00:08,960
+doing this job teaching devs for 4
+
+5
+00:00:07,600 --> 00:00:10,800
+years. And for a while I've been
+
+6
+00:00:08,960 --> 00:00:12,160
+thinking, wouldn't it be great if I
+
+7
+00:00:10,800 --> 00:00:14,400
+could take everything I know about
+
+8
+00:00:12,160 --> 00:00:16,480
+teaching and put it inside a skill so
+
+9
+00:00:14,400 --> 00:00:18,320
+that anyone could learn anything. I had
+
+10
+00:00:16,480 --> 00:00:20,800
+a long bus ride to London the other day
+
+11
+00:00:18,320 --> 00:00:23,199
+and I wrote a teach skill and it turns
+
+12
+00:00:20,800 --> 00:00:25,279
+out that it's pretty good. It taught me
+
+13
+00:00:23,199 --> 00:00:26,640
+how to solve a Rubik's cube, which is
+
+14
+00:00:25,279 --> 00:00:28,880
+something, you know, I've always wanted
+
+15
+00:00:26,640 --> 00:00:31,039
+to learn how to do, but I'd never really
+
+16
+00:00:28,880 --> 00:00:32,559
+had the time or inclination to do it.
+
+17
+00:00:31,039 --> 00:00:34,800
+But with this teach skill, it felt like
+
+18
+00:00:32,559 --> 00:00:37,440
+I had a real teacher who was teaching
+
+19
+00:00:34,800 --> 00:00:38,960
+how I like to be taught and was totally
+
+20
+00:00:37,440 --> 00:00:40,320
+aligned with my mission. And I'm going
+
+21
+00:00:38,960 --> 00:00:41,840
+to show you how I did it. The key
+
+22
+00:00:40,320 --> 00:00:44,719
+concept when we're looking at a teach
+
+23
+00:00:41,840 --> 00:00:47,120
+skill is some skills can be stateful and
+
+24
+00:00:44,719 --> 00:00:48,719
+some skills can be stateless. If a skill
+
+25
+00:00:47,120 --> 00:00:51,440
+is stateless, it means that it doesn't
+
+26
+00:00:48,719 --> 00:00:52,960
+retain any state from previous runs. it
+
+27
+00:00:51,440 --> 00:00:54,480
+doesn't have any memory of the things
+
+28
+00:00:52,960 --> 00:00:56,160
+that you've done before. In other words,
+
+29
+00:00:54,480 --> 00:00:58,079
+a stateless skill doesn't save anything
+
+30
+00:00:56,160 --> 00:00:59,840
+on the file system to help it pick up
+
+31
+00:00:58,079 --> 00:01:02,320
+where it left off later. Whereas
+
+32
+00:00:59,840 --> 00:01:04,000
+stateful skills do do that. They save
+
+33
+00:01:02,320 --> 00:01:06,479
+things either to the local file system
+
+34
+00:01:04,000 --> 00:01:08,640
+or they save things to MCP servers. They
+
+35
+00:01:06,479 --> 00:01:10,320
+keep notes that they later track.
+
+36
+00:01:08,640 --> 00:01:12,320
+Initially, I was thinking about teach as
+
+37
+00:01:10,320 --> 00:01:14,479
+a kind of stateless skill where you
+
+38
+00:01:12,320 --> 00:01:16,400
+would just say, "Teach me this thing."
+
+39
+00:01:14,479 --> 00:01:18,880
+and then it would just find some good
+
+40
+00:01:16,400 --> 00:01:20,479
+resources for you and give you like a an
+
+41
+00:01:18,880 --> 00:01:21,920
+output that would teach you a lesson
+
+42
+00:01:20,479 --> 00:01:23,600
+about that thing. But I realized that
+
+43
+00:01:21,920 --> 00:01:26,560
+all the good teaching that I do is
+
+44
+00:01:23,600 --> 00:01:28,720
+stateful where I teach you. I being the
+
+45
+00:01:26,560 --> 00:01:30,880
+teacher, I remember where you've got to.
+
+46
+00:01:28,720 --> 00:01:32,960
+I know what you've learned. I know what
+
+47
+00:01:30,880 --> 00:01:35,040
+you can go to next. And I've got a bunch
+
+48
+00:01:32,960 --> 00:01:36,400
+of great resources that I remember from
+
+49
+00:01:35,040 --> 00:01:38,799
+previous times that I've taught this
+
+50
+00:01:36,400 --> 00:01:40,720
+thing to teach you about it. So I
+
+51
+00:01:38,799 --> 00:01:42,720
+decided that teach had to be a stateful
+
+52
+00:01:40,720 --> 00:01:44,720
+skill. As an example, if you've used my
+
+53
+00:01:42,720 --> 00:01:47,200
+skills repo before, you know that grill
+
+54
+00:01:44,720 --> 00:01:49,840
+me is totally stateless. It just grills
+
+55
+00:01:47,200 --> 00:01:52,560
+you about a topic until you're ready to
+
+56
+00:01:49,840 --> 00:01:54,799
+implement. But then grill with docs is
+
+57
+00:01:52,560 --> 00:01:57,360
+actually stateful. In other words, it
+
+58
+00:01:54,799 --> 00:01:59,360
+saves some local ADRs, architectural
+
+59
+00:01:57,360 --> 00:02:01,840
+decision records. It saves some other
+
+60
+00:01:59,360 --> 00:02:04,079
+stuff, some uh glosseries to the repo as
+
+61
+00:02:01,840 --> 00:02:06,240
+well. And so Grill with docs is stateful
+
+62
+00:02:04,079 --> 00:02:08,399
+and it gets better over time, whereas
+
+63
+00:02:06,240 --> 00:02:10,399
+grill me is totally stateless. Now, one
+
+64
+00:02:08,399 --> 00:02:11,680
+of these is not better than the other.
+
+65
+00:02:10,399 --> 00:02:13,680
+They're just useful in different
+
+66
+00:02:11,680 --> 00:02:15,200
+situations. And so when you're designing
+
+67
+00:02:13,680 --> 00:02:17,120
+skills, you need to be careful to think
+
+68
+00:02:15,200 --> 00:02:19,680
+about whether they need to be stateless
+
+69
+00:02:17,120 --> 00:02:21,200
+or stateful. And teach needed to be
+
+70
+00:02:19,680 --> 00:02:22,720
+stateful. The way you install this skill
+
+71
+00:02:21,200 --> 00:02:25,360
+is you go to my skills repo
+
+72
+00:02:22,720 --> 00:02:27,120
+mapper.kills. You go down to this quick
+
+73
+00:02:25,360 --> 00:02:29,520
+start here and you just run the
+
+74
+00:02:27,120 --> 00:02:31,520
+skills.sh installer and you choose the
+
+75
+00:02:29,520 --> 00:02:34,160
+teach skill. Once you do that, you go to
+
+76
+00:02:31,520 --> 00:02:35,760
+an empty directory and you run teach
+
+77
+00:02:34,160 --> 00:02:37,360
+inside your coding agent. So for
+
+78
+00:02:35,760 --> 00:02:39,840
+instance in this directory which is my
+
+79
+00:02:37,360 --> 00:02:41,599
+Rubik's cube directory I said teach me
+
+80
+00:02:39,840 --> 00:02:43,840
+to how to solve a Rubik's cube. And
+
+81
+00:02:41,599 --> 00:02:46,160
+you'll notice during my journey how many
+
+82
+00:02:43,840 --> 00:02:48,160
+files it has created here. But the first
+
+83
+00:02:46,160 --> 00:02:49,440
+one it created was the mission. I
+
+84
+00:02:48,160 --> 00:02:52,160
+believe that for a teacher to be
+
+85
+00:02:49,440 --> 00:02:54,560
+effective you need to understand why a
+
+86
+00:02:52,160 --> 00:02:57,200
+student wants to learn the thing. And so
+
+87
+00:02:54,560 --> 00:02:59,200
+I got this skill to create a mission for
+
+88
+00:02:57,200 --> 00:03:01,120
+you. Here it says Matt wants to be able
+
+89
+00:02:59,200 --> 00:03:02,959
+to take a scramble 3x3 Rubik's cube and
+
+90
+00:03:01,120 --> 00:03:04,560
+solve it unaded at least once. The goal
+
+91
+00:03:02,959 --> 00:03:06,400
+is the achievement itself, not speed,
+
+92
+00:03:04,560 --> 00:03:08,720
+not theory. The next thing it does is it
+
+93
+00:03:06,400 --> 00:03:11,360
+creates a set of resources. So, it goes
+
+94
+00:03:08,720 --> 00:03:13,920
+and searches the web for actual primary
+
+95
+00:03:11,360 --> 00:03:15,920
+source highrust resources that it's
+
+96
+00:03:13,920 --> 00:03:17,599
+going to use to create the lessons out
+
+97
+00:03:15,920 --> 00:03:19,440
+of. It does this on the first pass when
+
+98
+00:03:17,599 --> 00:03:22,000
+you ask it to teach you something and
+
+99
+00:03:19,440 --> 00:03:24,000
+then it will continue to update these as
+
+100
+00:03:22,000 --> 00:03:26,000
+you go and then it will create your
+
+101
+00:03:24,000 --> 00:03:27,680
+first lesson for you. And lessons are
+
+102
+00:03:26,000 --> 00:03:29,120
+stored in the lessons folder and they're
+
+103
+00:03:27,680 --> 00:03:31,840
+numbered like this and they're all
+
+104
+00:03:29,120 --> 00:03:33,599
+individual HTML files. HTML is just so
+
+105
+00:03:31,840 --> 00:03:35,599
+much richer than markdown. It allows it
+
+106
+00:03:33,599 --> 00:03:37,519
+to be so much more expressive, so much
+
+107
+00:03:35,599 --> 00:03:39,680
+more interactive. And this is really the
+
+108
+00:03:37,519 --> 00:03:41,280
+core of what makes this such a good
+
+109
+00:03:39,680 --> 00:03:43,280
+learning experience. And here is my
+
+110
+00:03:41,280 --> 00:03:46,000
+first lesson, anatomy, notation, and the
+
+111
+00:03:43,280 --> 00:03:48,640
+white cross. And it basically teaches
+
+112
+00:03:46,000 --> 00:03:50,799
+you just what you need to know at that
+
+113
+00:03:48,640 --> 00:03:53,120
+moment. It gives you diagrams, gives you
+
+114
+00:03:50,799 --> 00:03:55,120
+very simple explainers, gives you call
+
+115
+00:03:53,120 --> 00:03:56,959
+outs, and it gives you quizzes, too. One
+
+116
+00:03:55,120 --> 00:03:58,640
+thing I find really important whenever
+
+117
+00:03:56,959 --> 00:04:01,760
+you're teaching anything is to develop a
+
+118
+00:03:58,640 --> 00:04:03,360
+feedback loop. And quizzes are okay at
+
+119
+00:04:01,760 --> 00:04:05,120
+this. They're basically good if you
+
+120
+00:04:03,360 --> 00:04:06,640
+can't find any richer feedback loop.
+
+121
+00:04:05,120 --> 00:04:09,680
+Again, if we zoom down this, we've got
+
+122
+00:04:06,640 --> 00:04:11,599
+notations, we've got traps, we've got
+
+123
+00:04:09,680 --> 00:04:13,439
+your first skill here. And so, it's
+
+124
+00:04:11,599 --> 00:04:15,360
+giving me the knowledge that I need, but
+
+125
+00:04:13,439 --> 00:04:17,359
+also encouraging me to develop the
+
+126
+00:04:15,360 --> 00:04:19,280
+skills I need, which is slightly
+
+127
+00:04:17,359 --> 00:04:21,040
+different. And the and the skill itself
+
+128
+00:04:19,280 --> 00:04:22,800
+knows that. Once I completed the lesson
+
+129
+00:04:21,040 --> 00:04:25,360
+and I said, "Yes, I can make the white
+
+130
+00:04:22,800 --> 00:04:27,840
+cross," then it recommended that or
+
+131
+00:04:25,360 --> 00:04:30,080
+rather recorded that inside a learning
+
+132
+00:04:27,840 --> 00:04:33,040
+record here. And these learning records
+
+133
+00:04:30,080 --> 00:04:36,560
+are very simple records that the agent
+
+134
+00:04:33,040 --> 00:04:38,479
+creates when I report how I'm doing. So
+
+135
+00:04:36,560 --> 00:04:40,639
+this allows it to keep track of how I'm
+
+136
+00:04:38,479 --> 00:04:42,880
+doing and just like a real teacher then
+
+137
+00:04:40,639 --> 00:04:44,560
+tailor the next lesson to what I need.
+
+138
+00:04:42,880 --> 00:04:47,199
+Here's another explainer from slightly
+
+139
+00:04:44,560 --> 00:04:49,199
+further down this course. I suppose it's
+
+140
+00:04:47,199 --> 00:04:52,080
+kind of creating a course as we go based
+
+141
+00:04:49,199 --> 00:04:54,000
+on what I need. So this one here it was
+
+142
+00:04:52,080 --> 00:04:56,800
+okay. It started to add like little
+
+143
+00:04:54,000 --> 00:04:58,720
+citations now. Again, more quizzes. I
+
+144
+00:04:56,800 --> 00:05:00,960
+mean, I I just find this layout really
+
+145
+00:04:58,720 --> 00:05:02,960
+nice to look at and really useful. I was
+
+146
+00:05:00,960 --> 00:05:04,479
+sort of working on the skill as I was
+
+147
+00:05:02,960 --> 00:05:06,880
+building this to and so I added this
+
+148
+00:05:04,479 --> 00:05:09,680
+little bottom or thing at the bottom. It
+
+149
+00:05:06,880 --> 00:05:12,240
+says it tries to find uh communities
+
+150
+00:05:09,680 --> 00:05:14,160
+where you can ask questions here because
+
+151
+00:05:12,240 --> 00:05:15,680
+sure you can develop knowledge and
+
+152
+00:05:14,160 --> 00:05:17,919
+skills here, but the only way you're
+
+153
+00:05:15,680 --> 00:05:19,919
+going to be develop wisdom about the
+
+154
+00:05:17,919 --> 00:05:21,680
+thing is actually interacting with a
+
+155
+00:05:19,919 --> 00:05:23,600
+community, testing your ideas out in the
+
+156
+00:05:21,680 --> 00:05:25,039
+real world. It also develops reference
+
+157
+00:05:23,600 --> 00:05:26,639
+material for you, too. This was
+
+158
+00:05:25,039 --> 00:05:28,560
+something I noticed that I needed. So
+
+159
+00:05:26,639 --> 00:05:31,440
+there's a glossery. This glossery has
+
+160
+00:05:28,560 --> 00:05:33,280
+the anatomy. It has the notation here.
+
+161
+00:05:31,440 --> 00:05:36,000
+It has the solving grip, the daisy. Sort
+
+162
+00:05:33,280 --> 00:05:37,840
+of anything like weird jargon that we've
+
+163
+00:05:36,000 --> 00:05:39,440
+learned is going to go into the
+
+164
+00:05:37,840 --> 00:05:40,560
+glossery. This is really useful,
+
+165
+00:05:39,440 --> 00:05:42,080
+especially if you're learning like a
+
+166
+00:05:40,560 --> 00:05:44,160
+coding language using this. It also
+
+167
+00:05:42,080 --> 00:05:45,840
+means that future lessons can be more
+
+168
+00:05:44,160 --> 00:05:48,000
+concise because they're able to
+
+169
+00:05:45,840 --> 00:05:49,840
+reference the term in the glossery and
+
+170
+00:05:48,000 --> 00:05:51,440
+you can look back if you're confused. It
+
+171
+00:05:49,840 --> 00:05:53,440
+also creates cheat sheets for you. So
+
+172
+00:05:51,440 --> 00:05:55,440
+this is a solve card here where it's
+
+173
+00:05:53,440 --> 00:05:58,160
+basically just giving me the entire
+
+174
+00:05:55,440 --> 00:06:00,479
+solve. If I want just a single place to
+
+175
+00:05:58,160 --> 00:06:02,240
+look at how to create or solve a Rubik's
+
+176
+00:06:00,479 --> 00:06:04,400
+cube, this is the place I can go. And
+
+177
+00:06:02,240 --> 00:06:06,560
+finally, just to explain this notes.md
+
+178
+00:06:04,400 --> 00:06:08,639
+file, this is where the agent can note
+
+179
+00:06:06,560 --> 00:06:10,319
+down any of my preferences, note down
+
+180
+00:06:08,639 --> 00:06:11,840
+any watch outs, and it's just kind of
+
+181
+00:06:10,319 --> 00:06:13,360
+internal note-taking for the agent
+
+182
+00:06:11,840 --> 00:06:15,520
+itself. So let's imagine that I sit down
+
+183
+00:06:13,360 --> 00:06:17,440
+to a session and I basically want to
+
+184
+00:06:15,520 --> 00:06:20,319
+fill in the teacher on what I've been
+
+185
+00:06:17,440 --> 00:06:22,960
+doing since I last had a session. So, I
+
+186
+00:06:20,319 --> 00:06:25,440
+just say teach and I can basically
+
+187
+00:06:22,960 --> 00:06:28,080
+complete the Rubik's cube now except for
+
+188
+00:06:25,440 --> 00:06:30,160
+the corner cycle which I've still not
+
+189
+00:06:28,080 --> 00:06:32,319
+quite got into memory. Let's go ahead
+
+190
+00:06:30,160 --> 00:06:34,160
+and see what it says. It starts, of
+
+191
+00:06:32,319 --> 00:06:35,919
+course, because this is an empty context
+
+192
+00:06:34,160 --> 00:06:39,039
+by checking the state of my teaching
+
+193
+00:06:35,919 --> 00:06:41,199
+workspace. It's checking all of the
+
+194
+00:06:39,039 --> 00:06:42,960
+solve cards, seeing how far I've got to.
+
+195
+00:06:41,199 --> 00:06:44,400
+It's now giving me a decent diagnosis
+
+196
+00:06:42,960 --> 00:06:46,400
+for what I'm feeling. It's saying the
+
+197
+00:06:44,400 --> 00:06:48,560
+concept is solid for the corner cycle,
+
+198
+00:06:46,400 --> 00:06:50,080
+which is a particular al algorithm, but
+
+199
+00:06:48,560 --> 00:06:51,440
+it's the one that hasn't reached muscle
+
+200
+00:06:50,080 --> 00:06:53,039
+memory. Let me look at the existing
+
+201
+00:06:51,440 --> 00:06:54,720
+memorization lesson and one earlier
+
+202
+00:06:53,039 --> 00:06:57,120
+lesson to match the house style. So,
+
+203
+00:06:54,720 --> 00:06:58,960
+we've turned the agent basically into a
+
+204
+00:06:57,120 --> 00:07:00,479
+teacher, and you've got to work with it
+
+205
+00:06:58,960 --> 00:07:02,400
+in the same way that you would any
+
+206
+00:07:00,479 --> 00:07:03,680
+one-to-one teacher. You tell it what
+
+207
+00:07:02,400 --> 00:07:06,319
+problems you're having, and it will
+
+208
+00:07:03,680 --> 00:07:08,479
+design lessons to find solutions. The
+
+209
+00:07:06,319 --> 00:07:10,319
+model I'm using here is Opus 4.8 with
+
+210
+00:07:08,479 --> 00:07:13,120
+medium effort. By the way, it's also
+
+211
+00:07:10,319 --> 00:07:15,440
+using a key teaching term here. The zone
+
+212
+00:07:13,120 --> 00:07:17,120
+of proximal development, one algorithm,
+
+213
+00:07:15,440 --> 00:07:18,720
+pure muscle memory work. The zone of
+
+214
+00:07:17,120 --> 00:07:21,440
+proximal development is this key
+
+215
+00:07:18,720 --> 00:07:22,880
+teaching idea which I am obsessed with.
+
+216
+00:07:21,440 --> 00:07:25,199
+And it's the idea that you should always
+
+217
+00:07:22,880 --> 00:07:27,120
+teach someone in the area where they are
+
+218
+00:07:25,199 --> 00:07:28,720
+perfectly challenged but not
+
+219
+00:07:27,120 --> 00:07:31,520
+intimidated. This means that every
+
+220
+00:07:28,720 --> 00:07:33,680
+lesson has to be concise, compact, and
+
+221
+00:07:31,520 --> 00:07:35,759
+exactly framed at that zone of proximal
+
+222
+00:07:33,680 --> 00:07:37,840
+development. So the students not bored
+
+223
+00:07:35,759 --> 00:07:39,919
+but also not freaked out. So we can see
+
+224
+00:07:37,840 --> 00:07:41,919
+it's now created this lesson, the corner
+
+225
+00:07:39,919 --> 00:07:44,479
+cycle lesson, and it's created this
+
+226
+00:07:41,919 --> 00:07:46,400
+exact lesson for us. So it's basically
+
+227
+00:07:44,479 --> 00:07:48,319
+just breaking it down, paying more
+
+228
+00:07:46,400 --> 00:07:50,800
+attention to it, giving me new mental
+
+229
+00:07:48,319 --> 00:07:52,560
+models. One four move phrase played
+
+230
+00:07:50,800 --> 00:07:55,199
+twice. Okay, that is handy. And the idea
+
+231
+00:07:52,560 --> 00:07:56,879
+is I would walk through this lesson. Oh,
+
+232
+00:07:55,199 --> 00:07:58,639
+look at this. Oh my gosh, look at this.
+
+233
+00:07:56,879 --> 00:08:01,199
+So it's actually given me an interactive
+
+234
+00:07:58,639 --> 00:08:07,520
+tap thing I could do. Okay. So, it's U R
+
+235
+00:08:01,199 --> 00:08:09,039
+U prime L prime U RP prime U prime L. Oh
+
+236
+00:08:07,520 --> 00:08:12,319
+my god, look at this. So, it's got
+
+237
+00:08:09,039 --> 00:08:14,639
+guided mode. So, I can turn off that.
+
+238
+00:08:12,319 --> 00:08:16,240
+Oh, that's that's unreasonably cool. You
+
+239
+00:08:14,639 --> 00:08:17,680
+see what being in HTML gives us here,
+
+240
+00:08:16,240 --> 00:08:19,599
+right? We've got the full power of the
+
+241
+00:08:17,680 --> 00:08:21,280
+browser to mess about with here. So, you
+
+242
+00:08:19,599 --> 00:08:23,280
+get the idea of what these lessons look
+
+243
+00:08:21,280 --> 00:08:25,599
+like. They are short. They are really
+
+244
+00:08:23,280 --> 00:08:27,280
+focused. And it gives me exactly what to
+
+245
+00:08:25,599 --> 00:08:29,120
+practice now. And this also means
+
+246
+00:08:27,280 --> 00:08:31,440
+because everything has been saved to the
+
+247
+00:08:29,120 --> 00:08:33,680
+file system, I can clear this and every
+
+248
+00:08:31,440 --> 00:08:35,360
+time I run teach again, it will have all
+
+249
+00:08:33,680 --> 00:08:36,880
+the context it needs to keep me in the
+
+250
+00:08:35,360 --> 00:08:39,120
+zone of proximal development. Let's
+
+251
+00:08:36,880 --> 00:08:41,279
+briefly look at the skill itself here.
+
+252
+00:08:39,120 --> 00:08:42,880
+It's really quite simple, although it is
+
+253
+00:08:41,279 --> 00:08:44,560
+one of the longer skills that I've put
+
+254
+00:08:42,880 --> 00:08:46,560
+together. The user has asked you to
+
+255
+00:08:44,560 --> 00:08:48,160
+teach them something. This is a stateful
+
+256
+00:08:46,560 --> 00:08:50,000
+request. They intend to learn the topic
+
+257
+00:08:48,160 --> 00:08:51,360
+over multiple sessions. It goes into the
+
+258
+00:08:50,000 --> 00:08:53,680
+shape of the teaching workspace, which
+
+259
+00:08:51,360 --> 00:08:56,240
+we've looked at already, and it has a
+
+260
+00:08:53,680 --> 00:08:58,399
+sectional philosophy here. So I really
+
+261
+00:08:56,240 --> 00:09:00,399
+define the terms that the AI should
+
+262
+00:08:58,399 --> 00:09:02,800
+think in. It should think in terms of
+
+263
+00:09:00,399 --> 00:09:05,200
+giving them knowledge from highquality
+
+264
+00:09:02,800 --> 00:09:07,040
+high trust resources, skills, highly
+
+265
+00:09:05,200 --> 00:09:08,959
+relevant interactive lessons and
+
+266
+00:09:07,040 --> 00:09:10,640
+actually developing the skills and then
+
+267
+00:09:08,959 --> 00:09:12,560
+wisdom that comes from interacting from
+
+268
+00:09:10,640 --> 00:09:14,320
+other learners and practitioners. We go
+
+269
+00:09:12,560 --> 00:09:16,000
+further down here and we touch on the
+
+270
+00:09:14,320 --> 00:09:17,680
+shape of the lessons themselves. We've
+
+271
+00:09:16,000 --> 00:09:19,760
+talked about the mission as well.
+
+272
+00:09:17,680 --> 00:09:21,680
+mission.mmd the zone of proximal
+
+273
+00:09:19,760 --> 00:09:24,000
+development acquiring knowledge and
+
+274
+00:09:21,680 --> 00:09:25,920
+skills how to do that acquiring wisdom
+
+275
+00:09:24,000 --> 00:09:27,600
+which basically when the learner is
+
+276
+00:09:25,920 --> 00:09:29,440
+ready to go out into the world once
+
+277
+00:09:27,600 --> 00:09:31,440
+they've got the knowledge and skills how
+
+278
+00:09:29,440 --> 00:09:32,880
+do you delegate them to the community
+
+279
+00:09:31,440 --> 00:09:34,480
+when the user asks a question that
+
+280
+00:09:32,880 --> 00:09:36,320
+appears to require wisdom your default
+
+281
+00:09:34,480 --> 00:09:38,000
+posture should be to attempt to answer
+
+282
+00:09:36,320 --> 00:09:39,920
+but to ultimately delegate to a
+
+283
+00:09:38,000 --> 00:09:42,320
+community my idea with this teach skill
+
+284
+00:09:39,920 --> 00:09:44,480
+is not to have you hooked onto the agent
+
+285
+00:09:42,320 --> 00:09:46,000
+for learning everything it's to actually
+
+286
+00:09:44,480 --> 00:09:48,320
+give you the skills you need to feel
+
+287
+00:09:46,000 --> 00:09:50,080
+confident to go out and work with a
+
+288
+00:09:48,320 --> 00:09:51,839
+community and send you out into the
+
+289
+00:09:50,080 --> 00:09:53,440
+world. That's the dream of this stuff.
+
+290
+00:09:51,839 --> 00:09:55,200
+We've also got more material here on
+
+291
+00:09:53,440 --> 00:09:58,320
+reference documents, then finally on
+
+292
+00:09:55,200 --> 00:09:59,839
+notes.md. But that really is the skill.
+
+293
+00:09:58,320 --> 00:10:01,760
+There's a few little bits of supporting
+
+294
+00:09:59,839 --> 00:10:03,200
+documents for like learning record
+
+295
+00:10:01,760 --> 00:10:04,880
+format, the mission format, the
+
+296
+00:10:03,200 --> 00:10:06,720
+resources format, etc. In terms of
+
+297
+00:10:04,880 --> 00:10:08,640
+engineering, I can imagine this skill
+
+298
+00:10:06,720 --> 00:10:10,959
+being really useful in onboarding people
+
+299
+00:10:08,640 --> 00:10:13,680
+to a codebase. Creating documentation is
+
+300
+00:10:10,959 --> 00:10:15,360
+a real pain in the ass because not only
+
+301
+00:10:13,680 --> 00:10:17,519
+do you need to keep it up to date, but
+
+302
+00:10:15,360 --> 00:10:18,880
+that documentation is probably outside
+
+303
+00:10:17,519 --> 00:10:21,200
+the person's zone of proximal
+
+304
+00:10:18,880 --> 00:10:22,959
+development. They might have worked with
+
+305
+00:10:21,200 --> 00:10:25,440
+your stack before, they might just need
+
+306
+00:10:22,959 --> 00:10:26,640
+to know the specific problem domain or
+
+307
+00:10:25,440 --> 00:10:28,640
+they might have worked with the problem
+
+308
+00:10:26,640 --> 00:10:30,880
+domain before, but they have no idea
+
+309
+00:10:28,640 --> 00:10:32,640
+what TypeScript is or things like that.
+
+310
+00:10:30,880 --> 00:10:33,920
+So, you can think of teach here as, you
+
+311
+00:10:32,640 --> 00:10:35,040
+know, you start them off in their own
+
+312
+00:10:33,920 --> 00:10:36,959
+workspace. You point them at the
+
+313
+00:10:35,040 --> 00:10:38,720
+codebase. You teach them how to, you
+
+314
+00:10:36,959 --> 00:10:40,480
+know, they learn independently how to
+
+315
+00:10:38,720 --> 00:10:42,399
+work with the code, what the concepts
+
+316
+00:10:40,480 --> 00:10:44,399
+are, and guess what? You've got a
+
+317
+00:10:42,399 --> 00:10:46,240
+productive employee in record time. For
+
+318
+00:10:44,399 --> 00:10:48,720
+me, I'm excited to use this just on my
+
+319
+00:10:46,240 --> 00:10:50,240
+side projects, on having fun, on just
+
+320
+00:10:48,720 --> 00:10:51,680
+learning stuff that I wouldn't have
+
+321
+00:10:50,240 --> 00:10:53,600
+learned how to do before. You know,
+
+322
+00:10:51,680 --> 00:10:55,519
+solving this freaking Rubik's cube. I
+
+323
+00:10:53,600 --> 00:10:57,120
+might even dig out a bit of old chess
+
+324
+00:10:55,519 --> 00:10:58,800
+material and see if it can teach me some
+
+325
+00:10:57,120 --> 00:11:00,959
+openings. And I wanted to end here by
+
+326
+00:10:58,800 --> 00:11:03,440
+talking about an idea that I've had for
+
+327
+00:11:00,959 --> 00:11:06,560
+a while that I think this teach skill
+
+328
+00:11:03,440 --> 00:11:09,120
+really proves or rather makes very plain
+
+329
+00:11:06,560 --> 00:11:11,680
+to me which is that we the developer
+
+330
+00:11:09,120 --> 00:11:14,160
+community engineers out there are the
+
+331
+00:11:11,680 --> 00:11:17,120
+first people to really experience what
+
+332
+00:11:14,160 --> 00:11:19,279
+AI can do on something that it's really
+
+333
+00:11:17,120 --> 00:11:20,880
+good at. AI is currently better at
+
+334
+00:11:19,279 --> 00:11:22,240
+writing code than it is at almost
+
+335
+00:11:20,880 --> 00:11:24,399
+anything else. There are a few
+
+336
+00:11:22,240 --> 00:11:26,480
+exceptions, but really AI is very good
+
+337
+00:11:24,399 --> 00:11:29,040
+at writing code and developers have an
+
+338
+00:11:26,480 --> 00:11:31,600
+advantage that we're the first people to
+
+339
+00:11:29,040 --> 00:11:34,000
+really get to test AI out on a problem
+
+340
+00:11:31,600 --> 00:11:36,320
+where it's very good at it. This means
+
+341
+00:11:34,000 --> 00:11:37,760
+that we are the first people really in
+
+342
+00:11:36,320 --> 00:11:40,959
+the world, you know, with a couple of
+
+343
+00:11:37,760 --> 00:11:43,120
+exceptions that get to know AI, that get
+
+344
+00:11:40,959 --> 00:11:45,200
+to build these cool things. And it means
+
+345
+00:11:43,120 --> 00:11:47,519
+that we're the first movers in this new
+
+346
+00:11:45,200 --> 00:11:49,760
+space. we can take the ideas that we
+
+347
+00:11:47,519 --> 00:11:52,240
+develop here, turn them into skills and
+
+348
+00:11:49,760 --> 00:11:53,839
+start bringing them out to the world. I
+
+349
+00:11:52,240 --> 00:11:55,120
+think that's incredibly exciting and
+
+350
+00:11:53,839 --> 00:11:57,120
+it's something that I'm going to be
+
+351
+00:11:55,120 --> 00:11:59,120
+exploring more. And this teach skill is
+
+352
+00:11:57,120 --> 00:12:01,040
+kind of the first phase of that. So when
+
+353
+00:11:59,120 --> 00:12:02,800
+you're working with claw code or codeex
+
+354
+00:12:01,040 --> 00:12:04,640
+and you're struggling with it and you're
+
+355
+00:12:02,800 --> 00:12:07,360
+losing motivation, you think, "God, this
+
+356
+00:12:04,640 --> 00:12:09,040
+sucks." Just think that you'll be able
+
+357
+00:12:07,360 --> 00:12:10,639
+to take the skills that you are learning
+
+358
+00:12:09,040 --> 00:12:13,519
+now, the instincts that you're building
+
+359
+00:12:10,639 --> 00:12:15,360
+working with AI and take them outside of
+
+360
+00:12:13,519 --> 00:12:17,440
+coding domains. that I think is going to
+
+361
+00:12:15,360 --> 00:12:19,519
+be an incredibly valuable skill no
+
+362
+00:12:17,440 --> 00:12:21,279
+matter what the future of work looks
+
+363
+00:12:19,519 --> 00:12:24,320
+like. We're all going to be working with
+
+364
+00:12:21,279 --> 00:12:25,839
+AI and we are the first people to really
+
+365
+00:12:24,320 --> 00:12:27,360
+get to do it. Now, if you're digging my
+
+366
+00:12:25,839 --> 00:12:28,959
+skills, then you should go to AI
+
+367
+00:12:27,360 --> 00:12:31,200
+hero/skills
+
+368
+00:12:28,959 --> 00:12:33,360
+and sign up for my newsletter that lets
+
+369
+00:12:31,200 --> 00:12:35,519
+you know whenever I release a new skill,
+
+370
+00:12:33,360 --> 00:12:37,200
+whenever I have any changes because I do
+
+371
+00:12:35,519 --> 00:12:38,720
+change the skills all the time. If you
+
+372
+00:12:37,200 --> 00:12:40,959
+want up-to-date information on how to
+
+373
+00:12:38,720 --> 00:12:42,959
+use my skills for engineering and for
+
+374
+00:12:40,959 --> 00:12:44,399
+other stuff, too, then check it out. But
+
+375
+00:12:42,959 --> 00:12:46,240
+overall, thanks for watching. I can't
+
+376
+00:12:44,399 --> 00:12:47,839
+wait to see the languages that you're
+
+377
+00:12:46,240 --> 00:12:49,839
+learning, coding languages or human
+
+378
+00:12:47,839 --> 00:12:51,279
+languages, the new skills that you're
+
+379
+00:12:49,839 --> 00:12:52,959
+developing. I'm going to get this thing
+
+380
+00:12:51,279 --> 00:12:54,160
+to teach me vocal harmonies as well.
+
+381
+00:12:52,959 --> 00:12:57,200
+It's always a skill that I've wanted to
+
+382
+00:12:54,160 --> 00:12:59,040
+know but never been very good at. And I
+
+383
+00:12:57,200 --> 00:13:00,560
+just can't wait to get using this thing
+
+384
+00:12:59,040 --> 00:13:02,320
+myself and seeing how you're using it,
+
+385
+00:13:00,560 --> 00:13:05,760
+too. But overall, thanks so much for
+
+386
+00:13:02,320 --> 00:13:05,760
+watching and I will see you very
+

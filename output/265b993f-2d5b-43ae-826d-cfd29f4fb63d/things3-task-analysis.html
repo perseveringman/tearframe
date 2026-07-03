@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Things 3 任务健康度分析</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.6; padding: 40px 20px; }
+.container { max-width: 900px; margin: 0 auto; }
+h1 { font-size: 2em; font-weight: 700; margin-bottom: 8px; }
+.subtitle { color: #6e6e73; margin-bottom: 40px; font-size: 1.1em; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+.stat-card { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.stat-number { font-size: 2em; font-weight: 700; }
+.stat-label { color: #6e6e73; font-size: 0.85em; margin-top: 4px; }
+.red { color: #ff3b30; }
+.orange { color: #ff9500; }
+.green { color: #34c759; }
+.blue { color: #007aff; }
+.purple { color: #af52de; }
+
+section { background: white; border-radius: 16px; padding: 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+h2 { font-size: 1.4em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+h3 { font-size: 1.1em; margin: 20px 0 10px; color: #1d1d1f; }
+p { margin-bottom: 12px; }
+ul { padding-left: 20px; margin-bottom: 12px; }
+li { margin-bottom: 6px; }
+
+.tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 500; margin-right: 4px; }
+.tag-delete { background: #ffefed; color: #ff3b30; }
+.tag-refactor { background: #fff3e0; color: #ff9500; }
+.tag-action { background: #e8f5e9; color: #2e7d32; }
+.tag-someday { background: #f3e5f5; color: #7b1fa2; }
+.tag-ref { background: #e3f2fd; color: #1565c0; }
+
+.task-item { padding: 12px 16px; border-left: 3px solid #ddd; margin-bottom: 8px; background: #fafafa; border-radius: 0 8px 8px 0; }
+.task-item.priority-high { border-left-color: #ff3b30; }
+.task-item.priority-mid { border-left-color: #ff9500; }
+.task-item.priority-low { border-left-color: #34c759; }
+.task-item .title { font-weight: 600; margin-bottom: 4px; }
+.task-item .reason { color: #6e6e73; font-size: 0.9em; }
+
+.verdict { padding: 16px; border-radius: 12px; margin: 12px 0; }
+.verdict-bad { background: #fff5f5; border: 1px solid #ffcdd2; }
+.verdict-warn { background: #fff8e1; border: 1px solid #ffecb3; }
+.verdict-good { background: #f1f8e9; border: 1px solid #c5e1a5; }
+
+table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+th { font-weight: 600; color: #6e6e73; font-size: 0.85em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Things 3 任务健康度分析</h1>
+<p class="subtitle">基于你当前 ~390 条未完成任务的深度诊断 · 2026-06-28</p>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-number red">~390</div><div class="stat-label">未完成任务总数</div></div>
+  <div class="stat-card"><div class="stat-number orange">~60%</div><div class="stat-label">不是真正的任务</div></div>
+  <div class="stat-card"><div class="stat-number green">~15</div><div class="stat-label">真正高优先级</div></div>
+  <div class="stat-card"><div class="stat-number blue">35</div><div class="stat-label">活跃项目</div></div>
+</div>
+
+<!-- 核心问题 -->
+<section>
+<h2>🔍 核心问题诊断</h2>
+<div class="verdict verdict-bad">
+<strong>Things 被当成了「万能收件箱」而非「行动系统」。</strong> 大量条目是链接书签、随手想法、教程笔记、灵感碎片，它们不具备"下一步行动"属性，长期积压导致真正的任务被淹没。
+</div>
+
+<h3>问题分布</h3>
+<table>
+<tr><th>类型</th><th>占比</th><th>说明</th></tr>
+<tr><td><span class="tag tag-ref">📎 链接/书签</span></td><td>~25%</td><td>小红书、B站、KM、Medium 链接，无行动描述</td></tr>
+<tr><td><span class="tag tag-someday">💭 灵感/想法</span></td><td>~20%</td><td>"做一个XX"、"思考XX"，没有拆解的构想</td></tr>
+<tr><td><span class="tag tag-delete">🗑️ 系统教程</span></td><td>~8%</td><td>Things 自带教程任务，约 30 条</td></tr>
+<tr><td><span class="tag tag-refactor">📚 书单/内容</span></td><td>~15%</td><td>速读书单里的书名，应作为参考清单而非任务</td></tr>
+<tr><td><span class="tag tag-action">✅ 真正任务</span></td><td>~30%</td><td>有明确可执行动作的条目</td></tr>
+</table>
+</section>
+
+<!-- 应该删除的 -->
+<section>
+<h2>🗑️ 建议直接删除（~40 条）</h2>
+<p>这些完全不是任务，留着只增加认知负担：</p>
+
+<div class="task-item">
+  <div class="title">Things 自带教程任务（约 30 条）</div>
+  <div class="reason">如"搜索和导航"、"拖动加号按钮"、"为待办事项添加标签"、"让您的待办事项重复"等 — 教程已看完即删</div>
+</div>
+<div class="task-item">
+  <div class="title">空白任务（4-5 条标题为空）</div>
+  <div class="reason">无任何信息</div>
+</div>
+<div class="task-item">
+  <div class="title">"10.昨日青春 9.初吻 8.浪浪山…"</div>
+  <div class="reason">歌单/影单，不属于行动系统</div>
+</div>
+<div class="task-item">
+  <div class="title">"things的功能好在哪里"</div>
+  <div class="reason">笔记而非任务，已记录在备注中</div>
+</div>
+</section>
+
+<!-- 应该转移的 -->
+<section>
+<h2>📦 建议移出 Things → 其他系统（~150 条）</h2>
+
+<h3>1. 链接书签 → 浏览器书签 / Obsidian / Readwise</h3>
+<p>约 60 条纯链接，如：</p>
+<ul>
+<li>所有小红书链接（"复制后打开【小红书】查看笔记！"）</li>
+<li>微信公众号、B站、YouTube、KM 文章链接</li>
+<li>Kaggle、GitHub 仓库链接</li>
+</ul>
+<p><strong>建议</strong>：归入 Obsidian 的待阅读列表，或用 Orbit 的 Feeds 能力管理</p>
+
+<h3>2. 书单 → Obsidian 阅读清单</h3>
+<p>速读书单 40+ 本书，精读书单 3 本，这些是<strong>参考清单</strong>不是任务。在 Things 里每本书占一条任务毫无意义。</p>
+<p><strong>建议</strong>：合并为一个 Obsidian 页面或 Notion 数据库，按优先级排序</p>
+
+<h3>3. 灵感/构想 → Obsidian 笔记 / Orbit 想法库</h3>
+<ul>
+<li>"做一个霍格沃兹风格的提示词手账本"</li>
+<li>"做一个画布是像树一样生长的"</li>
+<li>"基于第一性原理，AI生图…都能拆分成各种结构"</li>
+<li>"chat过程中，生成知识图谱"</li>
+</ul>
+<p><strong>建议</strong>：这些是<strong>创意种子</strong>，放在灵感笔记中酝酿，需要执行时再拆成项目</p>
+
+<h3>4. Orbit 项目相关（~50 条）→ 项目看板</h3>
+<p>所有和 Orbit 开发相关的细节任务应该在你的代码项目管理工具中，而非 Things：</p>
+<ul>
+<li>"终端agent生成的产物应该放在哪"</li>
+<li>"inbox的agent审批消息在终端审批过后，没有更新状态"</li>
+<li>"定时任务，应该是个对话列表+对话详情"</li>
+<li>等约 50 条</li>
+</ul>
+</section>
+
+<!-- 需要重写的 -->
+<section>
+<h2>✏️ 需要重写为可执行任务（~40 条）</h2>
+<p>这些有价值但表述不具备可执行性（GTD 的"下一步行动"测试不通过）：</p>
+
+<table>
+<tr><th>当前写法</th><th>建议重写</th></tr>
+<tr><td>"英语学习研究"</td><td>"花 30 分钟用 AI 对比 3 种英语学习法，选定一种并制定周计划"</td></tr>
+<tr><td>"开始做数据分析"</td><td>"选定一个数据集，写出分析大纲和工具选型"</td></tr>
+<tr><td>"学习知识图谱相关的内容"</td><td>"阅读 Neo4j 入门教程第 1-3 章，做笔记"</td></tr>
+<tr><td>"做一次复盘"</td><td>"打开 Obsidian，列出 5-6 月完成的关键事项和卡点"</td></tr>
+<tr><td>"twitter 跑通生产级内容"</td><td>"发布第一条英文 AI 观点推文，配 1 张信息图"</td></tr>
+<tr><td>"找到自己想做风格的一个人，拉片"</td><td>"选定 3 个对标博主，看各 2 个视频并记录结构和风格"</td></tr>
+<tr><td>"通过和ai聊天，思考黄金大涨"</td><td>"用 AI 做一篇黄金 vs 美股相关性分析笔记"</td></tr>
+</table>
+</section>
+
+<!-- 真正的高优先级 -->
+<section>
+<h2>🔥 真正高优先级任务（按重要+紧急排序）</h2>
+
+<h3>P0 — 有截止时间 / 有外部依赖</h3>
+<div class="task-item priority-high">
+  <div class="title">leancloud 停服 → 迁移大同网站留言服务</div>
+  <div class="reason">外部服务停服是硬性截止日期，不迁移会导致数据丢失</div>
+</div>
+<div class="task-item priority-high">
+  <div class="title">把数据中心部署上线</div>
+  <div class="reason">有明确产出的工程任务，已安排到今天</div>
+</div>
+<div class="task-item priority-high">
+  <div class="title">复盘五月做的事情</div>
+  <div class="reason">已过月底，时间越久越难回忆</div>
+</div>
+<div class="task-item priority-high">
+  <div class="title">现在 auto agent 没有展示 think 标签和工具调用（bug）</div>
+  <div class="reason">影响产品体验的明确 bug</div>
+</div>
+<div class="task-item priority-high">
+  <div class="title">每次点开任务的对话，都会重新流式一遍（bug）</div>
+  <div class="reason">影响产品体验的明确 bug</div>
+</div>
+
+<h3>P1 — 对你核心方向有实质推进</h3>
+<div class="task-item priority-mid">
+  <div class="title">合入 mermaid 分支</div>
+  <div class="reason">明确的代码合入动作，阻塞后续功能</div>
+</div>
+<div class="task-item priority-mid">
+  <div class="title">截图服务压测</div>
+  <div class="reason">明确可执行的验证任务</div>
+</div>
+<div class="task-item priority-mid">
+  <div class="title">things 整理（就是你现在在做的事！）</div>
+  <div class="reason">清理系统本身就是高杠杆行为</div>
+</div>
+<div class="task-item priority-mid">
+  <div class="title">做一次复盘 → 年规划</div>
+  <div class="reason">决定后续所有事情的优先级</div>
+</div>
+<div class="task-item priority-mid">
+  <div class="title">mermaid 支持主题</div>
+  <div class="reason">明确的功能开发</div>
+</div>
+<div class="task-item priority-mid">
+  <div class="title">跑通 image 到 figma 到 codex 的流程（honie 项目）</div>
+  <div class="reason">关键工作流验证</div>
+</div>
+
+<h3>P2 — 有价值但不紧急的推进项</h3>
+<div class="task-item priority-low">
+  <div class="title">整理 obsidian 的流程，写一个 MOC</div>
+  <div class="reason">知识管理基建</div>
+</div>
+<div class="task-item priority-low">
+  <div class="title">看 ADK 源码，画出路线图 → 继续分解 → 实现 agent 框架 demo</div>
+  <div class="reason">学习项目，有清晰步骤</div>
+</div>
+<div class="task-item priority-low">
+  <div class="title">tiptap 深度调研</div>
+  <div class="reason">Orbit 编辑器选型</div>
+</div>
+<div class="task-item priority-low">
+  <div class="title">写 km 文章（谷歌 agents 学习）</div>
+  <div class="reason">输出型任务，有明确产出</div>
+</div>
+</section>
+
+<!-- 行动建议 -->
+<section>
+<h2>💡 系统性改进建议</h2>
+
+<h3>1. 立即执行：大清理</h3>
+<ul>
+<li>删除 30 条 Things 教程任务</li>
+<li>删除空白任务</li>
+<li>将所有纯链接批量导出到 Obsidian 的 "待阅读" 页面，然后从 Things 删除</li>
+<li>将书单合并为一个 Obsidian 阅读清单页面</li>
+</ul>
+
+<h3>2. 建立收件规则</h3>
+<table>
+<tr><th>输入类型</th><th>去向</th></tr>
+<tr><td>有明确"下一步动作"的事</td><td>Things（任务）</td></tr>
+<tr><td>链接/文章/视频</td><td>Obsidian Inbox 或 Orbit Feeds</td></tr>
+<tr><td>灵感/想法</td><td>Obsidian 灵感笔记</td></tr>
+<tr><td>项目开发任务</td><td>项目看板（GitHub Issues / Linear）</td></tr>
+<tr><td>书/课程推荐</td><td>Obsidian 阅读清单</td></tr>
+</table>
+
+<h3>3. 项目整合</h3>
+<p>你有 35 个活跃项目，建议精简到 <strong>5-7 个</strong>：</p>
+<ul>
+<li>归档过期项目："417-419周末待办"、"5.9-5.10周末待办"、"0323-0406"</li>
+<li>合并相似项目：两个 "orbit" 合一、"学习obsidian" + "学习 smart-connection" + "学习 obsidian-copilot" 合并</li>
+<li>"如何学习"、"AI学习工作流" → 合并为一个"学习方法论"项目</li>
+</ul>
+
+<h3>4. GTD 黄金测试</h3>
+<p>每条任务写入前问自己：</p>
+<ul>
+<li>✅ 它描述的是一个<strong>物理动作</strong>吗？（"打开XX"、"写XX"、"发送XX"）</li>
+<li>✅ 我能在 <strong>30 分钟内开始</strong>做吗？</li>
+<li>✅ 做完后有<strong>明确的完成标志</strong>吗？</li>
+<li>❌ 如果三个都不是 → 它不是任务，是笔记/灵感/参考</li>
+</ul>
+</section>
+
+<section>
+<h2>📊 总结：你的 Things 需要从 390 → ~50 条</h2>
+<div class="verdict verdict-good">
+<strong>目标状态：</strong>Things 里只保留 ~50 条有明确下一步动作的任务，5-7 个活跃项目。其余内容各归其所 — 链接去 Obsidian/Orbit，灵感去笔记，开发任务去看板。每周 Review 时只需看 50 条，而不是被 390 条淹没。
+</div>
+</section>
+
+</div>
+</body>
+</html>

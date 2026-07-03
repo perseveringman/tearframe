@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>参考：电影感调色完整流程速查</title>
+<style>
+  body { font-family: -apple-system, 'PingFang SC', sans-serif; max-width: 720px; margin: 2rem auto; padding: 1rem; line-height: 1.7; color: #222; }
+  h1 { font-size: 1.4rem; border-bottom: 2px solid #ffd700; padding-bottom: 0.3rem; }
+  h2 { font-size: 1.05rem; color: #0f3460; margin-top: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid #eee; }
+  th { background: #f5f8fa; color: #555; font-size: 0.75rem; text-transform: uppercase; }
+  .highlight { background: #fffde7; padding: 0.8rem; border-left: 3px solid #ffd700; margin: 1rem 0; font-size: 0.9rem; }
+  .flow { display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; margin: 0.8rem 0; }
+  .flow-step { background: #fff8e1; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; border: 1px solid #ffd700; }
+  .flow-arrow { color: #999; font-size: 0.8rem; }
+  code { background: #e8f4fd; padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+  @media print { body { font-size: 9pt; } }
+</style>
+</head>
+<body>
+<h1>🎬 电影感调色完整流程速查</h1>
+
+<div class="flow">
+  <span class="flow-step">① 观察诊断</span><span class="flow-arrow">→</span>
+  <span class="flow-step">② 一级校色</span><span class="flow-arrow">→</span>
+  <span class="flow-step">③ 色轮分区</span><span class="flow-arrow">→</span>
+  <span class="flow-step">④ HSL精修</span><span class="flow-arrow">→</span>
+  <span class="flow-step">⑤ 曲线风格化</span><span class="flow-arrow">→</span>
+  <span class="flow-step">⑥ 收尾润色</span>
+</div>
+
+<h2>各阶段参数速查</h2>
+<table>
+  <tr><th>阶段</th><th>工具</th><th>关键操作</th><th>幅度参考</th></tr>
+  <tr><td>② 校色</td><td>基础面板</td><td>光感/亮度</td><td>让示波器中心回中线</td></tr>
+  <tr><td></td><td></td><td>色温+色调</td><td>消除色偏（看白色物体）</td></tr>
+  <tr><td></td><td></td><td>高光/阴影</td><td>高光 -20~-35 / 阴影 +15~+30</td></tr>
+  <tr><td></td><td></td><td>对比度</td><td>+10~+15</td></tr>
+  <tr><td></td><td>曲线(亮度)</td><td>S 曲线</td><td>每个锚点位移 ≤ 10-15%</td></tr>
+  <tr><td>③ 色轮</td><td>色轮</td><td>阴影→青(10点)</td><td>轻拖一小步</td></tr>
+  <tr><td></td><td></td><td>高光→暖橙(4点)</td><td>轻拖一小步</td></tr>
+  <tr><td></td><td></td><td>中间调</td><td>微暖或不动</td></tr>
+  <tr><td>④ HSL</td><td>HSL</td><td>橙(肤色)</td><td>饱和度 -10~-20 / 明度 +10~+15</td></tr>
+  <tr><td></td><td></td><td>蓝(天空)</td><td>饱和度 +15~+25 / 明度 -10</td></tr>
+  <tr><td></td><td></td><td>绿(植物)</td><td>色相 +15~+20 / 饱和度 +10</td></tr>
+  <tr><td>⑤ 风格化</td><td>曲线(亮度)</td><td>暗部褪色</td><td>左下角提 5~10%</td></tr>
+  <tr><td></td><td>曲线(蓝通道)</td><td>暗部微提/亮部微压</td><td>各 3~5%</td></tr>
+  <tr><td>⑥ 收尾</td><td>基础面板</td><td>暗角</td><td>+10~+20</td></tr>
+  <tr><td></td><td>滤镜/效果</td><td>颗粒</td><td>15~25</td></tr>
+  <tr><td></td><td>基础面板</td><td>锐化</td><td>30~45</td></tr>
+  <tr><td></td><td>画布</td><td>画幅</td><td>2.35:1（情绪段落可选）</td></tr>
+</table>
+
+<h2>"电影感"6 大特征</h2>
+<table>
+  <tr><td>1</td><td>动态范围充足但有控制</td><td>清透不过曝不死黑</td></tr>
+  <tr><td>2</td><td>冷暖分离</td><td>暗冷亮暖 → 空气感+立体</td></tr>
+  <tr><td>3</td><td>色彩克制</td><td>适度低饱和 → 高级感</td></tr>
+  <tr><td>4</td><td>暗部不死黑</td><td>褪色感 → 胶片特性</td></tr>
+  <tr><td>5</td><td>有机质感</td><td>细颗粒 → 非数码感</td></tr>
+  <tr><td>6</td><td>视觉引导</td><td>暗角+宽幅 → 聚焦+院线感</td></tr>
+</table>
+
+<div class="highlight">
+  <strong>核心原则：</strong>每一步都克制。宁可轻不可重——多步叠加自然到位。"高级感"的反面不是"不够"，而是"过了"。
+</div>
+
+<h2>排错速查</h2>
+<table>
+  <tr><th>问题</th><th>最可能回到哪步修</th></tr>
+  <tr><td>整体偏蓝/偏黄</td><td>② 白平衡</td></tr>
+  <tr><td>画面灰蒙蒙</td><td>② S曲线/对比度</td></tr>
+  <tr><td>肤色不自然</td><td>④ HSL 橙色通道</td></tr>
+  <tr><td>像"加了劣质滤镜"</td><td>③ 色轮全部往回收50%</td></tr>
+  <tr><td>画面太暗/压抑</td><td>⑤ 褪色过度 → 减小提升量</td></tr>
+  <tr><td>颗粒太粗糙</td><td>⑥ 降低颗粒强度</td></tr>
+</table>
+
+<p style="font-size: 0.8rem; color: #999; margin-top: 2rem;">Created: Lesson 05 | Last updated: 2026-06-09</p>
+</body>
+</html>

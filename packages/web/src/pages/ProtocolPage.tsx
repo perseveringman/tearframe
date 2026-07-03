@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { FileJson2, Workflow } from "lucide-react";
+import { FileJson2, Scissors, Workflow } from "lucide-react";
 import { EmptyState } from "../components/shared/EmptyState";
 import { ErrorState } from "../components/shared/ErrorState";
 import { listMcpTools, McpTool } from "../lib/api";
 
-const workflow = [
+const teardownWorkflow = [
   "source.crawl 探测源信息",
   "sample.import 或 sample.list 定位样片",
   "sample.get_resources 检查可复用资源",
@@ -14,6 +14,15 @@ const workflow = [
   "teardown.submit_storyboard 写入每个 shot 的详细解读表",
   "teardown.submit_card / submit_template / submit_relations 提交产物",
   "teardown.finalize 完成并进入 UI 聚合"
+];
+
+const highlightWorkflow = [
+  "sample.import 导入 YouTube/本地视频并保存源文件",
+  "highlight.start 创建快速口播剪辑任务并优先获取 transcript",
+  "highlight.get_workspace / suggest_segments 读取字幕或候选片段",
+  "highlight.submit_segments 提交关键口播时间段和选择理由",
+  "highlight.materialize_clips 将片段裁成独立 clip samples",
+  "highlight.finalize 标记快速剪辑完成"
 ];
 
 export function ProtocolPage() {
@@ -48,9 +57,20 @@ export function ProtocolPage() {
         </section>
         <aside className="space-y-4">
           <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-            <h2 className="flex items-center gap-2 font-semibold"><Workflow className="size-4" />推荐工作流</h2>
+            <h2 className="flex items-center gap-2 font-semibold"><Workflow className="size-4" />精品拉片工作流</h2>
             <ol className="mt-3 space-y-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-              {workflow.map((step, index) => (
+              {teardownWorkflow.map((step, index) => (
+                <li key={step} className="flex gap-3">
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">{index + 1}</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+            <h2 className="flex items-center gap-2 font-semibold"><Scissors className="size-4" />快速口播剪辑</h2>
+            <ol className="mt-3 space-y-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+              {highlightWorkflow.map((step, index) => (
                 <li key={step} className="flex gap-3">
                   <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">{index + 1}</span>
                   <span>{step}</span>
@@ -62,6 +82,7 @@ export function ProtocolPage() {
             <h2 className="flex items-center gap-2 font-semibold text-zinc-950 dark:text-zinc-50"><FileJson2 className="size-4" />协议原则</h2>
             <p className="mt-3">MCP 只接收结构化输入，所有卡片经 schema 校验，UI 不调用 LLM，也不解析视频。</p>
             <p className="mt-3">逐镜头解读必须覆盖 shots 中的每一个 shot，并提交关键帧、景别、画面内容、旁白、背景音、摄像机角度和构图解读，详情页会生成可点击跳播表格。</p>
+            <p className="mt-3">快速口播剪辑只提交 transcript 时间段和选择理由，不生成 storyboard，也不声明任何视觉字段。</p>
           </div>
         </aside>
       </div>

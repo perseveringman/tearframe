@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>参考：HSL 调色速查卡</title>
+<style>
+  body { font-family: -apple-system, 'PingFang SC', sans-serif; max-width: 700px; margin: 2rem auto; padding: 1rem; line-height: 1.7; color: #222; }
+  h1 { font-size: 1.4rem; border-bottom: 2px solid #ff9e40; padding-bottom: 0.3rem; }
+  h2 { font-size: 1.1rem; color: #0f3460; margin-top: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid #eee; }
+  th { background: #f5f8fa; color: #555; font-size: 0.8rem; }
+  .highlight { background: #fff3e0; padding: 0.8rem; border-left: 3px solid #ff9e40; margin: 1rem 0; font-size: 0.9rem; }
+  .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; margin-right: 4px; }
+  code { background: #e8f4fd; padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+  .scenario { background: #f8f8f8; border-radius: 6px; padding: 0.8rem; margin: 0.5rem 0; }
+  @media print { body { font-size: 10pt; } }
+</style>
+</head>
+<body>
+<h1>🔬 HSL 调色速查卡</h1>
+
+<div class="highlight">
+  <strong>核心逻辑：</strong>选一种颜色 → 单独改它的色相/饱和度/明度 → 不影响其他颜色。
+</div>
+
+<h2>三个滑块的作用</h2>
+<table>
+  <tr><th>滑块</th><th>做什么</th><th>往正方向</th><th>往负方向</th></tr>
+  <tr><td>色相 (H)</td><td>改变颜色种类</td><td>色轮顺时针偏移</td><td>色轮逆时针偏移</td></tr>
+  <tr><td>饱和度 (S)</td><td>改变鲜艳程度</td><td>更鲜艳</td><td>更灰</td></tr>
+  <tr><td>明度 (L)</td><td>改变亮暗</td><td>更亮</td><td>更暗</td></tr>
+</table>
+
+<h2>8 色通道对应关系</h2>
+<table>
+  <tr><th>通道</th><th>画面中对应</th><th>常见用途</th></tr>
+  <tr><td><span class="dot" style="background:hsl(0,70%,50%)"></span>红</td><td>嘴唇、红色衣物、红花</td><td>调口红色、红色物体</td></tr>
+  <tr><td><span class="dot" style="background:hsl(30,80%,55%)"></span>橙</td><td>⭐ 肤色、暖光、木质</td><td>肤色优化（最高频）</td></tr>
+  <tr><td><span class="dot" style="background:hsl(55,80%,50%)"></span>黄</td><td>阳光、秋叶、黄色物体</td><td>暖调加强、秋色</td></tr>
+  <tr><td><span class="dot" style="background:hsl(120,60%,40%)"></span>绿</td><td>植物、草地</td><td>翠绿化（色相+偏青）</td></tr>
+  <tr><td><span class="dot" style="background:hsl(180,70%,45%)"></span>青</td><td>水面反光、阴天天空</td><td>水色调整</td></tr>
+  <tr><td><span class="dot" style="background:hsl(220,70%,50%)"></span>蓝</td><td>天空、海面、蓝色衣物</td><td>天空加蓝、海面加深</td></tr>
+  <tr><td><span class="dot" style="background:hsl(280,60%,50%)"></span>紫</td><td>紫色花、霓虹灯</td><td>特殊场景</td></tr>
+  <tr><td><span class="dot" style="background:hsl(320,60%,50%)"></span>洋红</td><td>粉色物体、部分灯光</td><td>特殊场景</td></tr>
+</table>
+
+<h2>高频场景速查</h2>
+
+<div class="scenario">
+  <strong>🧑 肤色白皙：</strong>橙色 → 饱和度 -15~-30 / 明度 +10~+25 / 色相不动或微调
+</div>
+<div class="scenario">
+  <strong>🌊 天空更蓝：</strong>蓝色 → 饱和度 +20~+40 / 明度 -10~-20 / 色相微 -5（偏青）
+</div>
+<div class="scenario">
+  <strong>🌿 草地翠绿：</strong>绿色 → 色相 +15~+30（偏青）/ 饱和度 +10~+30 / 明度 +5~+15
+</div>
+<div class="scenario">
+  <strong>🌅 日落加强：</strong>橙色 → 饱和度 +15~+30 ｜ 黄色 → 色相 -10（偏橙）
+</div>
+
+<h2>安全范围 ⚠️</h2>
+<table>
+  <tr><th>操作</th><th>安全范围</th><th>超出后果</th></tr>
+  <tr><td>肤色色相</td><td>±10 以内</td><td>变绿/变紫 = "生病感"</td></tr>
+  <tr><td>肤色饱和度</td><td>-30 以内</td><td>过低 = 灰/丧尸</td></tr>
+  <tr><td>肤色明度</td><td>+25 以内</td><td>过高 = 塑料/苍白</td></tr>
+  <tr><td>天空饱和度</td><td>+40 以内</td><td>过高 = 荧光蓝</td></tr>
+  <tr><td>绿色色相</td><td>+30 以内</td><td>过高 = 不自然的青</td></tr>
+</table>
+
+<h2>口诀</h2>
+<p><strong>色轮管"区域"（暗/中/亮），HSL 管"颜色"（红/橙/黄/绿/青/蓝/紫）。两者配合 = 氛围 + 精修。</strong></p>
+
+<p style="font-size: 0.8rem; color: #999; margin-top: 2rem;">Created: Lesson 04 | Last updated: 2026-06-09</p>
+</body>
+</html>

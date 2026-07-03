@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>参考：一级校色速查卡</title>
+<style>
+  body { font-family: -apple-system, 'PingFang SC', sans-serif; max-width: 700px; margin: 2rem auto; padding: 1rem; line-height: 1.7; color: #222; }
+  h1 { font-size: 1.4rem; border-bottom: 2px solid #6ecbf5; padding-bottom: 0.3rem; }
+  h2 { font-size: 1.1rem; color: #0f3460; margin-top: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid #eee; }
+  th { background: #f5f8fa; color: #555; font-size: 0.8rem; }
+  .highlight { background: #fffde7; padding: 0.8rem; border-left: 3px solid #f0a500; margin: 1rem 0; font-size: 0.9rem; }
+  code { background: #e8f4fd; padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+  .flow { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0.8rem 0; }
+  .flow-step { background: #e8f4fd; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; }
+  .flow-arrow { color: #999; }
+  @media print { body { font-size: 10pt; } .highlight { border-left: 2px solid #000; } }
+</style>
+</head>
+<body>
+<h1>⚡ 一级校色速查卡</h1>
+
+<h2>标准流程</h2>
+<div class="flow">
+  <span class="flow-step">① 曝光/亮度</span><span class="flow-arrow">→</span>
+  <span class="flow-step">② 白平衡</span><span class="flow-arrow">→</span>
+  <span class="flow-step">③ 高光/阴影/对比度</span><span class="flow-arrow">→</span>
+  <span class="flow-step">④ 曲线 S</span><span class="flow-arrow">→</span>
+  <span class="flow-step">⑤ 饱和度微调</span>
+</div>
+
+<div class="highlight">
+  <strong>核心原则：</strong>一级校色的目标是"正确"而非"好看"。你在创造一块干净画布。
+</div>
+
+<h2>示波器速读</h2>
+<table>
+  <tr><th>波形特征</th><th>含义</th><th>动作</th></tr>
+  <tr><td>整体偏下（集中0~400）</td><td>欠曝</td><td>提亮度/光感</td></tr>
+  <tr><td>整体偏上（集中600~1023）</td><td>过曝</td><td>压亮度</td></tr>
+  <tr><td>挤在中间（300~700）</td><td>灰雾/低对比</td><td>拉开高光↑阴影↓</td></tr>
+  <tr><td>顶到顶部</td><td>高光溢出（死白）</td><td>压高光</td></tr>
+  <tr><td>顶到底部</td><td>暗部溢出（死黑）</td><td>提阴影</td></tr>
+  <tr><td>接近但不触及顶底</td><td>✅ 理想状态</td><td>—</td></tr>
+</table>
+
+<h2>参数参考范围（一级校色）</h2>
+<table>
+  <tr><th>参数</th><th>典型范围</th><th>注意事项</th></tr>
+  <tr><td>亮度/光感</td><td>根据素材</td><td>光感优先，更自然</td></tr>
+  <tr><td>色温</td><td>根据色偏校正</td><td>找白色物体做参照</td></tr>
+  <tr><td>高光</td><td>-20 ~ -40</td><td>恢复亮部细节</td></tr>
+  <tr><td>阴影</td><td>+20 ~ +40</td><td>恢复暗部细节</td></tr>
+  <tr><td>对比度</td><td>+10 ~ +20</td><td>轻微即可</td></tr>
+  <tr><td>S 曲线位移</td><td>图高 10~15%</td><td>过度 → 断层+噪点</td></tr>
+  <tr><td>饱和度</td><td>±10 ~ ±20</td><td>大幅调整留给风格化</td></tr>
+  <tr><td>锐化</td><td>30 ~ 50</td><td>最后加，不救模糊</td></tr>
+</table>
+
+<h2>RGB 曲线速查</h2>
+<table>
+  <tr><th>通道</th><th>上拉</th><th>下压</th></tr>
+  <tr><td style="color:red;">红</td><td>+红</td><td>+青</td></tr>
+  <tr><td style="color:green;">绿</td><td>+绿</td><td>+洋红</td></tr>
+  <tr><td style="color:blue;">蓝</td><td>+蓝</td><td>+黄</td></tr>
+</table>
+<p style="font-size: 0.85rem; color: #666;">优势：可以只调某个亮度区间的色偏（如"只给暗部去蓝"），比色温滑块更精准。</p>
+
+<h2>"清透"三要素 ✅</h2>
+<table>
+  <tr><td>1. 动态范围充足</td><td>波形接近顶底</td></tr>
+  <tr><td>2. 中间调层次丰富</td><td>轻微 S 曲线</td></tr>
+  <tr><td>3. 色彩纯净无偏色</td><td>白平衡准确</td></tr>
+</table>
+
+<p style="font-size: 0.8rem; color: #999; margin-top: 2rem;">Created: Lesson 02 | Last updated: 2026-06-09</p>
+</body>
+</html>

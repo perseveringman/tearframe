@@ -121,6 +121,37 @@ export const teardownStoryboards = sqliteTable("teardown_storyboards", {
   submittedAt: text("submitted_at").notNull()
 });
 
+export const highlightRuns = sqliteTable("highlight_runs", {
+  id: text("id").primaryKey(),
+  sampleId: text("sample_id").notNull().references(() => samples.id, { onDelete: "cascade" }),
+  mode: text("mode").notNull().default("talking_head_fast"),
+  agentName: text("agent_name"),
+  goal: text("goal"),
+  maxClipCount: integer("max_clip_count"),
+  minDurationSec: real("min_duration_sec"),
+  maxDurationSec: real("max_duration_sec"),
+  padSec: real("pad_sec").notNull().default(1),
+  status: text("status").notNull(),
+  createdAt: text("created_at").notNull(),
+  finishedAt: text("finished_at"),
+  error: text("error")
+});
+
+export const highlightSegments = sqliteTable("highlight_segments", {
+  id: text("id").primaryKey(),
+  highlightId: text("highlight_id").notNull().references(() => highlightRuns.id, { onDelete: "cascade" }),
+  rank: integer("rank").notNull(),
+  startSec: real("start_sec").notNull(),
+  endSec: real("end_sec").notNull(),
+  title: text("title").notNull(),
+  transcriptExcerpt: text("transcript_excerpt"),
+  reason: text("reason").notNull(),
+  tags: text("tags", { mode: "json" }).$type<string[]>().default([]),
+  confidence: real("confidence"),
+  clipSampleId: text("clip_sample_id").references(() => samples.id, { onDelete: "set null" }),
+  createdAt: text("created_at").notNull()
+});
+
 export const templates = sqliteTable("templates", {
   id: text("id").primaryKey(),
   type: text("type").notNull(),

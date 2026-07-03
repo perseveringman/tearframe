@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7月行动计划 · 从零开始</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #fafafa; color: #1d1d1f; line-height: 1.7; padding: 40px 20px; }
+.container { max-width: 860px; margin: 0 auto; }
+h1 { font-size: 2.2em; font-weight: 700; margin-bottom: 4px; }
+.subtitle { color: #6e6e73; margin-bottom: 12px; font-size: 1.05em; }
+.philosophy { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; padding: 28px 32px; margin-bottom: 36px; }
+.philosophy h2 { font-size: 1.2em; margin-bottom: 8px; opacity: 0.9; }
+.philosophy p { font-size: 1em; opacity: 0.95; }
+
+.archive-info { background: #f0f0f0; border-radius: 12px; padding: 16px 20px; margin-bottom: 32px; font-size: 0.9em; color: #555; }
+.archive-info code { background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+
+section { background: white; border-radius: 16px; padding: 28px 32px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+h2 { font-size: 1.3em; margin-bottom: 16px; }
+h3 { font-size: 1.05em; margin: 18px 0 10px; color: #333; }
+p { margin-bottom: 10px; }
+ul { padding-left: 20px; margin-bottom: 12px; }
+li { margin-bottom: 6px; }
+strong { color: #1d1d1f; }
+
+.week { border-left: 3px solid #007aff; padding: 16px 20px; margin-bottom: 16px; background: #f8faff; border-radius: 0 12px 12px 0; }
+.week.w1 { border-left-color: #ff3b30; }
+.week.w2 { border-left-color: #ff9500; }
+.week.w3 { border-left-color: #34c759; }
+.week.w4 { border-left-color: #007aff; }
+.week-title { font-weight: 700; font-size: 1em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.week-subtitle { color: #6e6e73; font-size: 0.85em; margin-bottom: 10px; }
+
+.track { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 600; margin-right: 4px; }
+.track-ship { background: #ffefed; color: #ff3b30; }
+.track-build { background: #e8f5e9; color: #2e7d32; }
+.track-learn { background: #e3f2fd; color: #1565c0; }
+.track-life { background: #f3e5f5; color: #7b1fa2; }
+
+.task-line { padding: 6px 0; border-bottom: 1px solid #f5f5f5; }
+.task-line:last-child { border-bottom: none; }
+.task-line .name { font-weight: 500; }
+.task-line .outcome { color: #6e6e73; font-size: 0.88em; }
+
+.principle { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.principle:last-child { border-bottom: none; }
+.principle-num { font-weight: 700; color: #007aff; font-size: 1.2em; min-width: 28px; }
+.principle-text { flex: 1; }
+
+.metric { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.metric-card { background: #f8f8f8; border-radius: 10px; padding: 14px 16px; text-align: center; }
+.metric-card .num { font-size: 1.4em; font-weight: 700; color: #007aff; }
+.metric-card .label { font-size: 0.8em; color: #6e6e73; margin-top: 2px; }
+
+.note { background: #fffde7; border-radius: 10px; padding: 14px 18px; margin-top: 16px; font-size: 0.9em; border: 1px solid #fff9c4; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>7月行动计划</h1>
+<p class="subtitle">2026.06.30 — 2026.07.27 · 从零开始，只做少数重要的事</p>
+
+<div class="archive-info">
+📦 <strong>旧任务已完整归档</strong>：<code>~/Documents/things3-archive-20260629/</code><br>
+包含：archive.md（可读归档）、all_tasks.csv（结构化数据）、main.sqlite.bak（原始数据库备份）<br>
+共 597 条历史记录，45 个项目。需要时随时可查阅，但不再占据你的注意力。
+</div>
+
+<div class="philosophy">
+<h2>本月哲学：3 个项目，每周 1 个交付</h2>
+<p>不再同时推进 35 个项目。选 3 条主线，每周有一个明确的「完成标志」。其余一切都是「不做」。</p>
+</div>
+
+<!-- 三条主线 -->
+<section>
+<h2>🎯 本月三条主线</h2>
+
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">Orbit v3 核心可用</span>
+<span class="outcome">— 让 Orbit 从概念走向每天能用的状态</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">个人内容系统启动</span>
+<span class="outcome">— 建立「输入→思考→输出」的闭环，发出第一篇公开内容</span>
+</div>
+<div class="task-line">
+<span class="track track-life">生活</span>
+<span class="name">身心基础设施</span>
+<span class="outcome">— 英语、运动、阅读形成最小习惯</span>
+</div>
+</section>
+
+<!-- Week 1 -->
+<section>
+<h2>📅 四周拆解</h2>
+
+<div class="week w1">
+<div class="week-title">Week 1 · 6/30 - 7/6 · 清理与聚焦</div>
+<div class="week-subtitle">主题：扫清障碍，让系统 ready</div>
+
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">leancloud 停服迁移</span>
+<span class="outcome">→ 大同网站留言服务迁移完成，验证可用</span>
+</div>
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">修复 2 个 Orbit bug（auto agent 展示 + 对话重新流式）</span>
+<span class="outcome">→ bug 关闭，体验正常</span>
+</div>
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">合入 mermaid 分支 + 主题支持</span>
+<span class="outcome">→ 代码合入主干</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">5-6 月复盘 → 写一篇个人总结</span>
+<span class="outcome">→ 一篇 Obsidian 笔记，梳理清楚做了什么、学了什么、要调整什么</span>
+</div>
+<div class="task-line">
+<span class="track track-life">生活</span>
+<span class="name">确定英语学习方法 + 开始每天 15 分钟</span>
+<span class="outcome">→ 选定一个 app/方法，连续 7 天打卡</span>
+</div>
+</div>
+
+<!-- Week 2 -->
+<div class="week w2">
+<div class="week-title">Week 2 · 7/7 - 7/13 · Orbit 核心突破</div>
+<div class="week-subtitle">主题：让 Orbit 每天能用起来</div>
+
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">Orbit 主路径实现：Dashboard → Inbox → Project</span>
+<span class="outcome">→ 3 个核心页面可用，能在 Orbit 中管理日常任务</span>
+</div>
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">Runtime 抽象层 Phase 1（可观察性）</span>
+<span class="outcome">→ 能看到 Agent 的 thinking + tool use 展示</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">写第一篇公开文章（KM 或 Twitter）</span>
+<span class="outcome">→ 选题：Orbit 设计哲学 / Agent 编排经验 / 学习方法论（三选一）</span>
+</div>
+<div class="task-line">
+<span class="track track-life">生活</span>
+<span class="name">建立固定作息：运动 3 次 + 冥想 5 次</span>
+<span class="outcome">→ 形成节奏</span>
+</div>
+</div>
+
+<!-- Week 3 -->
+<div class="week w3">
+<div class="week-title">Week 3 · 7/14 - 7/20 · 内容系统成型</div>
+<div class="week-subtitle">主题：输入→处理→输出 跑通</div>
+
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">Orbit Ask Anywhere + Scope 素材系统 MVP</span>
+<span class="outcome">→ 能把一个目录 scope 给 AI，AI 能基于 scope 回答问题</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">用 Orbit 消化 3 本书（从速读书单中选）</span>
+<span class="outcome">→ 3 篇读书笔记沉淀在 Obsidian，验证「用 AI 学习」工作流</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">发第二篇公开内容 + 建立内容日历</span>
+<span class="outcome">→ 确定每周一篇的选题来源和写作流程</span>
+</div>
+<div class="task-line">
+<span class="track track-life">生活</span>
+<span class="name">精读 1 本书（推荐：《反脆弱》或《Range》）</span>
+<span class="outcome">→ 完整读完 + 输出一篇深度笔记</span>
+</div>
+</div>
+
+<!-- Week 4 -->
+<div class="week w4">
+<div class="week-title">Week 4 · 7/21 - 7/27 · 闭环与回顾</div>
+<div class="week-subtitle">主题：验收成果，规划 8 月</div>
+
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">Orbit dogfood 一整周</span>
+<span class="outcome">→ 用 Orbit 管理自己的日常（而非 Things），记录体验问题清单</span>
+</div>
+<div class="task-line">
+<span class="track track-ship">交付</span>
+<span class="name">数据中心部署上线</span>
+<span class="outcome">→ 服务可访问，压测通过</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">7 月复盘 + 8 月计划</span>
+<span class="outcome">→ 用同样的方式做月度 Review</span>
+</div>
+<div class="task-line">
+<span class="track track-build">构建</span>
+<span class="name">第三/四篇内容输出</span>
+<span class="outcome">→ 保持每周一篇的节奏</span>
+</div>
+<div class="task-line">
+<span class="track track-life">生活</span>
+<span class="name">月度回顾：习惯追踪总结</span>
+<span class="outcome">→ 英语/运动/冥想/阅读 的完成率</span>
+</div>
+</div>
+</section>
+
+<!-- 不做清单 -->
+<section>
+<h2>🚫 本月明确「不做」清单</h2>
+<p>以下都是有价值的事，但这个月不是做它们的时候：</p>
+<ul>
+<li><strong>不做</strong>新的 side project（honie、收纳 app、音频改造 app…）</li>
+<li><strong>不做</strong>25 天谷歌 agents 学习挑战（已过期，归档）</li>
+<li><strong>不做</strong>多平台内容抓取/数据分析系统</li>
+<li><strong>不做</strong>自媒体视频制作（先文字，再视频）</li>
+<li><strong>不做</strong>知识图谱系统构建</li>
+<li><strong>不做</strong>研究注册公司</li>
+<li><strong>不做</strong>速读 40 本书（选 3 本精读 > 40 本速读）</li>
+<li><strong>不做</strong>Obsidian 插件开发/学习（先用好已有功能）</li>
+</ul>
+<div class="note">
+💡 如果某件事冒出来很想做，写到 Obsidian 灵感笔记里，月底 Review 时再评估。<br>
+Things 归档随时可翻阅，但别往新系统里搬旧债务。
+</div>
+</section>
+
+<!-- 原则 -->
+<section>
+<h2>⚙️ 执行原则</h2>
+
+<div class="principle">
+<div class="principle-num">1</div>
+<div class="principle-text"><strong>每周只有 1 个「本周交付」</strong>：周一早上确认，周五验收。其他事项如果做了是 bonus。</div>
+</div>
+<div class="principle">
+<div class="principle-num">2</div>
+<div class="principle-text"><strong>任务必须有完成标志</strong>：不写「学习 XX」，写「输出 XX 笔记」或「XX 可运行」。</div>
+</div>
+<div class="principle">
+<div class="principle-num">3</div>
+<div class="principle-text"><strong>Things 只放当周任务（≤7 条）</strong>：Someday 和积压全部放 Obsidian。Things = 本周行动。</div>
+</div>
+<div class="principle">
+<div class="principle-num">4</div>
+<div class="principle-text"><strong>Build in Public 从小开始</strong>：先写给自己看的笔记 → 发到 KM/Twitter。不要等完美再发。</div>
+</div>
+<div class="principle">
+<div class="principle-num">5</div>
+<div class="principle-text"><strong>Orbit 是目标也是工具</strong>：一旦核心可用，立刻 dogfood，用自己的产品管理自己。</div>
+</div>
+</section>
+
+<!-- 成功指标 -->
+<section>
+<h2>📊 7月底验收标准</h2>
+<div class="metric">
+<div class="metric-card"><div class="num">1</div><div class="label">Orbit 核心路径可用</div></div>
+<div class="metric-card"><div class="num">4</div><div class="label">公开内容发布（篇）</div></div>
+<div class="metric-card"><div class="num">28</div><div class="label">英语学习天数</div></div>
+<div class="metric-card"><div class="num">1</div><div class="label">精读完成（本）</div></div>
+<div class="metric-card"><div class="num">12</div><div class="label">运动次数</div></div>
+<div class="metric-card"><div class="num">0</div><div class="label">新开 side project</div></div>
+</div>
+</section>
+
+<!-- 立即行动 -->
+<section>
+<h2>⚡ 明天（6/30 周一）第一件事</h2>
+<p>打开 Things 3，<strong>删除所有旧任务</strong>（它们已安全归档），只留下 Week 1 的 5 条：</p>
+<ol>
+<li>leancloud 迁移</li>
+<li>修复 auto agent 展示 bug</li>
+<li>修复对话重新流式 bug</li>
+<li>合入 mermaid 分支</li>
+<li>写 5-6 月复盘</li>
+</ol>
+<p style="color: #6e6e73; margin-top: 12px;">+ 每日习惯（不占 Things 条目，用日历/提醒事项）：英语 15min</p>
+</section>
+
+</div>
+</body>
+</html>

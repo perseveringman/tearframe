@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 04 — HSL 精细控制：调色的手术刀</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --text: #eaeaea;
+    --muted: #a0a0b0;
+    --success: #4ecca3;
+    --warning: #f0a500;
+    --info: #6ecbf5;
+    --purple: #b388ff;
+    --orange: #ff9e40;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #ff9e40, #4ecca3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+  h2 {
+    color: var(--orange);
+    font-size: 1.4rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(255,158,64,0.3);
+  }
+  h3 { color: var(--success); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card.insight { border-left: 4px solid var(--success); }
+  .card.warning { border-left: 4px solid var(--warning); }
+  .card.action { border-left: 4px solid var(--info); }
+  .card.principle { border-left: 4px solid var(--purple); }
+  code {
+    background: rgba(255,158,64,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .color-map {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+    margin: 1.5rem 0;
+  }
+  .color-map-item {
+    text-align: center;
+    border-radius: 8px;
+    padding: 0.8rem 0.3rem;
+  }
+  .color-map-item .swatch {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    margin: 0 auto 0.4rem;
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .color-map-item .name { font-size: 0.75rem; color: var(--muted); }
+  .hsl-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .hsl-control {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .hsl-control h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .hsl-control .desc { font-size: 0.8rem; color: var(--muted); }
+  .slider-demo {
+    height: 8px;
+    border-radius: 4px;
+    margin: 0.8rem 0;
+  }
+  .scenario {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(255,158,64,0.2);
+  }
+  .scenario h4 { color: var(--orange); margin-bottom: 0.8rem; font-size: 1rem; }
+  .scenario-steps {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .scenario-step {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    align-items: start;
+  }
+  .scenario-step .target { color: var(--info); font-weight: 600; font-size: 0.8rem; }
+  .skin-zone {
+    display: flex;
+    gap: 3px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1rem 0;
+    height: 40px;
+  }
+  .skin-zone div { flex: 1; }
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .param-table th, .param-table td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .param-table th { color: var(--muted); font-size: 0.8rem; }
+  .practice {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(240,165,0,0.3);
+  }
+  .practice h3 { color: var(--warning); margin-top: 0; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 0.4rem 0; padding-left: 1.5rem; position: relative; }
+  .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--muted); }
+  .quiz {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz h3 { color: var(--warning); margin-top: 0; }
+  .quiz-option {
+    display: block;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--accent); }
+  .quiz-option.correct { border-color: var(--success); background: rgba(78,204,163,0.1); }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+  .feedback { display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(78,204,163,0.1); border: 1px solid var(--success); }
+  .feedback.wrong-fb { background: rgba(233,69,96,0.1); border: 1px solid var(--accent); }
+  .next-steps {
+    background: linear-gradient(135deg, var(--surface), var(--card));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 3rem;
+  }
+  .next-steps h3 { color: var(--warning); }
+  a { color: var(--accent); text-decoration: none; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  @media (max-width: 600px) {
+    .color-map { grid-template-columns: repeat(4, 1fr); }
+    .hsl-demo { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Lesson 04 — HSL 精细控制</h1>
+<p class="subtitle">调色的手术刀：单独调一种颜色，不影响其他</p>
+
+<p>前面三课你学会了影响<strong>全局</strong>的工具——基础面板改整体明暗、曲线加对比、色轮按亮度分区上色。</p>
+<p>但有些问题它们解决不了：</p>
+<ul>
+  <li>天空想更蓝，但一加饱和度，人脸也变红了</li>
+  <li>草地想更绿，但衣服也跟着变了</li>
+  <li>肤色偏黄想修正，但不想影响背景</li>
+</ul>
+<p>这时候你需要 <strong>HSL</strong> —— 一把手术刀，精确到"只动某一种颜色"。</p>
+
+<h2>一、HSL 工具的逻辑</h2>
+
+<div class="card action">
+  <h3>🖥️ 剪映中找到 HSL</h3>
+  <p>选中片段 → 右侧"调节"面板 → 切换到"HSL"选项卡</p>
+  <p>你会看到 <strong>8 个颜色图标</strong>（可点选），和三组滑块：色相、饱和度、明度</p>
+</div>
+
+<div class="color-map">
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(0, 70%, 50%);"></div>
+    <div class="name">红</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(30, 80%, 55%);"></div>
+    <div class="name">橙</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(55, 80%, 50%);"></div>
+    <div class="name">黄</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(120, 60%, 40%);"></div>
+    <div class="name">绿</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(180, 70%, 45%);"></div>
+    <div class="name">青</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(220, 70%, 50%);"></div>
+    <div class="name">蓝</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(280, 60%, 50%);"></div>
+    <div class="name">紫</div>
+  </div>
+  <div class="color-map-item">
+    <div class="swatch" style="background: hsl(320, 60%, 50%);"></div>
+    <div class="name">洋红</div>
+  </div>
+</div>
+
+<div class="card principle">
+  <h3>🎯 HSL 的核心逻辑</h3>
+  <p><strong>先选一种颜色，再用三个滑块改它：</strong></p>
+  <ol>
+    <li><strong>色相 (Hue)</strong> — 把这个颜色"变"成它旁边的颜色（绿→青、橙→黄...）</li>
+    <li><strong>饱和度 (Saturation)</strong> — 让这个颜色更鲜艳或更灰</li>
+    <li><strong>明度 (Lightness)</strong> — 让这个颜色更亮或更暗</li>
+  </ol>
+  <p style="color: var(--muted); margin-top: 0.5rem;">关键：你只影响了选中的那种颜色范围，画面中其他颜色完全不变。</p>
+</div>
+
+<h2>二、三个滑块分别做什么</h2>
+
+<div class="hsl-demo">
+  <div class="hsl-control">
+    <h4 style="color: var(--accent);">色相 Hue</h4>
+    <div class="slider-demo" style="background: linear-gradient(to right, hsl(90,70%,40%), hsl(120,70%,40%), hsl(150,70%,40%));"></div>
+    <p class="desc">"变色"<br>把绿色偏向青色/黄色</p>
+  </div>
+  <div class="hsl-control">
+    <h4 style="color: var(--warning);">饱和度 Sat</h4>
+    <div class="slider-demo" style="background: linear-gradient(to right, hsl(120,5%,40%), hsl(120,40%,40%), hsl(120,90%,40%));"></div>
+    <p class="desc">"鲜艳度"<br>从灰绿 → 鲜绿</p>
+  </div>
+  <div class="hsl-control">
+    <h4 style="color: var(--info);">明度 Lum</h4>
+    <div class="slider-demo" style="background: linear-gradient(to right, hsl(120,60%,15%), hsl(120,60%,40%), hsl(120,60%,70%));"></div>
+    <p class="desc">"亮暗"<br>从深绿 → 浅绿</p>
+  </div>
+</div>
+
+<div class="card insight">
+  <h3>💡 色相滑块的直觉</h3>
+  <p>色相滑块往正方向拉 = 在色轮上<strong>顺时针</strong>偏移。比如：</p>
+  <ul>
+    <li>绿色的色相 +30 → 绿变成青（绿的顺时针方向是青）</li>
+    <li>黄色的色相 -20 → 黄变成橙（黄的逆时针方向是橙）</li>
+    <li>橙色的色相 +10 → 橙变成黄（更暖 → 更阳光）</li>
+  </ul>
+  <p style="color: var(--muted);">记不住方向没关系——实时预览，边拉边看。重要的是知道"色相能把一种颜色变成另一种"。</p>
+</div>
+
+<h2>三、最重要的应用：肤色控制</h2>
+
+<p>对于 Vlog 来说，<strong>肤色</strong>是 HSL 最高频的用途。人的肤色主要落在<strong>橙色</strong>范围，少量涉及红色和黄色。</p>
+
+<div class="skin-zone">
+  <div style="background: hsl(5, 50%, 45%);" title="红色区"></div>
+  <div style="background: hsl(15, 60%, 50%);" title="红橙过渡"></div>
+  <div style="background: hsl(22, 65%, 55%);" title="肤色核心"></div>
+  <div style="background: hsl(28, 60%, 60%);" title="肤色核心"></div>
+  <div style="background: hsl(35, 55%, 65%);" title="橙黄过渡"></div>
+  <div style="background: hsl(42, 45%, 60%);" title="黄色区"></div>
+</div>
+<p style="text-align: center; font-size: 0.8rem; color: var(--muted);">↑ 人类肤色的色相范围（约 15°~35°，主要在"橙色"通道内）</p>
+
+<div class="scenario">
+  <h4>🧑 场景：让肤色更白皙通透</h4>
+  <div class="scenario-steps">
+    <div class="scenario-step">
+      <span class="target">选择：橙色</span>
+      <span>这是肤色的主通道</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">饱和度</span>
+      <span>降低 -15 ~ -30（去掉过度的橘黄感）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">明度</span>
+      <span>提高 +10 ~ +25（肤色提亮）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">色相</span>
+      <span>通常不动；如果偏黄可以 -5 ~ -10（往红方向微调回正常肤色）</span>
+    </div>
+  </div>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem;">⚠️ 如果画面中有其他橙色物体（木桌、暖光灯），它们也会被影响。这是 HSL 的局限——后续可以用颜色蒙版解决。</p>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ 肤色调整的陷阱</h3>
+  <ul>
+    <li><strong>饱和度降太多</strong> → 皮肤变灰、"丧尸感" → 控制在 -30 以内</li>
+    <li><strong>明度加太多</strong> → 皮肤变白但失去质感（塑料感）→ 控制在 +25 以内</li>
+    <li><strong>色相偏太多</strong> → 肤色变绿/变紫（最危险的操作）→ 控制在 ±10 以内</li>
+  </ul>
+  <p style="margin-top: 0.5rem;">经验法则：<strong>肤色宁可少调不多调</strong>。人眼对肤色偏差极其敏感——差一点就觉得"不健康"。</p>
+</div>
+
+<h2>四、常见场景实操配方</h2>
+
+<div class="scenario">
+  <h4>🌊 场景：让天空/海面更蓝更通透</h4>
+  <div class="scenario-steps">
+    <div class="scenario-step">
+      <span class="target">选择：蓝色</span>
+      <span>天空和海面的主色</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">饱和度</span>
+      <span>提高 +20 ~ +40（让蓝更浓郁）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">明度</span>
+      <span>降低 -10 ~ -20（蓝色更深邃，避免发白）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">色相</span>
+      <span>可微调 -5 ~ -10（往青方向，让天空更"干净"而不是紫蓝）</span>
+    </div>
+  </div>
+</div>
+
+<div class="scenario">
+  <h4>🌿 场景：让植物/草地更翠绿</h4>
+  <div class="scenario-steps">
+    <div class="scenario-step">
+      <span class="target">选择：绿色</span>
+      <span>植物叶片的主色</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">色相</span>
+      <span>+15 ~ +30（绿偏向青方向 = 更翠、更"影视感"的绿）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">饱和度</span>
+      <span>+10 ~ +30（更鲜艳，但注意不要荧光绿）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">明度</span>
+      <span>+5 ~ +15（稍微提亮，增加通透感）</span>
+    </div>
+  </div>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem;">💡 同时也可以调黄色的色相（+10~+20 偏绿），因为自然界很多"看起来绿"的植物其实更偏黄绿。</p>
+</div>
+
+<div class="scenario">
+  <h4>🌆 场景：日落/暖光氛围加强</h4>
+  <div class="scenario-steps">
+    <div class="scenario-step">
+      <span class="target">选择：橙色</span>
+      <span>日落暖光的核心</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">饱和度</span>
+      <span>+15 ~ +30（暖色更浓烈）</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">选择：黄色</span>
+      <span>阳光的辅助色</span>
+    </div>
+    <div class="scenario-step">
+      <span class="target">色相</span>
+      <span>-10（黄偏向橙，更接近"金色"）</span>
+    </div>
+  </div>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem;">⚠️ 如果画面有人物，注意橙色饱和度加太多会让肤色也过于橘红——需要平衡。</p>
+</div>
+
+<h2>五、HSL 的局限与思维方式</h2>
+
+<div class="card insight">
+  <h3>💡 HSL 按"颜色"选区，不按"物体"选区</h3>
+  <p>HSL 不知道什么是"天空"、什么是"人脸"——它只知道"蓝色像素"和"橙色像素"。</p>
+  <p>所以：</p>
+  <ul>
+    <li>调蓝色 → 天空变了，蓝色衣服也变了</li>
+    <li>调橙色 → 肤色变了，橙色背景也变了</li>
+    <li>调绿色 → 树叶变了，绿色路标也变了</li>
+  </ul>
+  <p style="margin-top: 0.5rem;">这是正常的。大多数 Vlog 场景中，这不会造成问题（画面中同色物体通常方向一致）。如果确实需要"只调人脸不调桌子"，需要用<strong>颜色蒙版</strong>（蒙版是更高级的工具，这里先了解即可）。</p>
+</div>
+
+<div class="card">
+  <h3>HSL 的正确思维流程</h3>
+  <ol>
+    <li><strong>观察</strong>：画面中哪种颜色需要调整？（天空不够蓝？肤色偏黄？草地发灰？）</li>
+    <li><strong>选色</strong>：那种颜色对应 8 色中的哪一个？</li>
+    <li><strong>决策</strong>：我要改它的什么？颜色方向（色相）？鲜艳度（饱和度）？亮暗（明度）？</li>
+    <li><strong>微调</strong>：小幅拉动，实时观察</li>
+    <li><strong>检查</strong>：有没有不想被影响的区域也跟着变了？如果有，减小幅度或考虑换工具</li>
+  </ol>
+</div>
+
+<h2>六、HSL 在完整调色流程中的位置</h2>
+
+<div class="card">
+  <table class="param-table">
+    <tr><th>顺序</th><th>工具</th><th>做什么</th><th>类比</th></tr>
+    <tr><td>1</td><td>基础+曲线</td><td>一级校色（正确的曝光和对比）</td><td>画布打底</td></tr>
+    <tr><td>2</td><td>色轮</td><td>分区上色（暗冷亮暖等）</td><td>大面积铺色</td></tr>
+    <tr><td>3</td><td><strong>HSL</strong></td><td>精细控制单一颜色</td><td><strong>手术刀雕刻</strong></td></tr>
+    <tr><td>4</td><td>LUT/滤镜</td><td>最终风格统一（可选）</td><td>最后一层釉</td></tr>
+  </table>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">HSL 在色轮之后——因为色轮改变了画面的整体色彩倾向，你需要在那个基础上再精修细节。</p>
+</div>
+
+<h2>七、小测验</h2>
+
+<div class="quiz" id="quiz1">
+  <h3>🧠 Quiz 1：颜色通道选择</h3>
+  <p>你想让 Vlog 中的人物肤色更白皙。应该选择哪个颜色通道来调整？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">A. 红色 — 因为皮肤有红润感</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', true)">B. 橙色 — 因为人类肤色的主要色相在橙色区间</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">C. 黄色 — 因为亚洲人肤色偏黄</div>
+  <div class="feedback correct-fb" id="quiz1-correct">✅ 正确！人类肤色（无论肤色深浅）在色轮上的色相主要集中在 15°~35°，正好落在"橙色"通道的范围内。虽然我们口语说"黄皮肤"，但在色彩科学上它是橙色。红色通道影响嘴唇和腮红区域，黄色通道更多影响环境光。</div>
+  <div class="feedback wrong-fb" id="quiz1-wrong">❌ 提示：看看前面的肤色色相图——人的肤色在色轮上实际是什么位置？不要被"黄种人"这种日常用语误导。</div>
+</div>
+
+<div class="quiz" id="quiz2">
+  <h3>🧠 Quiz 2：操作方向</h3>
+  <p>你调了绿色通道的色相 +30，结果画面中树叶变成了什么颜色？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', true)">A. 偏青/蓝绿 — 因为绿色在色轮上顺时针方向是青色</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">B. 偏黄 — 因为加了明度</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">C. 不变 — 色相不影响颜色种类</div>
+  <div class="feedback correct-fb" id="quiz2-correct">✅ 正确！色相滑块往正方向 = 色轮顺时针。绿色 (120°) + 30° ≈ 150° = 青绿色。这也是很多影视作品中让植物"更翠"的技巧——把纯绿推向青绿，视觉上更高级、更"干净"。</div>
+  <div class="feedback wrong-fb" id="quiz2-wrong">❌ 色相(Hue)滑块改变的是"颜色的种类"——把一种颜色变成色轮上它旁边的颜色。正方向 = 顺时针旋转。</div>
+</div>
+
+<div class="quiz" id="quiz3">
+  <h3>🧠 Quiz 3：调色顺序</h3>
+  <p>为什么 HSL 要在色轮之后调，而不是之前？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">A. 因为 HSL 面板在软件界面中排在后面</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', true)">B. 因为色轮改变了画面整体色彩分布，HSL 需要在那个基础上精修</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">C. 顺序无所谓，先后不影响结果</div>
+  <div class="feedback correct-fb" id="quiz3-correct">✅ 正确！色轮给画面分区上了色（比如暗部加青），这意味着原来的"绿色"可能因为叠加了青色而偏移了。如果你先用 HSL 调绿色，之后色轮一改，你的 HSL 调整可能就"对不上"了。所以先大面积上色（色轮），再精修（HSL）。</div>
+  <div class="feedback wrong-fb" id="quiz3-wrong">❌ 想想：如果你先 HSL 把蓝色调到完美，然后色轮给高光加了暖色——那些高光区域的"蓝色"是不是就被色轮改掉了？顺序是有依赖关系的。</div>
+</div>
+
+<h2>八、动手练习</h2>
+
+<div class="practice">
+  <h3>🎬 实操任务：三步精修一段户外 Vlog</h3>
+  <p>找一段有人物 + 天空/植物的户外素材（已做好一级校色和色轮调色），用 HSL 做三件事：</p>
+  <ul class="checklist">
+    <li><strong>肤色优化</strong>：选橙色 → 饱和度 -15、明度 +15 → 看肤色是否更白皙自然</li>
+    <li><strong>天空加强</strong>：选蓝色 → 饱和度 +25、明度 -10 → 看天空是否更蓝更通透</li>
+    <li><strong>植物翠绿</strong>：选绿色 → 色相 +20、饱和度 +15 → 看树叶是否更翠绿</li>
+  </ul>
+  <p style="margin-top: 1rem; color: var(--muted);">📌 每调一个通道，暂停看看有没有"不想被影响的东西也变了"。如果有，减小幅度。</p>
+  <p style="margin-top: 0.5rem; color: var(--muted);">📌 全部调完后，对比开关效果：是不是画面"精致"了很多，但又不会觉得"假"？</p>
+</div>
+
+<div class="card insight">
+  <h3>💡 本课核心口诀</h3>
+  <p style="font-size: 1.1rem; text-align: center; padding: 0.5rem 0;">
+    <strong>色轮管"区域"（暗/中/亮），HSL 管"颜色"（红/橙/黄/绿/青/蓝/紫）</strong>
+  </p>
+  <p style="text-align: center; color: var(--muted);">两者配合 = 既有整体氛围，又有细节精修</p>
+</div>
+
+<div class="next-steps">
+  <h3>📍 下一步</h3>
+  <p>下节课：<strong>电影感风格综合实战</strong> — 把四课所学串起来，从一段普通素材开始，完整走一遍"灰片→清透→电影感"的全流程。你会亲手调出一个完整的电影风格。</p>
+  <p style="margin-top: 1rem; color: var(--muted);">有任何疑问随时问我 🎬</p>
+</div>
+
+<script>
+function checkAnswer(el, quizId, correct) {
+  const quiz = document.getElementById(quizId);
+  const options = quiz.querySelectorAll('.quiz-option');
+  const correctFb = document.getElementById(quizId + '-correct');
+  const wrongFb = document.getElementById(quizId + '-wrong');
+  options.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
+  correctFb.classList.remove('show');
+  wrongFb.classList.remove('show');
+  if (correct) { el.classList.add('correct'); correctFb.classList.add('show'); }
+  else { el.classList.add('wrong'); wrongFb.classList.add('show'); }
+}
+</script>
+
+</body>
+</html>

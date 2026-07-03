@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 02 — 一级校色：从"灰片"到"清透"</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --text: #eaeaea;
+    --muted: #a0a0b0;
+    --success: #4ecca3;
+    --warning: #f0a500;
+    --info: #6ecbf5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #6ecbf5, #4ecca3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+  h2 {
+    color: var(--info);
+    font-size: 1.4rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(110,203,245,0.3);
+  }
+  h3 { color: var(--success); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card.insight { border-left: 4px solid var(--success); }
+  .card.warning { border-left: 4px solid var(--warning); }
+  .card.action { border-left: 4px solid var(--info); }
+  .card.principle { border-left: 4px solid #b388ff; }
+  .step-grid {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 0.5rem 1rem;
+    align-items: start;
+    margin: 1rem 0;
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    background: var(--info);
+    color: var(--bg);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+  }
+  .step-content { padding-top: 0.3rem; }
+  code {
+    background: rgba(110,203,245,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .param-table th, .param-table td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .param-table th {
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+  .curve-demo {
+    background: #111;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+  }
+  .curve-demo svg { max-width: 320px; width: 100%; }
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .before-after > div {
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+  .before-after .label {
+    position: absolute;
+    top: 8px; left: 8px;
+    background: rgba(0,0,0,0.7);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+  .gradient-strip {
+    height: 50px;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+  }
+  .workflow-box {
+    background: linear-gradient(135deg, rgba(110,203,245,0.08), rgba(78,204,163,0.08));
+    border: 1px solid rgba(110,203,245,0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .workflow-arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+  }
+  .practice {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(240,165,0,0.3);
+  }
+  .practice h3 { color: var(--warning); margin-top: 0; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 0.4rem 0; padding-left: 1.5rem; position: relative; }
+  .checklist li::before {
+    content: '☐';
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+  }
+  .next-steps {
+    background: linear-gradient(135deg, var(--surface), var(--card));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 3rem;
+  }
+  .next-steps h3 { color: var(--warning); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  .tag {
+    display: inline-block;
+    background: rgba(110,203,245,0.2);
+    color: var(--info);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 4px;
+  }
+  .kbd {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+  .quiz {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz h3 { color: var(--warning); margin-top: 0; }
+  .quiz-option {
+    display: block;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--accent); }
+  .quiz-option.correct { border-color: var(--success); background: rgba(78,204,163,0.1); }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+  .feedback { display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(78,204,163,0.1); border: 1px solid var(--success); }
+  .feedback.wrong-fb { background: rgba(233,69,96,0.1); border: 1px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>Lesson 02 — 一级校色</h1>
+<p class="subtitle">从"灰片"到"清透"：所有好看色调的起点</p>
+
+<p>上节课我们学了调色思维框架的第一步：<strong>诊断</strong>。这节课，我们把诊断变成动手——在剪映专业版里，用具体工具把一段"灰蒙蒙"的素材变成"清透的中性画面"。</p>
+
+<div class="card principle">
+  <h3>🎯 本课核心原则</h3>
+  <p><strong>一级校色的目标不是"好看"，而是"正确"。</strong></p>
+  <p>你要做的是把画面修正到一个中性、准确的状态——曝光正确、白平衡准确、对比度合理。这是一块干净的画布。所有风格化调色（电影感、日系、胶片）都是在这块画布上创作的。</p>
+  <p style="color: var(--muted); margin-top: 0.5rem;">如果你跳过一级校色直接风格化，就像在脏画布上画油画——颜色永远不对。</p>
+</div>
+
+<h2>一、打开你的"眼睛"：示波器</h2>
+
+<p>人眼会骗人——你的显示器亮度、环境光线、甚至你的疲劳程度都会影响判断。所以专业调色第一件事是打开<strong>示波器</strong>，让数据辅助你的眼睛。</p>
+
+<div class="card action">
+  <h3>🖥️ 剪映中开启示波器</h3>
+  <p>播放器窗口右上角 → 点击"三条杠"菜单图标 → 选择"调色示波器" → 开启</p>
+  <p style="margin-top: 0.5rem;">开启后，视频画面下方会出现波形图。</p>
+</div>
+
+<h3>如何看波形图（Waveform）</h3>
+
+<div class="curve-demo">
+<svg viewBox="0 0 300 200">
+  <!-- 背景网格 -->
+  <rect width="300" height="200" fill="#111"/>
+  <line x1="0" y1="10" x2="300" y2="10" stroke="#333" stroke-width="0.5"/>
+  <line x1="0" y1="50" x2="300" y2="50" stroke="#333" stroke-width="0.5"/>
+  <line x1="0" y1="100" x2="300" y2="100" stroke="#444" stroke-width="0.5" stroke-dasharray="4,4"/>
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#333" stroke-width="0.5"/>
+  <line x1="0" y1="190" x2="300" y2="190" stroke="#333" stroke-width="0.5"/>
+  
+  <!-- 标注 -->
+  <text x="305" y="15" fill="#aaa" font-size="9">1023 (纯白)</text>
+  <text x="305" y="55" fill="#aaa" font-size="9">高光区</text>
+  <text x="305" y="105" fill="#aaa" font-size="9">中间调</text>
+  <text x="305" y="155" fill="#aaa" font-size="9">阴影区</text>
+  <text x="305" y="195" fill="#aaa" font-size="9">0 (纯黑)</text>
+  
+  <!-- 模拟灰雾片波形 - 集中在中间 -->
+  <path d="M10,80 Q30,75 50,85 Q80,90 100,78 Q130,70 150,88 Q180,95 200,82 Q230,75 260,90 Q280,85 290,80" 
+        fill="none" stroke="rgba(200,200,200,0.5)" stroke-width="20" opacity="0.4"/>
+  <text x="100" y="140" fill="#e94560" font-size="10" font-weight="bold">← 灰片：波形挤在中间</text>
+  <text x="100" y="155" fill="#e94560" font-size="9">（没有触及顶部和底部）</text>
+</svg>
+</div>
+
+<div class="card insight">
+  <h3>💡 读波形的关键直觉</h3>
+  <ul>
+    <li><strong>顶部 = 画面最亮处</strong>，底部 = 画面最暗处</li>
+    <li><strong>波形挤在中间</strong> = 灰雾、缺乏动态范围 = "雾蒙蒙"</strong></li>
+    <li><strong>波形从底部延伸到顶部</strong> = 动态范围充足 = "清透"的基础</li>
+    <li><strong>波形顶到顶/底</strong> = 过曝/死黑 = 细节不可恢复</li>
+  </ul>
+  <p style="margin-top: 0.8rem; color: var(--muted);">你的目标：让波形<strong>接近但不触及</strong>顶部和底部边界。</p>
+</div>
+
+<h2>二、一级校色工作流（5步）</h2>
+
+<p>以下是在剪映专业版中进行一级校色的标准顺序。<strong>顺序很重要</strong>——后面的步骤依赖前面的结果。</p>
+
+<div class="workflow-box">
+  <div class="step-grid">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>曝光/亮度</strong> — 让整体明暗回到正常水平<br>
+      <span style="color: var(--muted); font-size: 0.9rem;">观察示波器：波形中心是否大致在中线位置？</span>
+    </div>
+  </div>
+  <div class="workflow-arrow">↓</div>
+  <div class="step-grid">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>白平衡（色温+色调）</strong> — 消除色偏，让白色真正是白色<br>
+      <span style="color: var(--muted); font-size: 0.9rem;">看画面中"应该是白/灰"的区域：墙面、纸张、云朵</span>
+    </div>
+  </div>
+  <div class="workflow-arrow">↓</div>
+  <div class="step-grid">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>对比度（高光+阴影）</strong> — 拉开明暗层次<br>
+      <span style="color: var(--muted); font-size: 0.9rem;">分别控制亮部和暗部，而不是只拉"对比度"滑块</span>
+    </div>
+  </div>
+  <div class="workflow-arrow">↓</div>
+  <div class="step-grid">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>曲线微调</strong> — 精确控制 S 曲线，强化层次<br>
+      <span style="color: var(--muted); font-size: 0.9rem;">曲线是对比度的精细版，给你更多控制</span>
+    </div>
+  </div>
+  <div class="workflow-arrow">↓</div>
+  <div class="step-grid">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <strong>饱和度</strong> — 最后微调色彩浓郁度<br>
+      <span style="color: var(--muted); font-size: 0.9rem;">一级校色阶段通常只做小幅调整（±10~20）</span>
+    </div>
+  </div>
+</div>
+
+<h2>三、逐步详解</h2>
+
+<h3>Step 1：曝光/亮度</h3>
+
+<div class="card">
+  <p><strong>操作位置</strong>：选中视频片段 → 右侧"调节"面板 → 基础 → 亮度</p>
+  <p><strong>判断方法</strong>：</p>
+  <ul>
+    <li>看示波器：波形整体偏下 → 欠曝 → 往右拉亮度</li>
+    <li>波形整体偏上 → 过曝 → 往左压亮度</li>
+    <li>目标：波形中心大致在中线（512 附近）</li>
+  </ul>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ "亮度"vs"光感"</h3>
+  <p>剪映有一个独创的<code>光感</code>参数。它比"亮度"更柔和——同时微调亮度+对比度+高光压缩，过渡更自然。</p>
+  <p><strong>建议</strong>：如果画面只是整体偏暗，优先试"光感"而不是猛拉"亮度"。亮度拉太多容易把暗部噪点暴露出来。</p>
+</div>
+
+<h3>Step 2：白平衡</h3>
+
+<div class="card">
+  <p><strong>操作位置</strong>：基础面板 → 色温 / 色调</p>
+  <table class="param-table">
+    <tr><th>参数</th><th>控制什么</th><th>怎么判断</th></tr>
+    <tr><td><code>色温</code></td><td>蓝 ↔ 黄</td><td>画面偏蓝（冷）→ 往右加色温；偏黄 → 往左</td></tr>
+    <tr><td><code>色调</code></td><td>绿 ↔ 洋红(品红)</td><td>画面偏绿 → 往右加洋红；偏粉 → 往左</td></tr>
+  </table>
+</div>
+
+<div class="card insight">
+  <h3>💡 "校正"白平衡 ≠ "创意"色温</h3>
+  <p>这一步你做的是<strong>消除原片的色偏</strong>——让本该是白色/灰色的东西回归中性。</p>
+  <p>比如室内钨丝灯拍的视频会偏黄，你需要减色温把黄去掉。</p>
+  <p><strong>之后</strong>在风格化阶段，你可能会故意加回一点暖色温——但那是你的"创意选择"，不是原片的"偏色"。两者的区别是：你有控制权。</p>
+  <p style="color: var(--muted); margin-top: 0.5rem;">判断技巧：找画面中"应该是白色或灰色"的物体（白墙、白纸、灰色水泥地），调到它看起来没有明显色偏为止。</p>
+</div>
+
+<h3>Step 3：对比度 — 高光与阴影分离</h3>
+
+<div class="card">
+  <p><strong>操作位置</strong>：基础面板 → 对比度 / 高光 / 阴影</p>
+  <p>很多人只拉"对比度"滑块。但这个滑块是<strong>粗暴的</strong>——它同时把亮的变更亮、暗的变更暗，容易过曝+死黑。</p>
+  <p><strong>更精细的做法</strong>：</p>
+  <ul>
+    <li><code>高光</code> 往左压 → 抑制过亮区域（恢复天空/灯光细节）</li>
+    <li><code>阴影</code> 往右提 → 提亮暗部（恢复暗处细节）</li>
+    <li><code>对比度</code> 微加 +10~+20 → 最后整体增强一点层次</li>
+  </ul>
+</div>
+
+<div class="before-after">
+  <div>
+    <div class="gradient-strip" style="background: linear-gradient(to right, hsl(0,0%,30%), hsl(0,0%,50%), hsl(0,0%,65%));"></div>
+    <p style="text-align: center; font-size: 0.85rem; color: var(--muted);">❌ 压缩的灰色范围：暗不够暗，亮不够亮</p>
+  </div>
+  <div>
+    <div class="gradient-strip" style="background: linear-gradient(to right, hsl(0,0%,5%), hsl(0,0%,35%), hsl(0,0%,55%), hsl(0,0%,80%), hsl(0,0%,96%));"></div>
+    <p style="text-align: center; font-size: 0.85rem; color: var(--muted);">✅ 拉开后：从近黑到近白，层次分明</p>
+  </div>
+</div>
+
+<h3>Step 4：曲线 — 对比度的精细版</h3>
+
+<p>曲线是调色中<strong>最强大</strong>的工具。它让你精确控制"哪个亮度区间变亮/变暗多少"。</p>
+
+<div class="card">
+  <p><strong>操作位置</strong>：调节面板 → 曲线 → 选择"亮度"通道（白色线）</p>
+</div>
+
+<div class="curve-demo">
+<svg viewBox="0 0 300 300">
+  <rect width="300" height="300" fill="#111" rx="8"/>
+  <!-- 网格 -->
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#333" stroke-width="0.5"/>
+  <line x1="150" y1="0" x2="150" y2="300" stroke="#333" stroke-width="0.5"/>
+  <line x1="0" y1="75" x2="300" y2="75" stroke="#222" stroke-width="0.5"/>
+  <line x1="0" y1="225" x2="300" y2="225" stroke="#222" stroke-width="0.5"/>
+  <line x1="75" y1="0" x2="75" y2="300" stroke="#222" stroke-width="0.5"/>
+  <line x1="225" y1="0" x2="225" y2="300" stroke="#222" stroke-width="0.5"/>
+  
+  <!-- 对角线（未调整状态） -->
+  <line x1="10" y1="290" x2="290" y2="10" stroke="#444" stroke-width="1" stroke-dasharray="4,4"/>
+  
+  <!-- S曲线 -->
+  <path d="M10,290 C50,280 90,240 130,200 C160,170 180,130 200,100 C230,55 260,30 290,10" 
+        fill="none" stroke="var(--info)" stroke-width="2.5"/>
+  
+  <!-- 锚点 -->
+  <circle cx="130" cy="200" r="5" fill="var(--info)"/>
+  <circle cx="200" cy="100" r="5" fill="var(--info)"/>
+  
+  <!-- 标注 -->
+  <text x="15" y="20" fill="#aaa" font-size="9">亮 ↑</text>
+  <text x="250" y="295" fill="#aaa" font-size="9">输入亮 →</text>
+  <text x="60" y="215" fill="var(--success)" font-size="9">暗部锚点：微压</text>
+  <text x="140" y="85" fill="var(--success)" font-size="9">亮部锚点：微提</text>
+  <text x="80" y="260" fill="var(--warning)" font-size="9">= 暗的更暗</text>
+  <text x="150" y="60" fill="var(--warning)" font-size="9">= 亮的更亮</text>
+</svg>
+</div>
+
+<div class="card insight">
+  <h3>💡 S 曲线的本质</h3>
+  <p>S 曲线做的事情只有一件：<strong>拉开中间调的明暗差距</strong>。</p>
+  <ul>
+    <li>暗部锚点往下拉 → 中等暗的像素变得更暗</li>
+    <li>亮部锚点往上提 → 中等亮的像素变得更亮</li>
+    <li>两端（纯黑纯白附近）不动 → 避免过曝/死黑</li>
+  </ul>
+  <p style="margin-top: 0.5rem;">这就是为什么 S 曲线能让画面"清透"——它<strong>拉开了层次</strong>，而且比对比度滑块更温柔，因为你可以控制"从哪里开始拉"。</p>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ S 曲线的度</h3>
+  <p><strong>轻微的 S</strong> = 自然清透。<strong>过度的 S</strong> = 画面硬、噪点放大、过渡断层。</p>
+  <p>经验法则：每个锚点的位移不超过曲线图高度的 10-15%。如果你需要更大的调整，说明前面的亮度/对比度步骤没做到位。</p>
+</div>
+
+<h3>Step 5：饱和度微调</h3>
+
+<div class="card">
+  <p><strong>操作位置</strong>：基础面板 → 饱和度</p>
+  <p>一级校色阶段，饱和度的调整应该是<strong>克制的</strong>：</p>
+  <ul>
+    <li>原片看起来灰扁 → 加 +10~+20 恢复正常色彩</li>
+    <li>原片颜色过艳（某些手机的"鲜艳模式"） → 减 -10~-15</li>
+    <li>目标：颜色看起来"自然"，既不灰也不艳</li>
+  </ul>
+  <p style="color: var(--muted); margin-top: 0.5rem;">大幅度的饱和度调整留给风格化阶段。</p>
+</div>
+
+<h2>四、曲线的 RGB 通道：纠正色偏的精确武器</h2>
+
+<p>除了亮度曲线，你还有红、绿、蓝三条单独的曲线。它们能做什么？</p>
+
+<div class="card">
+  <table class="param-table">
+    <tr><th>通道</th><th>往上拉 = 加什么</th><th>往下压 = 加什么</th><th>用途</th></tr>
+    <tr><td style="color: #ff6b6b;">红色曲线</td><td>加红</td><td>加青</td><td>纠正偏青/偏红</td></tr>
+    <tr><td style="color: #69db7c;">绿色曲线</td><td>加绿</td><td>加洋红(品红)</td><td>纠正偏绿/偏品红</td></tr>
+    <tr><td style="color: #74c0fc;">蓝色曲线</td><td>加蓝</td><td>加黄</td><td>纠正偏蓝/偏黄</td></tr>
+  </table>
+</div>
+
+<div class="card insight">
+  <h3>💡 为什么比色温滑块更强？</h3>
+  <p>色温滑块是"全局"的——整个画面统一偏蓝或偏黄。但现实中，色偏可能只存在于暗部（比如阴影偏蓝而高光正常）。</p>
+  <p>用蓝色曲线，你可以<strong>只把暗部的蓝压下去</strong>（拉暗部区域往下），而高光不变。这是色温滑块做不到的。</p>
+  <p style="color: var(--muted);">现阶段了解即可，实操中先用色温/色调做粗调，如果调不到位再用 RGB 曲线精修。</p>
+</div>
+
+<h2>五、完整操作速查</h2>
+
+<div class="card">
+  <table class="param-table">
+    <tr><th>步骤</th><th>看什么</th><th>调什么</th><th>目标</th></tr>
+    <tr><td>1. 曝光</td><td>示波器整体位置</td><td>亮度 / 光感</td><td>波形中心在中线</td></tr>
+    <tr><td>2. 白平衡</td><td>白色物体的颜色</td><td>色温 + 色调</td><td>白色=中性白</td></tr>
+    <tr><td>3. 对比度</td><td>波形上下延展范围</td><td>高光↓ 阴影↑ 对比度微↑</td><td>波形接近顶底但不触及</td></tr>
+    <tr><td>4. 曲线</td><td>中间调层次感</td><td>亮度曲线做轻微 S</td><td>层次丰富、过渡自然</td></tr>
+    <tr><td>5. 饱和度</td><td>色彩浓度是否自然</td><td>饱和度 ±10~20</td><td>颜色看起来正常</td></tr>
+  </table>
+</div>
+
+<h2>六、理解"锐化"的角色</h2>
+
+<div class="card">
+  <p>很多教程把锐化放在调色流程里。澄清一下它的本质：</p>
+  <p><strong>锐化不改变颜色</strong>——它增强边缘的明暗对比，让物体轮廓更清晰。它改善的是"清晰度"而非"清透感"。</p>
+  <ul>
+    <li>建议值：30~50（过高会出现白边伪影和噪点放大）</li>
+    <li>时机：一级校色做完之后加，不是第一步</li>
+    <li>它不能拯救拍模糊的素材——那是物理限制</li>
+  </ul>
+</div>
+
+<h2>七、小测验</h2>
+
+<div class="quiz" id="quiz1">
+  <h3>🧠 Quiz 1：工作流顺序</h3>
+  <p>一级校色时，为什么要先调白平衡，再调对比度？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">A. 没有特别原因，只是习惯</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', true)">B. 因为色偏会影响你对亮度的判断，先消除色偏才能准确调对比度</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">C. 因为白平衡要在最干净的画面上调才准确</div>
+  <div class="feedback correct-fb" id="quiz1-correct">✅ 正确！色偏（比如整体偏黄）会让你误判画面亮度——黄色看起来更亮，蓝色看起来更暗。先还原真实颜色，你对明暗的判断才是准确的。这就是为什么顺序很重要。</div>
+  <div class="feedback wrong-fb" id="quiz1-wrong">❌ 想想：如果画面严重偏黄，你会觉得它比实际更亮还是更暗？色偏会扭曲你对亮度的感知。</div>
+</div>
+
+<div class="quiz" id="quiz2">
+  <h3>🧠 Quiz 2：S 曲线</h3>
+  <p>S 曲线的暗部锚点往下拉、亮部锚点往上提，本质上在做什么？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">A. 让整个画面变亮</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">B. 增加画面的饱和度</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', true)">C. 扩大中间调的明暗差距，增强层次感</div>
+  <div class="feedback correct-fb" id="quiz2-correct">✅ 正确！S 曲线不改变最亮和最暗（两端不动），而是把"中间灰"区域的像素推向两极——原本接近中灰的暗像素变更暗，原本接近中灰的亮像素变更亮。结果就是中间调层次更丰富——这就是"清透感"的精髓。</div>
+  <div class="feedback wrong-fb" id="quiz2-wrong">❌ 注意 S 曲线的特点：两端（纯黑纯白）不动，只有中间在变化。它不会改变整体亮度，也不直接影响饱和度。</div>
+</div>
+
+<div class="quiz" id="quiz3">
+  <h3>🧠 Quiz 3：实战判断</h3>
+  <p>你的示波器显示波形集中在下半部分（0~400 区域），上半部分几乎是空的。这说明什么？你应该怎么做？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', true)">A. 画面欠曝，应该先提亮度/光感，把波形整体往上推</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">B. 画面对比度不够，应该加对比度</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">C. 画面过曝，应该压暗高光</div>
+  <div class="feedback correct-fb" id="quiz3-correct">✅ 正确！波形集中在下半部分 = 整个画面的亮度信息偏暗 = 欠曝。第一步是提亮整体（亮度或光感），让波形回到合理位置。之后再看是否需要调对比度。</div>
+  <div class="feedback wrong-fb" id="quiz3-wrong">❌ 波形在下半部分意味着画面大部分像素都很暗。"上半部分是空的"说明画面里几乎没有亮的区域——这是典型的欠曝特征。</div>
+</div>
+
+<h2>八、动手练习</h2>
+
+<div class="practice">
+  <h3>🎬 实操任务</h3>
+  <p>打开剪映专业版，找一段你之前拍的"看起来灰蒙蒙"的日常素材，按照以下步骤操作：</p>
+  <ul class="checklist">
+    <li>开启示波器，观察波形的分布位置</li>
+    <li>调整亮度/光感，让波形中心回到中线附近</li>
+    <li>调整色温+色调，让画面中的白色物体看起来是中性白</li>
+    <li>压高光（-20~-40），提阴影（+20~+40），然后对比度 +10~+15</li>
+    <li>打开曲线，做一个轻微的 S 曲线（两个锚点，小幅位移）</li>
+    <li>对比调整前后：是不是从"灰片"变成了"清透"？</li>
+  </ul>
+  <p style="margin-top: 1rem; color: var(--muted);">📌 关键：<strong>不要追求"好看"</strong>。一级校色的目标是"正确"——画面看起来自然、中性、层次分明。"好看"是下一步（风格化）的事。</p>
+</div>
+
+<div class="next-steps">
+  <h3>📍 下一步</h3>
+  <p>做完练习后跟我说效果如何——遇到任何问题（比如"不确定白平衡对不对"、"S 曲线拉多少算多"）都可以问我。</p>
+  <p style="margin-top: 0.8rem;">下节课：<strong>色轮与分区调色</strong> — 学会给暗部、中间调、高光分别"染色"，这是电影感调色的核心武器。</p>
+  <p style="margin-top: 1rem; color: var(--muted);">有任何不清楚的地方，随时问我 🎬</p>
+</div>
+
+<script>
+function checkAnswer(el, quizId, correct) {
+  const quiz = document.getElementById(quizId);
+  const options = quiz.querySelectorAll('.quiz-option');
+  const correctFb = document.getElementById(quizId + '-correct');
+  const wrongFb = document.getElementById(quizId + '-wrong');
+  options.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
+  correctFb.classList.remove('show');
+  wrongFb.classList.remove('show');
+  if (correct) { el.classList.add('correct'); correctFb.classList.add('show'); }
+  else { el.classList.add('wrong'); wrongFb.classList.add('show'); }
+}
+</script>
+
+</body>
+</html>

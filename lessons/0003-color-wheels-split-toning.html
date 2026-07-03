@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 03 — 色轮与分区调色：给画面"染"上情绪</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --text: #eaeaea;
+    --muted: #a0a0b0;
+    --success: #4ecca3;
+    --warning: #f0a500;
+    --info: #6ecbf5;
+    --purple: #b388ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #e94560, #b388ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+  h2 {
+    color: var(--purple);
+    font-size: 1.4rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(179,136,255,0.3);
+  }
+  h3 { color: var(--success); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card.insight { border-left: 4px solid var(--success); }
+  .card.warning { border-left: 4px solid var(--warning); }
+  .card.action { border-left: 4px solid var(--info); }
+  .card.principle { border-left: 4px solid var(--purple); }
+  code {
+    background: rgba(179,136,255,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .three-wheels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .wheel-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 1.2rem;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .wheel-card h4 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .wheel-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .wheel-card p { font-size: 0.85rem; color: var(--muted); margin: 0; }
+  .influence-bar {
+    height: 20px;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+    position: relative;
+  }
+  .influence-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+  }
+  .demo-scene {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .scene-box {
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .scene-box .title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+  .scene-box .desc { font-size: 0.8rem; opacity: 0.8; }
+  .recipe {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(179,136,255,0.2);
+  }
+  .recipe h4 {
+    color: var(--purple);
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+  }
+  .recipe-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0.4rem 0;
+    font-size: 0.9rem;
+  }
+  .recipe-label {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+  .color-dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .param-table th, .param-table td {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .param-table th { color: var(--muted); font-size: 0.8rem; }
+  .practice {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(240,165,0,0.3);
+  }
+  .practice h3 { color: var(--warning); margin-top: 0; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 0.4rem 0; padding-left: 1.5rem; position: relative; }
+  .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--muted); }
+  .quiz {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz h3 { color: var(--warning); margin-top: 0; }
+  .quiz-option {
+    display: block;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--accent); }
+  .quiz-option.correct { border-color: var(--success); background: rgba(78,204,163,0.1); }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+  .feedback { display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(78,204,163,0.1); border: 1px solid var(--success); }
+  .feedback.wrong-fb { background: rgba(233,69,96,0.1); border: 1px solid var(--accent); }
+  .next-steps {
+    background: linear-gradient(135deg, var(--surface), var(--card));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 3rem;
+  }
+  .next-steps h3 { color: var(--warning); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  @media (max-width: 600px) {
+    .three-wheels { grid-template-columns: 1fr; }
+    .demo-scene { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Lesson 03 — 色轮与分区调色</h1>
+<p class="subtitle">给画面的暗部、中间调、高光分别"染"上颜色——电影感的核心武器</p>
+
+<p>上节课你学会了把灰片变清透（一级校色）。现在画面是一块干净的画布。</p>
+<p>这节课开始<strong>往画布上"涂颜色"</strong>——但不是整块涂，而是<strong>分区域涂</strong>：暗的地方一种色调，亮的地方另一种色调。这就是电影感调色最核心的技巧。</p>
+
+<h2>一、为什么要"分区"上色？</h2>
+
+<div class="card insight">
+  <h3>💡 核心直觉</h3>
+  <p>你看到的世界本身就是分区上色的——</p>
+  <ul>
+    <li>阴影里通常偏冷（因为没有直射暖光，只有散射的蓝天光）</li>
+    <li>高光处通常偏暖（因为太阳光、灯光本身是暖色的）</li>
+  </ul>
+  <p>电影调色师做的事情，就是<strong>强化这种自然的冷暖分离</strong>，让画面有"空气感"和"立体感"。</p>
+  <p style="margin-top: 0.5rem;">如果你只用色温滑块——整个画面统一偏暖或偏冷——画面会"平"。分区上色才能制造<strong>层次</strong>。</p>
+</div>
+
+<h2>二、色轮工具：三个独立的"调色盘"</h2>
+
+<div class="card action">
+  <h3>🖥️ 剪映中找到色轮</h3>
+  <p>选中片段 → 右侧"调节"面板 → 切换到"色轮"选项卡</p>
+  <p>你会看到三个圆形色轮：<strong>阴影 (Shadows)</strong>、<strong>中间调 (Midtones)</strong>、<strong>高光 (Highlights)</strong></p>
+</div>
+
+<div class="three-wheels">
+  <div class="wheel-card">
+    <div class="icon">🌑</div>
+    <h4 style="color: #74c0fc;">阴影 Shadows</h4>
+    <p>控制画面中<strong>暗</strong>的区域的色彩倾向</p>
+    <div class="influence-bar" style="background: rgba(255,255,255,0.05);">
+      <div class="fill" style="background: linear-gradient(to right, #74c0fc, transparent); width: 60%;"></div>
+    </div>
+    <p style="font-size: 0.75rem;">影响力：暗部最强 → 中间调渐弱 → 高光无</p>
+  </div>
+  <div class="wheel-card">
+    <div class="icon">🌓</div>
+    <h4 style="color: #69db7c;">中间调 Midtones</h4>
+    <p>控制画面中<strong>中等亮度</strong>区域的色彩</p>
+    <div class="influence-bar" style="background: rgba(255,255,255,0.05);">
+      <div class="fill" style="background: linear-gradient(to right, transparent, #69db7c 50%, transparent); width: 100%;"></div>
+    </div>
+    <p style="font-size: 0.75rem;">影响力：两端弱 → 中间最强</p>
+  </div>
+  <div class="wheel-card">
+    <div class="icon">🌕</div>
+    <h4 style="color: #ffd43b;">高光 Highlights</h4>
+    <p>控制画面中<strong>亮</strong>的区域的色彩倾向</p>
+    <div class="influence-bar" style="background: rgba(255,255,255,0.05);">
+      <div class="fill" style="background: linear-gradient(to left, #ffd43b, transparent); width: 60%; right: 0; left: auto;"></div>
+    </div>
+    <p style="font-size: 0.75rem;">影响力：暗部无 → 中间调渐强 → 高光最强</p>
+  </div>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ 关键认知：区域是重叠的！</h3>
+  <p>很多人以为三个色轮各管三分之一的画面——其实不是。它们的影响范围是<strong>渐变重叠</strong>的：</p>
+  <ul>
+    <li>阴影色轮：暗部 100% 影响 → 逐渐减弱 → 高光处 0% 影响</li>
+    <li>高光色轮：亮部 100% 影响 → 逐渐减弱 → 暗部处 0% 影响</li>
+    <li>中间调色轮：中间最强，两端减弱（但覆盖范围最广！）</li>
+  </ul>
+  <p style="color: var(--muted); margin-top: 0.5rem;">所以中间调是"画面的整体基调"——调它影响面积最大。新手容易忽略它。</p>
+</div>
+
+<h2>三、操作方法</h2>
+
+<div class="card">
+  <h3>如何使用色轮</h3>
+  <ol>
+    <li>色轮中心有一个<strong>小圆点</strong>（控制点）</li>
+    <li><strong>拖动方向</strong> = 选择你要添加的颜色（往蓝色方向拖 = 加蓝）</li>
+    <li><strong>拖动距离</strong> = 控制颜色强度（离中心越远 = 颜色越浓）</li>
+    <li>每个色轮旁边通常有一个<strong>亮度滑块</strong>——控制该区域的整体明暗</li>
+  </ol>
+  <p style="color: var(--muted); margin-top: 0.8rem;">💡 <strong>核心操作原则</strong>：动作要小！拖离中心一点点就够了。色轮非常敏感，拖太远画面会严重偏色。</p>
+</div>
+
+<h2>四、电影感经典配方：暗部冷 + 高光暖</h2>
+
+<p>这是最经典、最万能的电影感分区调色方案。理解了它，你就理解了 90% 的电影调色逻辑。</p>
+
+<div class="demo-scene">
+  <div class="scene-box" style="background: linear-gradient(180deg, hsl(30,60%,70%) 0%, hsl(30,40%,45%) 30%, hsl(200,50%,25%) 100%);">
+    <span class="title" style="color: #fff;">✅ 暗冷 + 亮暖</span>
+    <span class="desc" style="color: rgba(255,255,255,0.8);">阴影偏青蓝，高光偏暖橙<br>= 有空气感、有立体感</span>
+  </div>
+  <div class="scene-box" style="background: linear-gradient(180deg, hsl(30,50%,65%) 0%, hsl(30,40%,50%) 50%, hsl(30,30%,30%) 100%);">
+    <span class="title" style="color: #fff;">❌ 全画面统一暖</span>
+    <span class="desc" style="color: rgba(255,255,255,0.8);">只用色温加暖<br>= 平坦、缺乏层次</span>
+  </div>
+</div>
+
+<div class="card insight">
+  <h3>💡 为什么"暗冷亮暖"如此有效？三重原因</h3>
+  <ol>
+    <li><strong>符合自然光学</strong> — 现实中阴影接收天空散射光（偏蓝），高光受直射光照（偏暖）。符合人眼预期 = 画面自然。</li>
+    <li><strong>肤色分离</strong> — 人的肤色天然在橙黄区间（色轮 15°~35°）。高光偏暖 = 肤色自然；阴影偏冷 = 环境退后，人物凸出。</li>
+    <li><strong>色彩对比</strong> — 青和橙是互补色（Lesson 01 学过），互补 = 最强视觉张力。画面自动有"电影感"。</li>
+  </ol>
+</div>
+
+<h2>五、三种经典分区配方</h2>
+
+<div class="recipe">
+  <h4>🎬 配方 A：经典电影感（青橙 Teal & Orange）</h4>
+  <div class="recipe-row">
+    <span class="recipe-label">阴影</span>
+    <span><span class="color-dot" style="background: hsl(195, 70%, 40%);"></span>偏青/蓝绿方向，小幅</span>
+  </div>
+  <div class="recipe-row">
+    <span class="recipe-label">中间调</span>
+    <span><span class="color-dot" style="background: hsl(35, 30%, 50%);"></span>微偏暖（或不动）</span>
+  </div>
+  <div class="recipe-row">
+    <span class="recipe-label">高光</span>
+    <span><span class="color-dot" style="background: hsl(30, 70%, 65%);"></span>偏橙/暖黄方向，小幅</span>
+  </div>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem;">效果：好莱坞大片感、人物突出、空间感强。适合城市、旅行、人像。</p>
+</div>
+
+<div class="recipe">
+  <h4>🌅 配方 B：暖调怀旧（Golden Hour 延长）</h4>
+  <div class="recipe-row">
+    <span class="recipe-label">阴影</span>
+    <span><span class="color-dot" style="background: hsl(270, 30%, 35%);"></span>偏紫/蓝紫方向，小幅</span>
+  </div>
+  <div class="recipe-row">
+    <span class="recipe-label">中间调</span>
+    <span><span class="color-dot" style="background: hsl(35, 50%, 55%);"></span>偏暖橙</span>
+  </div>
+  <div class="recipe-row">
+    <span class="recipe-label">高光</span>
+    <span><span class="color-dot" style="background: hsl(45, 60%, 70%);"></span>偏黄/金色方向</span>
+  </div>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem;">效果：黄金时刻延长感、温暖回忆、夏日午后。适合日落、情侣、治愈类 Vlog。</p>
+</div>
+
+<div class="recipe">
+  <h4>🧊 配方 C：冷调高级感（Cool Cinematic）</h4>
+  <div class="recipe-row">
+    <span class="recipe-label">阴影</span>
+    <span><span class="color-dot" style="background: hsl(220, 60%, 30%);"></span>偏深蓝方向</span>
+  </div>
+  <div class="recipe-row">
+    <span class="recipe-label">中间调</span>
+    <span><span class="color-dot" style="background: hsl(200, 20%, 45%);"></span>微偏冷（或不动）</span>
+  </div>
+  <div class="recipe-row">
+    <span class="recipe-label">高光</span>
+    <span><span class="color-dot" style="background: hsl(190, 30%, 70%);"></span>偏青白/冷白方向，小幅</span>
+  </div>
+  <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem;">效果：冷峻、克制、高级。适合都市夜景、科技感、孤独/沉思情绪。</p>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ 配方不是公式——是起点</h3>
+  <p>这些配方告诉你"方向在哪"，但<strong>具体拖多远要靠你的眼睛和素材决定</strong>。</p>
+  <p>同一个配方，室内素材和户外素材需要的强度完全不同。关键是理解<strong>为什么这个方向有效</strong>——有了理解，你可以随时根据画面反馈调整。</p>
+</div>
+
+<h2>六、常见错误与避坑</h2>
+
+<div class="card">
+  <table class="param-table">
+    <tr><th>错误</th><th>表现</th><th>原因</th><th>怎么修</th></tr>
+    <tr><td>色轮拖太远</td><td>画面严重偏色、不自然</td><td>色轮极其敏感</td><td>从中心开始，一点一点拖，边调边看</td></tr>
+    <tr><td>三个区域方向冲突</td><td>画面"脏"、颜色混浊</td><td>色彩搭配不和谐</td><td>坚持互补/相似色逻辑，不要随意</td></tr>
+    <tr><td>忽略中间调</td><td>调了阴影高光但画面还是"平"</td><td>中间调占画面最大面积</td><td>中间调决定"基调"，不能空着</td></tr>
+    <tr><td>没做一级校色就上色轮</td><td>色偏+风格化叠加，颜色不可控</td><td>画布不干净</td><td>永远先一级校色，再风格化</td></tr>
+    <tr><td>肤色变绿/变紫</td><td>人物看起来"生病"</td><td>中间调/高光方向影响了肤色</td><td>避免中间调偏绿；后续用 HSL 保护肤色</td></tr>
+  </table>
+</div>
+
+<h2>七、进阶理解：Lift / Gamma / Gain</h2>
+
+<p>如果你未来看到 DaVinci Resolve 或其他调色教程提到 <code>Lift / Gamma / Gain</code>，它们和剪映的"阴影/中间调/高光"色轮本质相同：</p>
+
+<div class="card">
+  <table class="param-table">
+    <tr><th>专业术语</th><th>剪映对应</th><th>影响区域</th></tr>
+    <tr><td>Lift</td><td>阴影色轮</td><td>暗部最强 → 亮部衰减至 0</td></tr>
+    <tr><td>Gamma</td><td>中间调色轮</td><td>中间调最强 → 两端衰减</td></tr>
+    <tr><td>Gain</td><td>高光色轮</td><td>亮部最强 → 暗部衰减至 0</td></tr>
+    <tr><td>Offset</td><td>（剪映无直接对应）</td><td>整个画面统一偏移（≈色温）</td></tr>
+  </table>
+  <p style="color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem;">知道这个对应关系，你就能看懂任何软件的调色教程，把思路迁移到剪映。</p>
+</div>
+
+<h2>八、小测验</h2>
+
+<div class="quiz" id="quiz1">
+  <h3>🧠 Quiz 1：分区逻辑</h3>
+  <p>为什么"暗部加青 + 高光加橙"能让人物从背景中自然分离？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">A. 因为青色和橙色都很鲜艳</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', true)">B. 因为人肤色天然偏橙，与青色背景形成互补对比，视觉上自动"跳"出来</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">C. 因为所有电影都这么调，观众已经习惯了</div>
+  <div class="feedback correct-fb" id="quiz1-correct">✅ 正确！人的肤色在色轮上天然处于橙黄区间（约 15°~35°）。当你把环境/暗部推向其互补色（青，约 180°~200°），两者形成最强视觉对比——不需要任何抠图，人物就自然"跳"出来了。这是视觉生理，不是审美习惯。</div>
+  <div class="feedback wrong-fb" id="quiz1-wrong">❌ 提示：想想 Lesson 01 学的互补色原理，再想想人的肤色在色轮上是什么颜色区间。</div>
+</div>
+
+<div class="quiz" id="quiz2">
+  <h3>🧠 Quiz 2：操作判断</h3>
+  <p>你用色轮给阴影加了很多青色，但发现整个画面（包括亮部）都变蓝了。最可能的原因是？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">A. 你的素材本身就很蓝</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">B. 阴影色轮坏了，影响了全局</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', true)">C. 你的素材整体偏暗，大部分像素都在"阴影"影响范围内</div>
+  <div class="feedback correct-fb" id="quiz2-correct">✅ 正确！如果你的素材曝光不足（大部分像素偏暗），那"阴影色轮"实际上影响的面积就非常大——因为几乎全画面都属于"暗部"。解决方法：先做好一级校色（提亮），让画面亮度分布合理，再来用色轮分区。这也再次证明了为什么一级校色必须先于风格化。</div>
+  <div class="feedback wrong-fb" id="quiz2-wrong">❌ 想想：色轮的三个区域是按"亮度"划分的。如果整个画面的像素都很暗，那"阴影"色轮影响的范围会有多大？</div>
+</div>
+
+<div class="quiz" id="quiz3">
+  <h3>🧠 Quiz 3：中间调的角色</h3>
+  <p>三个色轮中，哪个影响画面面积最大、决定画面的"整体基调"？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">A. 阴影 — 因为暗部信息量最大</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', true)">B. 中间调 — 因为大多数像素亮度处于中间区域，且覆盖范围最广</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">C. 高光 — 因为亮部最引人注目</div>
+  <div class="feedback correct-fb" id="quiz3-correct">✅ 正确！在正常曝光的画面中，大部分像素的亮度集中在中间区域。加上中间调色轮的影响范围是三个中最广的（向两端渐变），所以它实际上决定了画面的"整体色调倾向"。新手容易只调阴影和高光而忽略中间调——这是一个常见的遗漏。</div>
+  <div class="feedback wrong-fb" id="quiz3-wrong">❌ 想想正常曝光的画面：像素亮度是正态分布的——中间最多，极暗和极亮较少。再看看中间调色轮的影响范围有多广。</div>
+</div>
+
+<h2>九、动手练习</h2>
+
+<div class="practice">
+  <h3>🎬 实操任务：给你的清透素材上色</h3>
+  <p>拿上节课一级校色好的那段素材（或者任何已经做好一级校色的片段），尝试配方 A（经典青橙）：</p>
+  <ul class="checklist">
+    <li>切换到"色轮"面板</li>
+    <li>阴影色轮：把中心点往<strong>青色方向</strong>（大约 10~11 点钟方向）轻拖一小步</li>
+    <li>高光色轮：把中心点往<strong>橙色方向</strong>（大约 4~5 点钟方向）轻拖一小步</li>
+    <li>中间调：先不动，观察效果</li>
+    <li>如果画面整体偏冷/偏暖，用中间调微调来平衡</li>
+    <li>对比开/关效果：是不是画面有了"空气感"？人物是不是更突出了？</li>
+  </ul>
+  <p style="margin-top: 1rem; color: var(--muted);">📌 <strong>最重要的事</strong>：动作要小！每次只拖一点点（离中心 1~2mm 的距离）。如果感觉"太假"了，往回收。宁可太淡也不要太浓——高级感 = 克制。</p>
+</div>
+
+<div class="card insight">
+  <h3>💡 判断"做过了"的标志</h3>
+  <ul>
+    <li>白色物体明显偏蓝或偏橙 → 太过了</li>
+    <li>肤色变绿/变紫/不健康 → 中间调或高光方向有问题</li>
+    <li>画面看起来像"加了劣质滤镜" → 整体拖太远，全部往回收 50%</li>
+  </ul>
+  <p style="color: var(--muted); margin-top: 0.5rem;">好的分区调色应该让人感觉画面"更舒服了"但说不出具体改了什么——这就对了。</p>
+</div>
+
+<div class="next-steps">
+  <h3>📍 下一步</h3>
+  <p>下节课：<strong>HSL 精细控制</strong> — 学会单独调整某一个颜色（让天更蓝但不影响肤色，让草更绿但不影响衣服），这是调色的精细雕刻刀。</p>
+  <p style="margin-top: 0.8rem;">做完练习后告诉我感受——特别是如果你觉得"拖了但看不出变化"或"一拖就太假了"，这些都是典型问题，我可以帮你诊断。</p>
+  <p style="margin-top: 1rem; color: var(--muted);">有任何疑问随时问我 🎬</p>
+</div>
+
+<script>
+function checkAnswer(el, quizId, correct) {
+  const quiz = document.getElementById(quizId);
+  const options = quiz.querySelectorAll('.quiz-option');
+  const correctFb = document.getElementById(quizId + '-correct');
+  const wrongFb = document.getElementById(quizId + '-wrong');
+  options.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
+  correctFb.classList.remove('show');
+  wrongFb.classList.remove('show');
+  if (correct) { el.classList.add('correct'); correctFb.classList.add('show'); }
+  else { el.classList.add('wrong'); wrongFb.classList.add('show'); }
+}
+</script>
+
+</body>
+</html>

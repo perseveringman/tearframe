@@ -46,6 +46,23 @@ Tearframe 后端会自动选择底层抓取器：
 
 如果 OpenCLI 返回登录、浏览器桥接或配置错误，把错误原样告诉用户，让用户在本机 Chrome/OpenCLI 环境中修复后重试。
 
+## 快速口播剪辑模式
+
+当用户明确说“快速模式”“只剪重点口播”“这个视频主要看字幕/口播”“不用精品拉片，只要剪关键片段”，或样片明显是大段 talking-head / 讲座 / 访谈 / YouTube 字幕视频时，优先走快速口播剪辑，不要强行进入逐 shot 精品拉片。
+
+快速模式的目标是：agent 只分析 transcript，把最值得复用/二创/学习的口播段落提交为结构化时间段，再让 Tearframe 根据原视频裁出独立 clip samples。它不要求 `shots` / `frames`，不提交 `teardown.submit_storyboard`，也不声明 `visual_summary` / `composition_analysis` / `camera_angle` / `shot_size` 等视觉字段。
+
+推荐流程：
+
+1. `source.crawl` 探测来源；如果需要裁剪，必须用 `sample.import` 导入，确保本地有源视频且遵守 1080p 默认上限。
+2. `highlight.start({ sample_id, goal, max_clip_count, min_duration_sec, max_duration_sec, pad_sec })` 创建快速任务。默认会优先跑/复用 `transcript` 资源；YouTube 会优先取平台字幕。
+3. 用 `highlight.get_workspace({ highlight_id, start_sec?, end_sec?, q?, max_segments? })` 分窗口读取字幕；也可以先用 `highlight.suggest_segments({ highlight_id, keywords?, target_duration_sec?, max_candidates? })` 获取本地启发式候选，减少 agent 读完整 transcript 的 token。
+4. `highlight.submit_segments({ highlight_id, segments })` 提交最终片段。每段必须包含 `start_sec`、`end_sec`、`title`、`reason`，建议补 `transcript_excerpt`、`tags`、`confidence`。
+5. `highlight.materialize_clips({ highlight_id, segment_ids?, pad_sec? })` 把提交的时间段裁成独立 clip samples；没有本地源视频时会返回 `HIGHLIGHT_SOURCE_VIDEO_MISSING`，这时先用 `sample.import` 导入源。
+6. `highlight.finalize({ highlight_id })` 收尾。
+
+快速模式和精品拉片可以串联：先用 transcript 快速剪出 3-8 个重点 clip，再只对其中值得研究拍法/剪辑的 clip 走 `sample.preprocess(shots/frames)` + `teardown.start` 精品拉片。不要把快速模式生成的 transcript 片段伪装成已看图的 storyboard。
+
 ## 长片/电影/系列：必须走 Collection 容器
 
 > 适用于任何 `duration_sec > 2400` 秒（约 40 分钟）的视频，以及任何商业电影、纪录片、系列剧集、播客整集。

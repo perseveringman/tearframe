@@ -16,6 +16,19 @@ pnpm dev
 
 当用户说“拉片这个视频”时，外部 agent 必须先读取 `packages/skill/SKILL.md`，再通过 Tearframe MCP/REST 工具完成导入、预处理、提交卡片与 finalize。不要直接调用 `opencli`、`yt-dlp` 或 `ffmpeg` 绕过系统。
 
+如果用户目标是从大量口播里剪出重点片段，而不是学习画面/剪辑/拍法，优先使用快速口播剪辑协议：
+
+```bash
+pnpm tearframe tool sample.import '{"input":"https://www.youtube.com/watch?v=VIDEO_ID"}'
+pnpm tearframe tool highlight.start '{"sample_id":"<sample_id>","goal":"剪出最值得二创的关键观点","max_clip_count":8,"max_duration_sec":90}'
+pnpm tearframe tool highlight.suggest_segments '{"highlight_id":"<highlight_id>","target_duration_sec":45,"max_candidates":12}'
+pnpm tearframe tool highlight.submit_segments '{"highlight_id":"<highlight_id>","segments":[{"start_sec":123,"end_sec":168,"title":"关键观点","reason":"这一段给出可独立传播的结论"}]}'
+pnpm tearframe tool highlight.materialize_clips '{"highlight_id":"<highlight_id>"}'
+pnpm tearframe tool highlight.finalize '{"highlight_id":"<highlight_id>"}'
+```
+
+这条路径只依赖 transcript 和源视频，不要求 `shots` / `frames`，也不会提交 storyboard 视觉字段。
+
 样片导入默认限制在 1080p：如果平台同时提供 1080p 和 4K，后端会优先取 1080p，并对超限下载做本地降采样，避免把 4K 源文件留进拉片库。可通过 `TEARFRAME_MAX_DOWNLOAD_HEIGHT` 调整。
 
 YouTube 遇到 “Sign in to confirm you're not a bot” 时，后端会先按普通 `yt-dlp` 请求，失败后自动重试 `--cookies-from-browser chrome`。如果你的主浏览器不是 Chrome，或者需要指定 profile，再设置 `YTDLP_COOKIES_FROM_BROWSER`。

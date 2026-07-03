@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习记录视频创作手册</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e5e3da;
+    --text: #1a1a1a;
+    --text-muted: #6b6861;
+    --accent: #2d5be3;
+    --accent-light: #eef2fd;
+    --phase-colors: #e8f4e8, #fef3e2, #f0ebff, #fde8e8, #e8f4f8, #f8f0e8, #edf8ed, #fef6e8;
+    --green: #1a7f3c;
+    --orange: #c45c00;
+    --purple: #6b3fa0;
+    --red: #c0392b;
+    --blue: #1a5fa8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 56px 0 48px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+  .header p {
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+  .header .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Overview timeline */
+  .overview {
+    background: var(--text);
+    color: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 48px;
+  }
+  .overview h2 {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 20px;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .tl-item {
+    display: grid;
+    grid-template-columns: 100px 1fr 80px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-phase {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+  }
+  .tl-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: white;
+  }
+  .tl-time {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-align: right;
+  }
+
+  /* Phase sections */
+  .phase {
+    margin-bottom: 48px;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+  .phase-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: var(--text);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .phase-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .phase-time {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* Section within phase */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .num {
+    width: 24px;
+    height: 24px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* Code blocks for templates */
+  .template {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    color: #2d2d2d;
+    margin: 12px 0;
+    overflow-x: auto;
+  }
+
+  /* Folder tree */
+  .tree {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-family: 'Menlo', 'Monaco', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    margin: 12px 0;
+  }
+  .tree .folder { color: #569cd6; }
+  .tree .file { color: #9cdcfe; }
+
+  /* Checklist */
+  .checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+  }
+  .checklist li::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: 12px 0;
+  }
+  th {
+    background: var(--surface2);
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  /* Type tags */
+  .type-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+  }
+  .t1 { background: #fde8e8; color: #c0392b; }
+  .t2 { background: #fef3e2; color: #c45c00; }
+  .t3 { background: #eef2fd; color: #2d5be3; }
+  .t4 { background: #e8f4e8; color: #1a7f3c; }
+  .t5 { background: #f0ebff; color: #6b3fa0; }
+  .t6 { background: #fdf4e8; color: #b35c00; }
+  .t7 { background: #e8f4f8; color: #1a5fa8; }
+
+  /* Highlight box */
+  .highlight {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 14px;
+    margin: 12px 0;
+    color: #1a3a7a;
+  }
+
+  .warn {
+    background: #fffbf0;
+    border-left: 3px solid #f0a500;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 14px;
+    margin: 12px 0;
+    color: #7a5800;
+  }
+
+  /* Principle cards */
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .principle-card {
+    background: var(--text);
+    color: white;
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .principle-card .num {
+    font-size: 28px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.15);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .principle-card p {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* Step blocks */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 12px 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-body { padding-top: 4px; }
+  .step-body strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .step-body p { font-size: 13.5px; color: var(--text-muted); }
+
+  /* Phase 2 color bar */
+  .type-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+  }
+
+  /* Parallel schedule */
+  .schedule-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 12px 0;
+  }
+  .schedule-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+  }
+  .schedule-week {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .schedule-bar {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 6px 12px;
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* Formula box */
+  .formula {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-family: monospace;
+    margin: 8px 0;
+    color: var(--text);
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  p { margin: 8px 0; font-size: 14px; color: var(--text-muted); }
+  strong { color: var(--text); }
+
+  @media (max-width: 600px) {
+    .principles { grid-template-columns: 1fr; }
+    .tl-item { grid-template-columns: 80px 1fr; }
+    .tl-time { display: none; }
+    .phase-time { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="tag">11个技能 · 完整系统</div>
+    <h1>学习记录视频创作手册</h1>
+    <p>从决定学一个技能，到视频发布复盘的全流程操作系统</p>
+  </div>
+
+  <!-- Overview -->
+  <div class="overview">
+    <h2>流程总览</h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 0</span>
+        <span class="tl-name">启动准备</span>
+        <span class="tl-time">第0天 · 1小时</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 1</span>
+        <span class="tl-name">调研与计划</span>
+        <span class="tl-time">第1-7天</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 2</span>
+        <span class="tl-name">学习与拍摄</span>
+        <span class="tl-time">第1-30天 · 每天5分钟</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 3</span>
+        <span class="tl-name">脚本定稿</span>
+        <span class="tl-time">第30天后 · 2小时</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 4</span>
+        <span class="tl-name">素材整理</span>
+        <span class="tl-time">半天</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 5</span>
+        <span class="tl-name">剪辑</span>
+        <span class="tl-time">1天</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 6</span>
+        <span class="tl-name">审片与输出</span>
+        <span class="tl-time">2小时</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 7</span>
+        <span class="tl-name">封面标题发布</span>
+        <span class="tl-time">1小时</span>
+      </div>
+      <div class="tl-item">
+        <span class="tl-phase">PHASE 8</span>
+        <span class="tl-name">复盘</span>
+        <span class="tl-time">发布后48小时 · 30分钟</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 0 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 0</span>
+      <span class="phase-title">启动准备</span>
+      <span class="phase-time">第0天 · 1小时内完成</span>
+    </div>
+
+    <div class="warn">
+      第0天最重要的事：<strong>立刻拍，不要等准备好。</strong> 第1天的失败素材是整个视频最不可替代的内容，以后永远找不回来。
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>建立文件夹结构</div>
+      <p>11个技能统一使用同一套文件夹结构，建好模板后复制11份，只改技能名称。</p>
+      <div class="tree">
+<span class="folder">📁 [技能名称]/</span>
+├── <span class="folder">📁 00_素材_RAW/</span>
+│   ├── <span class="folder">📁 T1_开场失败/</span>
+│   ├── <span class="folder">📁 T2_动机/</span>
+│   ├── <span class="folder">📁 T3_调研计划/</span>
+│   ├── <span class="folder">📁 T4_日常练习/</span>
+│   ├── <span class="folder">📁 T5_状态记录/</span>
+│   ├── <span class="folder">📁 T6_转折时刻/</span>
+│   └── <span class="folder">📁 T7_成果对比/</span>
+├── <span class="folder">📁 01_素材_精选/</span>
+├── <span class="folder">📁 02_脚本/</span>
+├── <span class="folder">📁 03_旁白录音/</span>
+├── <span class="folder">📁 04_音乐/</span>
+├── <span class="folder">📁 05_封面/</span>
+└── <span class="folder">📁 06_输出/</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>动机备忘录（存入 02_脚本）</div>
+      <p>不超过5分钟，写完存档，剪辑时旁白直接从这里取。</p>
+      <div class="template">技能名称：___________
+开始日期：___________
+
+我为什么要学这个（不超过3句话）：
+___________________________________________
+
+我想达到的最小成功标准：
+___________________________________________
+
+我现在的水平是：
+___________________________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">3</span>第0天必拍清单</div>
+      <ul class="checklist">
+        <li>拍 <span class="type-tag t1">T1</span> 开场失败素材：做一次这件事，录下来，不管多丑</li>
+        <li>拍 <span class="type-tag t2">T2</span> 动机素材：对镜头说为什么要开始，30秒以内，不用好看</li>
+        <li>手机相册新建相册，命名格式：[技能名]_素材</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 1</span>
+      <span class="phase-title">调研与计划</span>
+      <span class="phase-time">第1-7天</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>调研记录模板（存入 02_脚本）</div>
+      <div class="template">【调研记录】技能：___________  日期：___________
+
+我找到的最有用的资源：
+1. ___________________________________________
+2. ___________________________________________
+3. ___________________________________________
+
+核心方法论（用自己的话总结，不超过5条）：
+1. ___________________________________________
+2. ___________________________________________
+3. ___________________________________________
+
+我决定不做的事（同样重要）：
+___________________________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>计划制定模板（存入 02_脚本）</div>
+      <div class="template">【30天计划】技能：___________
+
+第1周目标：___________________________________________
+第2周目标：___________________________________________
+第3周目标：___________________________________________
+第4周目标：___________________________________________
+
+每天最小执行单位（不可再缩小的动作）：
+___________________________________________
+
+触发条件（绑定在哪个现有习惯后面）：
+___________________________________________
+
+成功标准（第30天结束，我要能做到什么）：
+___________________________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">3</span>调研阶段必拍清单 <span class="type-tag t3">T3素材</span></div>
+      <ul class="checklist">
+        <li>屏幕录屏：搜索资料的过程</li>
+        <li>屏幕录屏：找到关键资源时的界面</li>
+        <li>拍照：手写或打字的计划页面（清晰可读，观众会截图）</li>
+        <li>拍照：让你决定"就用这个方法"的那个资源截图</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 2</span>
+      <span class="phase-title">学习与拍摄</span>
+      <span class="phase-time">第1-30天 · 每天5分钟</span>
+    </div>
+
+    <div class="highlight">
+      核心原则：<strong>每天只做一件事——练完立刻拍10秒，扔进对应文件夹。</strong> 不要积累，不要"等凑够了再整理"。
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>7种素材类型速查</div>
+      <table>
+        <tr>
+          <th>类型</th>
+          <th>拍什么</th>
+          <th>何时拍</th>
+        </tr>
+        <tr>
+          <td><span class="type-tag t1">T1 开场失败</span></td>
+          <td>第1次做这件事，越真实越好</td>
+          <td>第0天，立刻拍</td>
+        </tr>
+        <tr>
+          <td><span class="type-tag t2">T2 动机</span></td>
+          <td>若有所思的表情、触发你开始的那一刻</td>
+          <td>第0天</td>
+        </tr>
+        <tr>
+          <td><span class="type-tag t3">T3 调研计划</span></td>
+          <td>屏幕录屏、笔记、计划页面</td>
+          <td>第1周</td>
+        </tr>
+        <tr>
+          <td><span class="type-tag t4">T4 日常练习</span></td>
+          <td>每次练习过程，10-30秒，不求好看</td>
+          <td>每次练习时</td>
+        </tr>
+        <tr>
+          <td><span class="type-tag t5">T5 状态记录</span></td>
+          <td>搞砸的时刻 + 没状态但还是做了的画面</td>
+          <td>随时</td>
+        </tr>
+        <tr>
+          <td><span class="type-tag t6">T6 转折时刻</span></td>
+          <td>第一次感觉对了的完整片段</td>
+          <td>感觉突然对了时</td>
+        </tr>
+        <tr>
+          <td><span class="type-tag t7">T7 成果对比</span></td>
+          <td>第1天vs第30天做同一件事 + 感想直视镜头</td>
+          <td>第30天集中拍</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>拍摄规范</div>
+      <p><strong>固定机位：</strong>手机架在正前方，与眼睛等高，不需要布光，自然光即可。背景保持同一地点，混剪时有连贯感。</p>
+      <p style="margin-top:12px;"><strong>遇到以下情况，立刻拍：</strong></p>
+      <table>
+        <tr><th>情况</th><th>拍什么</th><th>放哪里</th></tr>
+        <tr><td>搞砸 / 失败 / 卡住</td><td>当下表情 + 3秒内容</td><td><span class="type-tag t5">T5</span></td></tr>
+        <tr><td>今天没状态但还是做了</td><td>开始练习的画面，哪怕5秒</td><td><span class="type-tag t5">T5</span></td></tr>
+        <tr><td>突然感觉对了</td><td>立刻重复一次完整录下来</td><td><span class="type-tag t6">T6</span></td></tr>
+        <tr><td>遇到好方法 / 工具</td><td>屏幕录屏或拍屏幕</td><td><span class="type-tag t3">T3</span></td></tr>
+        <tr><td>别人给你反馈</td><td>录下对话或拍截图</td><td><span class="type-tag t5">T5</span> / <span class="type-tag t6">T6</span></td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">3</span>每日日记模板（手机备忘录，每天1分钟）</div>
+      <p>这是剪辑时旁白的原材料，不是给别人看的，越真实越好。</p>
+      <div class="template">Day ___  [日期]
+
+今天做了：___________________________________________
+遇到的问题：___________________________________________
+一句真实感受：___________________________________________
+明天要改的一件事：___________________________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">4</span>转折时刻拍摄指引</div>
+      <div class="warn">
+        转折时刻是整个视频最重要的片段，但无法预测何时出现。一旦出现，立刻行动。
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">A</div>
+          <div class="step-body">
+            <strong>事先预感到</strong>
+            <p>把手机架好再做，完整录下来。不要手持，要能空出手做这件事。</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">B</div>
+          <div class="step-body">
+            <strong>事后才意识到</strong>
+            <p>立刻对着镜头说："刚才[发生了什么]，我的感受是[真实感受]"。哪怕背景乱、光线差——真实感 > 画面质量。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">5</span>第30天收尾素材清单 <span class="type-tag t7">T7素材</span></div>
+      <p>第30天专门留2小时拍这些，其余时间不用拍。</p>
+      <ul class="checklist">
+        <li>和第1天相同的事，做一遍，录下来（对比用）</li>
+        <li>拍所有能展示成果的东西（作品 / 记录截图 / 数据）</li>
+        <li>安静的地方，手机固定，直视镜头，说感想——不念稿，录多遍取最自然的一遍</li>
+        <li>把第1天素材和今天素材放一起，自己先看一遍，确认对比够不够明显</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 3</span>
+      <span class="phase-title">脚本定稿</span>
+      <span class="phase-time">第30天后 · 2小时</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>脚本模板（每个技能填一份，存入 02_脚本）</div>
+      <div class="highlight">参考来源：动机备忘录 + 调研记录 + 每日日记。脚本从这三份文档里取材，不要重新想。</div>
+      <div class="template">【视频脚本】技能：___________
+
+─── A. 开场钩子（10-20秒）───────────────────────────
+镜头：___________________________________________
+旁白：___________________________________________
+
+─── B. 为什么学（20-30秒）──────────────────────────
+镜头：___________________________________________
+旁白（参考动机备忘录）：
+___________________________________________
+
+─── C. 调研和计划（30-45秒）────────────────────────
+镜头：___________________________________________
+旁白（提炼最有价值的1-2条方法，观众能截图用的）：
+___________________________________________
+
+─── D. 过程混剪（45-60秒）──────────────────────────
+素材时间点：
+  Day 1-7：___________________________________________
+  Day 8-20：___________________________________________
+  Day 21-30：___________________________________________
+旁白（从每日日记选3-4天最真实的感受）：
+___________________________________________
+
+─── E. 转折（15-20秒）──────────────────────────────
+镜头：___________________________________________
+旁白：___________________________________________
+
+─── F. 成果+感想（20-30秒）─────────────────────────
+成果镜头：___________________________________________
+感想旁白（一句话，要是真正改变的认知，不要说"学会了坚持"）：
+___________________________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>旁白写作原则</div>
+      <table>
+        <tr><th>原则</th><th>说明</th></tr>
+        <tr><td>从日记取原句</td><td>不要重新发明，真实的话比"写好"的话有力量</td></tr>
+        <tr><td>每句不超过20字</td><td>超过就拆成两句</td></tr>
+        <tr><td>不解释，只描述</td><td>"我录了41遍" 好过 "这件事说明口播很难"</td></tr>
+        <tr><td>最后一句要具体</td><td>"说不清楚是因为没想清楚" 好过 "学会了坚持"</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 4</span>
+      <span class="phase-title">素材整理</span>
+      <span class="phase-time">半天</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>精选素材标准</div>
+      <p>把 00_RAW 全部过一遍，符合以下任意一条放入 01_精选。</p>
+      <table>
+        <tr><th>标准</th><th>说明</th></tr>
+        <tr><td>表情真实</td><td>皱眉 / 惊讶 / 发呆 > 微笑表演</td></tr>
+        <tr><td>有时间跨度</td><td>Day1、中期、Day30 三段都要覆盖到</td></tr>
+        <tr><td>有环境声</td><td>真实声音留着，后期可用做氛围</td></tr>
+        <tr><td>有明显变化</td><td>前后对比差距明显的片段优先选</td></tr>
+        <tr><td>转折完整</td><td>T6素材尽量保留完整片段，不要只选最后一帧</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>素材完整性检查清单</div>
+      <p>整理完成后，确认精选文件夹里有：</p>
+      <ul class="checklist">
+        <li><span class="type-tag t1">T1</span> 至少1条第0天失败素材</li>
+        <li><span class="type-tag t2">T2</span> 至少1条动机素材</li>
+        <li><span class="type-tag t3">T3</span> 至少2条调研/计划素材（含可读的计划页面）</li>
+        <li><span class="type-tag t4">T4</span> 覆盖 Day1、中期、Day30 三个时间段的练习素材</li>
+        <li><span class="type-tag t5">T5</span> 至少1条"没状态但还是做了"的素材</li>
+        <li><span class="type-tag t6">T6</span> 至少1条转折时刻素材（完整片段）</li>
+        <li><span class="type-tag t7">T7</span> 第1天 vs 第30天对比素材 + 直视镜头感想</li>
+      </ul>
+      <div class="warn">如有缺失，第30天补拍，不要跳过。</div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 5</span>
+      <span class="phase-title">剪辑</span>
+      <span class="phase-time">1天 · 分三步执行，不要混着做</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>Step 1：装桶（1小时，只分类不剪辑）</div>
+      <p>建6个序列/时间线，把精选素材对应放进去：</p>
+      <div class="template">序列A  →  T1素材：选最戏剧的1条
+序列B  →  T2素材：选最真实的1条
+序列C  →  T3素材：选最清晰的2-3条
+序列D  →  T4+T5素材：选有时间跨度的5-8条
+序列E  →  T6素材：选最完整的1条
+序列F  →  T7素材：对比素材 + 感想直视镜头</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>Step 2：录旁白（30分钟）</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>对照脚本，一个模块一个模块录</strong><p>不要一口气录完，每个模块之间停一下。</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>不念稿，把意思记在脑子里再说</strong><p>念稿听起来是念稿，说出来才是说话。</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>录错了不要停，继续录</strong><p>后期剪掉，比重录一遍省时间。每个模块录3遍，选最自然的。</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">3</span>Step 3：组装剪辑（2-3小时）</div>
+      <p>按 A→B→C→D→E→F 顺序，每个模块完成后再进下一个。</p>
+      <table>
+        <tr><th>模块</th><th>剪辑要点</th></tr>
+        <tr><td>A 开场</td><td>节奏要快，不超过20秒，第一句话是钩子</td></tr>
+        <tr><td>B 动机</td><td>画面节奏放慢，让观众代入你的状态</td></tr>
+        <tr><td>C 计划</td><td>确保计划页面清晰可读，停留够长（1.5秒以上）</td></tr>
+        <tr><td>D 过程</td><td>每个片段2-4秒，节奏先慢后快，配合旁白情绪剪切</td></tr>
+        <tr><td>E 转折</td><td>完整保留，不要剪太碎，给观众时间感受</td></tr>
+        <tr><td>F 感想</td><td>最后一句旁白无背景音乐，让话落地</td></tr>
+      </table>
+      <p style="margin-top:12px;"><strong>音乐节奏：</strong>开场无音乐或轻环境音 → 过程轻音乐 → 转折短暂升调 → 感想结尾音乐淡出</p>
+    </div>
+  </div>
+
+  <!-- PHASE 6 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 6</span>
+      <span class="phase-title">审片与输出</span>
+      <span class="phase-time">2小时</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>审片清单（输出前逐条确认）</div>
+      <p><strong>内容层面</strong></p>
+      <ul class="checklist">
+        <li>开场30秒：如果我是观众，我会继续看吗？</li>
+        <li>有没有废话（解释性的、没有信息量的句子）</li>
+        <li>计划那段：观众截图能用吗？文字清晰可读？</li>
+        <li>转折那段：我有没有真实表达当时的感受？</li>
+        <li>最后一句感想：是真的新认知，还是鸡汤？</li>
+      </ul>
+      <p style="margin-top:16px;"><strong>技术层面</strong></p>
+      <ul class="checklist">
+        <li>声音统一（旁白和现场收音音量平衡）</li>
+        <li>没有跳帧</li>
+        <li>字幕准确（如果有）</li>
+        <li>片尾有引导动作（关注 / 评论 / 下一期预告）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PHASE 7 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 7</span>
+      <span class="phase-title">封面标题发布</span>
+      <span class="phase-time">1小时</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>封面模板规范</div>
+      <p>11个视频封面统一格式，只换内容，不换风格。</p>
+      <div class="template">左侧：你的真实表情照（失败感 / 惊喜感 二选一）
+右侧：大字标题，2行以内
+底部：小字技能名称 + Day30
+色调：选定一种底色，11个视频全部使用</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>标题公式</div>
+      <div class="formula">公式A：我用30天[做到了什么]（[之前的状态]）</div>
+      <div class="formula">公式B：[具体成果]，从[起点]开始</div>
+      <div class="formula">公式C：[反直觉的感想结论]</div>
+      <table style="margin-top:12px;">
+        <tr><th>技能</th><th>公式A</th><th>公式C</th></tr>
+        <tr><td>英语口语</td><td>我用30天说出完整的英语（从录音删掉开始）</td><td>英语口语不需要词汇量，需要开口次数</td></tr>
+        <tr><td>声乐</td><td>我用30天学会控制自己的声音</td><td>你以为不擅长，只是没人教你对的方法</td></tr>
+        <tr><td>做菜</td><td>我用30天学会做12道菜</td><td>做菜学得快，是因为每天都要吃饭</td></tr>
+        <tr><td>剪辑</td><td>我用30天学会把想法剪成视频</td><td>剪辑难的不是技术，是判断</td></tr>
+        <tr><td>拍摄</td><td>我用30天拍出让人问我用什么相机的照片</td><td>学拍摄改变的不是手，是看世界的方式</td></tr>
+        <tr><td>收纳</td><td>我用30天让自己回家不再感觉累</td><td>你真正需要的，比你以为的少很多</td></tr>
+        <tr><td>口播</td><td>我用30天从录41遍到一遍过</td><td>说不清楚，是因为没想清楚</td></tr>
+        <tr><td>分析博主</td><td>我用30天学会"读"视频</td><td>好的表达不是天生的，是设计的</td></tr>
+        <tr><td>跳舞</td><td>我用30天让身体知道怎么动</td><td>学跳舞学的不是动作，是对身体的控制</td></tr>
+        <tr><td>设计</td><td>我用30天从将就变成喜欢</td><td>学设计先练眼，眼光到了手只是时间</td></tr>
+        <tr><td>5公里</td><td>我用30天从800米到5公里</td><td>不需要今天很好，只需要今天没放弃</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">3</span>发布前检查清单</div>
+      <ul class="checklist">
+        <li>封面导出尺寸正确</li>
+        <li>标题确认无错字</li>
+        <li>视频描述写好（讲了什么 + 计划时间线 + 下一期预告）</li>
+        <li>话题标签准备好</li>
+        <li>发布时间选好（不要深夜发）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PHASE 8 -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">PHASE 8</span>
+      <span class="phase-title">复盘</span>
+      <span class="phase-time">发布后48小时 · 30分钟</span>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">1</span>复盘模板（存入 02_脚本）</div>
+      <div class="template">【发布复盘】技能：___________  发布日期：___________
+
+数据（48小时）：
+播放量：___  完播率：___  点赞：___  评论数：___
+
+评论里最多人提的问题：
+___________________________________________
+
+观众在哪里停止看（如果平台有数据）：
+___________________________________________
+
+我觉得最薄弱的部分是：
+___________________________________________
+
+下一个视频要改的一件事：
+___________________________________________</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="num">2</span>11个视频的迭代节奏</div>
+      <div class="highlight">
+        不要等11个都做完再复盘。<strong>每发一个复盘一次，带着这个改动做下一个。</strong> 11个视频发完，你已经迭代了11次。
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Parallel Schedule -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">附录</span>
+      <span class="phase-title">11个技能并行时间表</span>
+    </div>
+
+    <div class="section">
+      <p>错峰启动，避免同时进入剪辑期。每个技能从启动到发布约5-6周。</p>
+      <div class="schedule-grid" style="margin-top:16px;">
+        <div class="schedule-row"><span class="schedule-week">第1-2周</span><div class="schedule-bar">英语口语</div></div>
+        <div class="schedule-row"><span class="schedule-week">第3-4周</span><div class="schedule-bar">5公里长跑</div></div>
+        <div class="schedule-row"><span class="schedule-week">第5-6周</span><div class="schedule-bar">做菜</div></div>
+        <div class="schedule-row"><span class="schedule-week">第7-8周</span><div class="schedule-bar">收纳</div></div>
+        <div class="schedule-row"><span class="schedule-week">第9-10周</span><div class="schedule-bar">口播</div></div>
+        <div class="schedule-row"><span class="schedule-week">第11-12周</span><div class="schedule-bar">拍摄</div></div>
+        <div class="schedule-row"><span class="schedule-week">第13-14周</span><div class="schedule-bar">剪辑</div></div>
+        <div class="schedule-row"><span class="schedule-week">第15-16周</span><div class="schedule-bar">声乐</div></div>
+        <div class="schedule-row"><span class="schedule-week">第17-18周</span><div class="schedule-bar">跳舞</div></div>
+        <div class="schedule-row"><span class="schedule-week">第19-20周</span><div class="schedule-bar">设计</div></div>
+        <div class="schedule-row"><span class="schedule-week">第21-22周</span><div class="schedule-bar">分析博主表达</div></div>
+      </div>
+      <p style="margin-top:12px;">按此节奏，平均每2-3周发一条，11个视频全部发布完毕约在第7个月，频率稳定且不会崩。</p>
+    </div>
+  </div>
+
+  <!-- Core Principles -->
+  <div class="phase">
+    <div class="phase-header">
+      <span class="phase-badge">核心原则</span>
+      <span class="phase-title">贴在桌上</span>
+    </div>
+    <div class="principles">
+      <div class="principle-card">
+        <div class="num">01</div>
+        <p>第0天立刻拍，不要等准备好</p>
+      </div>
+      <div class="principle-card">
+        <div class="num">02</div>
+        <p>每天5分钟素材，不要积累</p>
+      </div>
+      <div class="principle-card">
+        <div class="num">03</div>
+        <p>真实感 > 画面质量，永远</p>
+      </div>
+      <div class="principle-card">
+        <div class="num">04</div>
+        <p>脚本从日记里取，不要重新想</p>
+      </div>
+      <div class="principle-card">
+        <div class="num">05</div>
+        <p>剪辑是组装，不是创作——素材好，剪辑就快</p>
+      </div>
+      <div class="principle-card">
+        <div class="num">06</div>
+        <p>每发一个复盘一次，带着改动做下一个</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

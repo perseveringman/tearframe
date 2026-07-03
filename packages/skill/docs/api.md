@@ -19,6 +19,12 @@
 - `sample.get_resources`：读取预处理资源状态。
 - `sample.preprocess`：触发 shots/transcript/frames 预处理。
 - `sample.upload_resource`：agent 自己生成资源后上传复用。
+- `highlight.start`：启动快速口播剪辑任务；只依赖 transcript，不要求 shots/frames。
+- `highlight.get_workspace`：按时间窗/关键词读取字幕工作区，避免一次读取超长 transcript。
+- `highlight.suggest_segments`：基于字幕本地启发式生成候选口播高光，不调用 LLM。
+- `highlight.submit_segments`：提交 agent 选出的关键口播时间段、标题和选择理由。
+- `highlight.materialize_clips`：把关键时间段裁成独立 clip samples。
+- `highlight.finalize`：完成快速口播剪辑任务。
 - `teardown.list`：列出拉片任务/产物。
 - `teardown.start`：创建拉片任务。
 - `teardown.get`：读取拉片详情。
@@ -43,6 +49,8 @@
 
 ## UI 供料说明
 
+快速口播剪辑不走下列 storyboard/card 供料契约；它只给 Tearframe 留下 highlight run、segment、clip sample。只有当用户要研究画面、拍法、剪辑和模板复刻时，才进入精品拉片协议。
+
 详情页不是按卡片平铺，而是按学习方向 Tabs 展示。agent 提交数据时要保证这些调用能喂饱页面：
 
 - `teardown.submit_card`：为“快速看懂 / 为什么留人 / 故事线 / 怎么组织 / 怎么拍 / 怎么剪 / 声音字幕 / 怎么复刻”提供结构化发现。
@@ -55,6 +63,28 @@ storyboard beat 必须尽量覆盖 `sample.get_resources` 中 shots 的每一个
 
 ```bash
 scripts/validate_storyboard.py --storyboard <storyboard.json> --shots <shots.json> --frames <frames/index.json> --strict
+```
+
+## 快速口播剪辑示例
+
+```json
+{
+  "tool": "highlight.submit_segments",
+  "input": {
+    "highlight_id": "hl_...",
+    "segments": [
+      {
+        "start_sec": 126.4,
+        "end_sec": 178.2,
+        "title": "从误区切入到核心方法",
+        "transcript_excerpt": "很多人以为练习越多越好，但真正的问题是反馈回路太慢...",
+        "reason": "这一段有明确反常识、问题诊断和可独立传播的解决方向，适合裁成 45-60 秒关键片段。",
+        "tags": ["method", "contrarian"],
+        "confidence": 0.86
+      }
+    ]
+  }
+}
 ```
 
 整体故事线必须写进 `structure.storyline`，用于解释作者如何安排观众的理解、期待和回收。提交 structure 卡前运行：

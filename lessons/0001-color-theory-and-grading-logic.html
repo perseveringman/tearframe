@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 01 — 色彩的语言：理解调色的底层逻辑</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --text: #eaeaea;
+    --muted: #a0a0b0;
+    --success: #4ecca3;
+    --warning: #f0a500;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #e94560, #f0a500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+  h2 {
+    color: var(--accent);
+    font-size: 1.4rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(233,69,96,0.3);
+  }
+  h3 { color: var(--success); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card.insight {
+    border-left: 4px solid var(--success);
+  }
+  .card.warning {
+    border-left: 4px solid var(--warning);
+  }
+  .color-wheel {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+  }
+  .color-wheel svg { max-width: 320px; width: 100%; }
+  .demo-strip {
+    display: flex;
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+    height: 60px;
+  }
+  .demo-strip div { flex: 1; }
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .comparison > div {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .comparison .label { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+  code {
+    background: rgba(233,69,96,0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .quiz {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz h3 { color: var(--warning); margin-top: 0; }
+  .quiz-option {
+    display: block;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--accent); }
+  .quiz-option.correct { border-color: var(--success); background: rgba(78,204,163,0.1); }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+  .feedback { display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(78,204,163,0.1); border: 1px solid var(--success); }
+  .feedback.wrong-fb { background: rgba(233,69,96,0.1); border: 1px solid var(--accent); }
+  .next-steps {
+    background: linear-gradient(135deg, var(--surface), var(--card));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 3rem;
+  }
+  .next-steps h3 { color: var(--warning); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  .tag {
+    display: inline-block;
+    background: rgba(233,69,96,0.2);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Lesson 01 — 色彩的语言</h1>
+<p class="subtitle">理解调色的底层逻辑，而不是记参数</p>
+
+<p>这节课不会教你"把饱和度拉到+30"。我们要解决一个更根本的问题：<strong>当你面对一段素材，你的大脑应该怎么"想"调色？</strong></p>
+
+<p>学完这节课，你将拥有一个思维框架，让你面对任何素材都能做出有依据的调色决策。</p>
+
+<h2>一、色彩的三个维度：HSL</h2>
+
+<p>所有的调色操作，本质上都是在操控三个东西：</p>
+
+<div class="card">
+  <p><strong>色相 (Hue)</strong> — 是什么颜色？红、橙、黄、绿、青、蓝、紫</p>
+  <p><strong>饱和度 (Saturation)</strong> — 颜色有多鲜艳？从灰到纯色</p>
+  <p><strong>明度 (Lightness/Value)</strong> — 颜色有多亮？从黑到白</p>
+</div>
+
+<p>你可能已经知道这三个概念。但关键不是定义——是<strong>理解它们如何决定画面的情绪</strong>：</p>
+
+<div class="comparison">
+  <div>
+    <div class="demo-strip">
+      <div style="background: hsl(200, 80%, 50%)"></div>
+      <div style="background: hsl(200, 60%, 50%)"></div>
+      <div style="background: hsl(200, 40%, 50%)"></div>
+      <div style="background: hsl(200, 20%, 50%)"></div>
+      <div style="background: hsl(200, 5%, 50%)"></div>
+    </div>
+    <p class="label">饱和度递减 → 情绪从"活力"走向"沉静/忧郁"</p>
+  </div>
+  <div>
+    <div class="demo-strip">
+      <div style="background: hsl(30, 70%, 30%)"></div>
+      <div style="background: hsl(30, 70%, 40%)"></div>
+      <div style="background: hsl(30, 70%, 55%)"></div>
+      <div style="background: hsl(30, 70%, 70%)"></div>
+      <div style="background: hsl(30, 70%, 85%)"></div>
+    </div>
+    <p class="label">明度递增 → 情绪从"厚重/紧张"走向"轻盈/明快"</p>
+  </div>
+</div>
+
+<div class="card insight">
+  <h3>💡 核心洞察</h3>
+  <p>调色不是在"修"画面，而是在用色彩的三个维度<strong>讲述情绪</strong>。当你降低饱和度，你不是在"让颜色不那么艳"，你是在让画面变得<strong>克制、冷静、有距离感</strong>——这正是"电影感"的核心要素之一。</p>
+</div>
+
+<h2>二、色轮与色彩关系：为什么电影总是"青橙"？</h2>
+
+<p>色相不是孤立存在的。它们在色轮上有<strong>关系</strong>，这些关系决定了画面的和谐度与冲击力：</p>
+
+<div class="color-wheel">
+<svg viewBox="0 0 300 300">
+  <!-- 简化色轮 -->
+  <circle cx="150" cy="150" r="120" fill="none" stroke="url(#wheelGrad)" stroke-width="30"/>
+  <defs>
+    <linearGradient id="wheelGrad">
+      <stop offset="0%" stop-color="hsl(0, 80%, 55%)"/>
+      <stop offset="16%" stop-color="hsl(60, 80%, 55%)"/>
+      <stop offset="33%" stop-color="hsl(120, 80%, 55%)"/>
+      <stop offset="50%" stop-color="hsl(180, 80%, 55%)"/>
+      <stop offset="66%" stop-color="hsl(240, 80%, 55%)"/>
+      <stop offset="83%" stop-color="hsl(300, 80%, 55%)"/>
+      <stop offset="100%" stop-color="hsl(360, 80%, 55%)"/>
+    </linearGradient>
+  </defs>
+  <!-- 互补色连线：蓝橙 -->
+  <line x1="75" y1="80" x2="225" y2="220" stroke="#fff" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"/>
+  <circle cx="75" cy="80" r="8" fill="hsl(210, 80%, 55%)"/>
+  <circle cx="225" cy="220" r="8" fill="hsl(30, 80%, 55%)"/>
+  <text x="55" y="68" fill="#fff" font-size="11">蓝/青</text>
+  <text x="205" y="248" fill="#fff" font-size="11">橙/暖</text>
+  <text x="110" y="155" fill="var(--muted)" font-size="10">互补 (180°)</text>
+</svg>
+</div>
+
+<div class="card">
+  <h3>三种核心色彩关系</h3>
+  <ol>
+    <li><strong>互补色</strong>（色轮上对角 180°）— 产生最强对比，如<code>青 ↔ 橙</code>、<code>红 ↔ 绿</code></li>
+    <li><strong>相似色</strong>（色轮上相邻 30°~60°）— 和谐统一，如<code>橙 + 黄 + 红</code></li>
+    <li><strong>三角配色</strong>（色轮上 120° 间隔）— 丰富但平衡，如<code>红 + 蓝 + 黄</code></li>
+  </ol>
+</div>
+
+<div class="card insight">
+  <h3>💡 为什么好莱坞爱"青橙"(Teal & Orange)?</h3>
+  <p>人的肤色天然偏暖（橙黄区间）。当你把背景/阴影推向冷色（青蓝），人物肤色和环境形成<strong>互补对比</strong>，人物自然"跳"出来。这不是审美偏好——是<strong>视觉生理</strong>决定的。</p>
+  <p>所以"电影感"的一个核心公式是：<strong>暖肤色 + 冷环境 = 自然的主体分离</strong>。</p>
+</div>
+
+<h2>三、调色的思维框架：三步决策</h2>
+
+<p>面对任何一段素材，你的大脑应该走这三步：</p>
+
+<div class="card">
+  <h3>Step 1：诊断 — 这段素材"病"在哪？</h3>
+  <ul>
+    <li>曝光是否正确？（太亮/太暗/灰雾？）</li>
+    <li>白平衡是否准确？（偏蓝/偏黄/偏绿？）</li>
+    <li>对比度是否足够？（层次感？还是糊成一片？）</li>
+  </ul>
+  <p style="color: var(--muted); font-size: 0.9rem;">→ 这一步对应<strong>一级校色</strong>：把画面"修正"到中性状态</p>
+</div>
+
+<div class="card">
+  <h3>Step 2：意图 — 我想让观众感受什么？</h3>
+  <ul>
+    <li>温暖亲切？→ 暖色温 + 中等饱和</li>
+    <li>冷峻疏离？→ 冷色温 + 低饱和 + 高对比</li>
+    <li>梦幻轻盈？→ 提亮暗部 + 低对比 + 柔和色调</li>
+    <li>电影质感？→ 压暗整体 + 互补色 + 适度脱饱和</li>
+  </ul>
+  <p style="color: var(--muted); font-size: 0.9rem;">→ 这一步是<strong>创意决策</strong>：选择你的色彩方案和情绪方向</p>
+</div>
+
+<div class="card">
+  <h3>Step 3：执行 — 用什么工具实现？</h3>
+  <ul>
+    <li>整体明暗 → 基础面板 / 曲线</li>
+    <li>分区上色（暗部冷、高光暖）→ 色轮</li>
+    <li>单独颜色微调（让天更蓝、草更绿）→ HSL</li>
+    <li>快速风格化 → LUT（但你要知道它在做什么）</li>
+  </ul>
+  <p style="color: var(--muted); font-size: 0.9rem;">→ 这一步才涉及剪映的具体操作，后续课程详解</p>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ 常见错误思路</h3>
+  <p><strong>错误</strong>：打开调色面板 → 随便拉滑块 → 看哪个好看 → 保存</p>
+  <p><strong>正确</strong>：观察素材 → 判断问题 → 确定情绪目标 → 选择对应工具 → 有目的地调整</p>
+  <p>区别在于：后者<strong>每一步都有理由</strong>。这就是"懂调色"和"碰运气"的根本差距。</p>
+</div>
+
+<h2>四、"清透感"和"雾蒙蒙"的本质</h2>
+
+<p>你提到想让画面"清透，不雾蒙蒙"。我们来拆解这个感觉背后的色彩原理：</p>
+
+<div class="comparison">
+  <div>
+    <div class="demo-strip">
+      <div style="background: hsl(0, 0%, 25%)"></div>
+      <div style="background: hsl(0, 0%, 40%)"></div>
+      <div style="background: hsl(0, 0%, 50%)"></div>
+      <div style="background: hsl(0, 0%, 60%)"></div>
+      <div style="background: hsl(0, 0%, 75%)"></div>
+    </div>
+    <p class="label">❌ 雾蒙蒙：黑不够黑，白不够白，挤在中间</p>
+  </div>
+  <div>
+    <div class="demo-strip">
+      <div style="background: hsl(0, 0%, 5%)"></div>
+      <div style="background: hsl(0, 0%, 25%)"></div>
+      <div style="background: hsl(0, 0%, 50%)"></div>
+      <div style="background: hsl(0, 0%, 80%)"></div>
+      <div style="background: hsl(0, 0%, 97%)"></div>
+    </div>
+    <p class="label">✅ 清透：黑有黑，白有白，层次分明</p>
+  </div>
+</div>
+
+<div class="card insight">
+  <h3>💡 "清透"的三个要素</h3>
+  <ol>
+    <li><strong>足够的动态范围</strong> — 最暗处要接近黑，最亮处要接近白（但不要"死黑""过曝"）</li>
+    <li><strong>适度的对比度</strong> — 明暗之间有清晰的过渡层次</li>
+    <li><strong>色彩纯净</strong> — 颜色不混浊，不互相污染。蓝是蓝，绿是绿，不是灰蒙蒙一片</li>
+  </ol>
+  <p>在剪映中的操作翻译：压暗阴影（但不死黑）+ 微提高光 + 适度加对比 + 饱和度不要过低。具体参数下节课讲。</p>
+</div>
+
+<h2>五、小测验</h2>
+
+<div class="quiz" id="quiz1">
+  <h3>🧠 Quiz 1：色彩关系</h3>
+  <p>电影《银翼杀手2049》中，大量使用了橙色和蓝色的画面对比。这利用的是哪种色彩关系？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">A. 相似色 — 色轮上相邻的颜色</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', true)">B. 互补色 — 色轮上对角的颜色</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">C. 三角配色 — 色轮上等距三个颜色</div>
+  <div class="feedback correct-fb" id="quiz1-correct">✅ 正确！橙和蓝在色轮上相隔约180°，是经典互补色。互补色产生最强的视觉对比和张力——这也是为什么这部电影的画面冲击力如此强烈。</div>
+  <div class="feedback wrong-fb" id="quiz1-wrong">❌ 再想想。橙和蓝在色轮上的位置关系是什么？它们是相邻还是对面？</div>
+</div>
+
+<div class="quiz" id="quiz2">
+  <h3>🧠 Quiz 2：调色思维</h3>
+  <p>你拍了一段室内咖啡店的 Vlog，画面偏黄偏暗。你想要"清透温暖"的感觉。正确的思路顺序是？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">A. 先加一个暖色 LUT → 再拉高亮度 → 加饱和度</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', true)">B. 先校正白平衡（减黄）→ 提亮+加对比 → 再微调色温回暖一点</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">C. 直接拉高饱和度和对比度，让颜色更鲜艳</div>
+  <div class="feedback correct-fb" id="quiz2-correct">✅ 正确！先诊断（偏黄=白平衡问题，偏暗=曝光不足）→ 修正到中性 → 再有意图地加回"温暖"。这样你加的暖是你"选择"的暖，不是原片的"偏色"——两者天差地别。</div>
+  <div class="feedback wrong-fb" id="quiz2-wrong">❌ 提示：调色第一步永远是"诊断"。在原片已经偏色的基础上叠加风格化，结果是不可控的。先校正，再创作。</div>
+</div>
+
+<div class="quiz" id="quiz3">
+  <h3>🧠 Quiz 3：清透感</h3>
+  <p>画面看起来"雾蒙蒙"，根本原因是什么？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">A. 饱和度太低了</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">B. 色温不对</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', true)">C. 明暗范围被压缩，缺乏动态范围</div>
+  <div class="feedback correct-fb" id="quiz3-correct">✅ 正确！"雾蒙蒙"的本质是画面的最亮和最暗差距太小（集中在中间灰区域）。就像大雾天你看不到纯黑和纯白——一切都被"压"在中间了。解决方法是拉开动态范围：让暗部更暗、亮部更亮。</div>
+  <div class="feedback wrong-fb" id="quiz3-wrong">❌ 虽然饱和度和色温也会影响观感，但"雾蒙蒙"最核心的原因是明度层面的——是亮暗范围被压缩了。想想真正的大雾天，你看到的一切都是灰色的中间调。</div>
+</div>
+
+<h2>六、本课总结</h2>
+
+<div class="card">
+  <ol>
+    <li><strong>色彩有三个维度</strong>（色相/饱和度/明度），调色就是在这三个轴上做有目的的偏移</li>
+    <li><strong>色彩有关系</strong>（互补/相似/三角），电影感常用互补色制造对比（青橙）</li>
+    <li><strong>调色有思路</strong>：诊断 → 意图 → 执行，每一步都要有理由</li>
+    <li><strong>"清透"= 动态范围充足 + 对比适度 + 色彩纯净</strong></li>
+  </ol>
+</div>
+
+<div class="next-steps">
+  <h3>📍 下一步</h3>
+  <p>下节课我们进入剪映专业版，用真实操作学习<strong>一级校色</strong>——如何用基础面板和曲线把"灰片"修正为"清透的中性画面"。这是所有风格化调色的起点。</p>
+  <p style="margin-top: 1rem; color: var(--muted);">有任何不清楚的地方，随时问我。我是你的调色老师，不是教程播放器 🎬</p>
+</div>
+
+<script>
+function checkAnswer(el, quizId, correct) {
+  const quiz = document.getElementById(quizId);
+  const options = quiz.querySelectorAll('.quiz-option');
+  const correctFb = document.getElementById(quizId + '-correct');
+  const wrongFb = document.getElementById(quizId + '-wrong');
+  
+  // Reset
+  options.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
+  correctFb.classList.remove('show');
+  wrongFb.classList.remove('show');
+  
+  if (correct) {
+    el.classList.add('correct');
+    correctFb.classList.add('show');
+  } else {
+    el.classList.add('wrong');
+    wrongFb.classList.add('show');
+  }
+}
+</script>
+
+</body>
+</html>

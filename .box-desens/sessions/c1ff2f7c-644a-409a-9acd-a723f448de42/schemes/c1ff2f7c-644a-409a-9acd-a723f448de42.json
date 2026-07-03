@@ -1,0 +1,12 @@
+{
+  "schemeMode": "preset",
+  "profileName": "default",
+  "queryDesens": {
+    "mode": "merge",
+    "allowNewEntities": true,
+    "llmSuggestLevel": 2,
+    "confirmation": {
+      "autoApproveKnownEntities": false
+    }
+  }
+}

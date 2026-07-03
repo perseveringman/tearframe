@@ -108,6 +108,44 @@ export function migrateDatabase(db: SqliteDatabase) {
       FOREIGN KEY (teardown_id) REFERENCES teardowns(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS highlight_runs (
+      id TEXT PRIMARY KEY,
+      sample_id TEXT NOT NULL,
+      mode TEXT NOT NULL DEFAULT 'talking_head_fast',
+      agent_name TEXT,
+      goal TEXT,
+      max_clip_count INTEGER,
+      min_duration_sec REAL,
+      max_duration_sec REAL,
+      pad_sec REAL NOT NULL DEFAULT 1,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      finished_at TEXT,
+      error TEXT,
+      FOREIGN KEY (sample_id) REFERENCES samples(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS highlight_segments (
+      id TEXT PRIMARY KEY,
+      highlight_id TEXT NOT NULL,
+      rank INTEGER NOT NULL,
+      start_sec REAL NOT NULL,
+      end_sec REAL NOT NULL,
+      title TEXT NOT NULL,
+      transcript_excerpt TEXT,
+      reason TEXT NOT NULL,
+      tags TEXT NOT NULL DEFAULT '[]',
+      confidence REAL,
+      clip_sample_id TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (highlight_id) REFERENCES highlight_runs(id) ON DELETE CASCADE,
+      FOREIGN KEY (clip_sample_id) REFERENCES samples(id) ON DELETE SET NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_highlight_runs_sample ON highlight_runs(sample_id);
+    CREATE INDEX IF NOT EXISTS idx_highlight_segments_run ON highlight_segments(highlight_id);
+    CREATE INDEX IF NOT EXISTS idx_highlight_segments_clip ON highlight_segments(clip_sample_id);
+
     CREATE TABLE IF NOT EXISTS templates (
       id TEXT PRIMARY KEY,
       type TEXT NOT NULL,

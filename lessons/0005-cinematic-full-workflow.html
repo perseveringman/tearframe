@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 05 — 电影感综合实战：从灰片到成片的完整流程</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --text: #eaeaea;
+    --muted: #a0a0b0;
+    --success: #4ecca3;
+    --warning: #f0a500;
+    --info: #6ecbf5;
+    --purple: #b388ff;
+    --gold: #ffd700;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #ffd700, #e94560);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+  h2 {
+    color: var(--gold);
+    font-size: 1.4rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(255,215,0,0.3);
+  }
+  h3 { color: var(--success); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  p { margin-bottom: 1rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .card.insight { border-left: 4px solid var(--success); }
+  .card.warning { border-left: 4px solid var(--warning); }
+  .card.action { border-left: 4px solid var(--info); }
+  .card.principle { border-left: 4px solid var(--gold); }
+  code {
+    background: rgba(255,215,0,0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .phase {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 1.8rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(255,215,0,0.15);
+    position: relative;
+  }
+  .phase::before {
+    content: attr(data-phase);
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--gold);
+    color: var(--bg);
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 2px 12px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+  }
+  .phase h3 { margin-top: 0.5rem; }
+  .phase-params {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0.3rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  .phase-params .label { color: var(--info); font-weight: 600; }
+  .phase-params .value { color: var(--text); }
+  .phase-reason {
+    background: rgba(78,204,163,0.08);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    border-left: 3px solid var(--success);
+  }
+  .phase-reason strong { color: var(--success); }
+  .timeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--surface);
+    border-radius: 10px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .timeline-step {
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
+  }
+  .timeline-step .num {
+    width: 28px; height: 28px;
+    background: var(--gold);
+    color: var(--bg);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+  .timeline-step .name { font-size: 0.75rem; color: var(--muted); }
+  .timeline-arrow { color: var(--muted); font-size: 0.8rem; }
+  .finishing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .finishing-item {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.2rem;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .finishing-item h4 { font-size: 0.95rem; margin-bottom: 0.4rem; color: var(--info); }
+  .finishing-item p { font-size: 0.85rem; color: var(--muted); margin: 0; }
+  .comparison-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    height: 80px;
+  }
+  .comparison-strip > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .full-workflow {
+    background: linear-gradient(135deg, rgba(255,215,0,0.05), rgba(233,69,96,0.05));
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 14px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+  .practice {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(240,165,0,0.3);
+  }
+  .practice h3 { color: var(--warning); margin-top: 0; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { padding: 0.5rem 0; padding-left: 1.5rem; position: relative; }
+  .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--muted); }
+  .quiz {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+  .quiz h3 { color: var(--warning); margin-top: 0; }
+  .quiz-option {
+    display: block;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin: 0.5rem 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--accent); }
+  .quiz-option.correct { border-color: var(--success); background: rgba(78,204,163,0.1); }
+  .quiz-option.wrong { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+  .feedback { display: none; margin-top: 1rem; padding: 1rem; border-radius: 8px; }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(78,204,163,0.1); border: 1px solid var(--success); }
+  .feedback.wrong-fb { background: rgba(233,69,96,0.1); border: 1px solid var(--accent); }
+  .graduation {
+    background: linear-gradient(135deg, var(--surface), var(--card));
+    border-radius: 14px;
+    padding: 2rem;
+    margin-top: 3rem;
+    border: 1px solid rgba(255,215,0,0.2);
+    text-align: center;
+  }
+  .graduation h2 { border: none; text-align: center; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.4rem; }
+  @media (max-width: 600px) { .finishing-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>Lesson 05 — 电影感综合实战</h1>
+<p class="subtitle">从灰片到成片：一段普通 Vlog 素材的完整调色全流程</p>
+
+<p>前四课你分别学会了每一把工具。这节课，我们<strong>把所有武器组合起来</strong>，完整走一遍从"手机拍的普通素材"到"有电影质感的成片"的全过程。</p>
+
+<p>每一步我都会告诉你<strong>做什么</strong>、<strong>为什么这样做</strong>、以及<strong>剪映里怎么操作</strong>。</p>
+
+<div class="card principle">
+  <h3>🎯 本课目标</h3>
+  <p>用一段普通的日常 Vlog 素材（室外、有人物、自然光），调出<strong>清透 + 电影感 + 暖调</strong>的风格——画面干净通透，有冷暖对比的空气感，人物肤色自然好看。</p>
+</div>
+
+<h2>完整工作流概览</h2>
+
+<div class="timeline">
+  <div class="timeline-step"><div class="num">1</div><div class="name">观察诊断</div></div>
+  <span class="timeline-arrow">→</span>
+  <div class="timeline-step"><div class="num">2</div><div class="name">一级校色</div></div>
+  <span class="timeline-arrow">→</span>
+  <div class="timeline-step"><div class="num">3</div><div class="name">色轮分区</div></div>
+  <span class="timeline-arrow">→</span>
+  <div class="timeline-step"><div class="num">4</div><div class="name">HSL精修</div></div>
+  <span class="timeline-arrow">→</span>
+  <div class="timeline-step"><div class="num">5</div><div class="name">曲线风格化</div></div>
+  <span class="timeline-arrow">→</span>
+  <div class="timeline-step"><div class="num">6</div><div class="name">收尾润色</div></div>
+</div>
+
+<h2>Phase 1：观察与诊断</h2>
+
+<div class="phase" data-phase="PHASE 1 · 观察">
+  <h3>在动手之前，先花 10 秒观察素材</h3>
+  <p>问自己这几个问题：</p>
+  <ol>
+    <li>整体是偏亮还是偏暗？（看示波器）</li>
+    <li>有没有明显的色偏？（偏黄？偏蓝？偏绿？）</li>
+    <li>对比度如何？（层次清晰还是灰雾一片？）</li>
+    <li>我想要什么情绪？（温暖/冷峻/梦幻/克制？）</li>
+  </ol>
+  <div class="phase-reason">
+    <strong>为什么先观察？</strong> 因为"诊断决定方案"。如果素材本身曝光正确、只是缺乏风格化，你的一级校色可以很轻；如果素材严重偏暗偏色，一级校色就是重点。不观察就动手 = 盲目调参。
+  </div>
+</div>
+
+<h2>Phase 2：一级校色 — 创造干净画布</h2>
+
+<div class="phase" data-phase="PHASE 2 · 校色">
+  <h3>目标：画面曝光正确、白平衡准确、对比度合理</h3>
+
+  <div class="phase-params">
+    <span class="label">工具：</span><span class="value">调节面板 → 基础 + 曲线</span>
+    <span class="label">光感/亮度：</span><span class="value">让示波器中心回到中线（根据素材 +5~+20）</span>
+    <span class="label">色温：</span><span class="value">校正色偏（室内钨丝灯 → 减色温；阴天 → 加色温）</span>
+    <span class="label">色调：</span><span class="value">微调绿/洋红偏差（大部分素材不需要大动）</span>
+    <span class="label">高光：</span><span class="value">-20 ~ -35（压回亮部细节）</span>
+    <span class="label">阴影：</span><span class="value">+15 ~ +30（提亮暗部细节）</span>
+    <span class="label">对比度：</span><span class="value">+10 ~ +15</span>
+    <span class="label">亮度曲线：</span><span class="value">轻微 S 曲线（暗部锚点微压、亮部锚点微提）</span>
+  </div>
+
+  <div class="phase-reason">
+    <strong>为什么？</strong> 这一步的目的不是让画面"好看"，而是让它"正确"。你在创造一块干净的画布——后续所有风格化操作都基于这个正确的起点。如果跳过这步，后面的色轮和 HSL 会在错误的基础上叠加，结果不可控。
+  </div>
+</div>
+
+<h2>Phase 3：色轮分区上色 — 建立冷暖对比</h2>
+
+<div class="phase" data-phase="PHASE 3 · 色轮">
+  <h3>目标：暗部偏冷、高光偏暖，建立"空气感"</h3>
+
+  <div class="phase-params">
+    <span class="label">工具：</span><span class="value">调节面板 → 色轮</span>
+    <span class="label">阴影色轮：</span><span class="value">向青色方向（约 10-11 点钟）轻拖一小步</span>
+    <span class="label">高光色轮：</span><span class="value">向暖橙方向（约 4-5 点钟）轻拖一小步</span>
+    <span class="label">中间调色轮：</span><span class="value">根据画面整体感觉微调（偏暖 or 不动）</span>
+  </div>
+
+  <div class="phase-reason">
+    <strong>为什么？</strong> 自然界中阴影接收天空散射光（偏蓝），高光受直射暖光。强化这种分离让画面有立体感。同时，暖高光让肤色自然好看，冷阴影让环境退后——人物"跳"出来。这是电影感的核心视觉机制。
+  </div>
+</div>
+
+<h2>Phase 4：HSL 精修 — 雕刻细节</h2>
+
+<div class="phase" data-phase="PHASE 4 · HSL">
+  <h3>目标：肤色更好看、天空更蓝、植物更翠</h3>
+
+  <div class="phase-params">
+    <span class="label">工具：</span><span class="value">调节面板 → HSL</span>
+    <span class="label">橙色（肤色）：</span><span class="value">饱和度 -10~-20 / 明度 +10~+15</span>
+    <span class="label">蓝色（天空）：</span><span class="value">饱和度 +15~+25 / 明度 -10</span>
+    <span class="label">绿色（植物）：</span><span class="value">色相 +15~+20（偏青翠）/ 饱和度 +10</span>
+    <span class="label">黄色（辅助）：</span><span class="value">色相 +10（偏绿方向，让黄绿草地更翠）</span>
+  </div>
+
+  <div class="phase-reason">
+    <strong>为什么？</strong> 色轮是"大刷子"——给整个亮度区域统一上色。但我们还需要"手术刀"级的精修：让天空更蓝但肤色不变，让植物更翠但衣服不变。HSL 让你按"颜色"精确控制。
+  </div>
+</div>
+
+<h2>Phase 5：曲线风格化 — 电影感的"秘密武器"</h2>
+
+<div class="phase" data-phase="PHASE 5 · 风格化">
+  <h3>目标：褪色感 + RGB 通道分离 = 胶片质感</h3>
+
+  <h3 style="color: var(--info);">技巧 A：暗部褪色（Fade Blacks）</h3>
+  <p>这是电影感调色中最关键的一步——很多人不知道。</p>
+
+  <div class="phase-params">
+    <span class="label">操作：</span><span class="value">亮度曲线 → 把<strong>左下角</strong>的端点往<strong>上</strong>提一点点</span>
+    <span class="label">效果：</span><span class="value">画面中最暗的像素不再是纯黑，而是深灰</span>
+    <span class="label">幅度：</span><span class="value">提升约 5~10%（很小幅度即可）</span>
+  </div>
+
+  <div class="card insight" style="margin-top: 1rem;">
+    <h3>💡 为什么"褪色"= 电影感？</h3>
+    <p>真正的胶片<strong>物理上不可能呈现纯黑</strong>——胶片基底本身有一层微弱的密度（称为"base fog"）。这意味着胶片影像的最暗处永远是一种深灰，而非纯黑。</p>
+    <p>当你把数字视频的黑色端点提起来，你模拟的正是这种胶片特性。画面立刻有了"不那么数码"的柔和质感。</p>
+    <p style="color: var(--warning); margin-top: 0.5rem;">⚠️ 褪色值不能超过 10-15%！超过画面会变"灰"而非"有质感"。这里差之毫厘谬以千里。</p>
+  </div>
+
+  <h3 style="color: var(--info); margin-top: 1.5rem;">技巧 B：RGB 通道微调（可选进阶）</h3>
+  <p>在 RGB 曲线中给不同通道做微小偏移，增加色彩的"丰富度"：</p>
+
+  <div class="phase-params">
+    <span class="label">蓝色曲线暗部：</span><span class="value">微提（+3~5%）→ 阴影带一丝冷蓝</span>
+    <span class="label">蓝色曲线亮部：</span><span class="value">微压（-3~5%）→ 高光带一丝暖黄</span>
+    <span class="label">红色曲线暗部：</span><span class="value">微压（-2~3%）→ 暗部微偏青（加强冷感）</span>
+  </div>
+
+  <div class="phase-reason">
+    <strong>为什么用曲线而不只用色轮？</strong> 色轮给你的是"一个方向"的颜色偏移。曲线让你在同一个通道里，暗部和亮部往<strong>相反方向</strong>偏——比如蓝色通道暗部加蓝+亮部减蓝（加黄）。这产生了更自然、更有层次的冷暖分离，和色轮相互增强。
+  </div>
+</div>
+
+<h2>Phase 6：收尾润色 — 最后 5%</h2>
+
+<div class="phase" data-phase="PHASE 6 · 收尾">
+  <h3>目标：统一感 + 质感 + 画幅</h3>
+</div>
+
+<div class="finishing-grid">
+  <div class="finishing-item">
+    <h4>🔲 暗角 (Vignette)</h4>
+    <p>基础面板 → 暗角 +10~+20<br>四周压暗，视线自然聚焦到中心人物。</p>
+  </div>
+  <div class="finishing-item">
+    <h4>🎞️ 颗粒 (Grain)</h4>
+    <p>滤镜/效果中找"颗粒"→ 强度 15~25<br>模拟胶片颗粒，消除"数码的干净感"。</p>
+  </div>
+  <div class="finishing-item">
+    <h4>📐 画幅比例</h4>
+    <p>画面比例改为 2.35:1 或 2.39:1<br>上下黑边 = 立刻有"院线感"。适合 Vlog 中的风景/情绪段落。</p>
+  </div>
+  <div class="finishing-item">
+    <h4>🔪 锐化</h4>
+    <p>基础面板 → 锐化 30~45<br>最后加，让边缘更清晰。注意不要过度（出现白边）。</p>
+  </div>
+</div>
+
+<div class="card warning">
+  <h3>⚠️ 收尾的"度"</h3>
+  <ul>
+    <li><strong>暗角</strong>：不能太重——观众应该"感觉不到"暗角存在但视线被引导</li>
+    <li><strong>颗粒</strong>：不能太粗——应该是"皮肤纹理级"的细腻颗粒，不是"老电视雪花"</li>
+    <li><strong>宽画幅</strong>：不适合所有场景——对话/日常段落用 16:9 更亲切，风景/情绪段落用宽幅</li>
+    <li><strong>褪色+颗粒+暗角</strong> 加在一起效果是乘法不是加法——每一项都要克制</li>
+  </ul>
+</div>
+
+<h2>完整流程一页总览</h2>
+
+<div class="full-workflow">
+  <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+      <th style="padding:0.6rem; color:var(--gold); width:60px;">阶段</th>
+      <th style="padding:0.6rem; color:var(--muted);">做什么</th>
+      <th style="padding:0.6rem; color:var(--muted);">工具</th>
+      <th style="padding:0.6rem; color:var(--muted);">为什么</th>
+    </tr>
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <td style="padding:0.6rem; color:var(--gold);">1</td>
+      <td style="padding:0.6rem;">观察素材、判断问题</td>
+      <td style="padding:0.6rem;">眼睛 + 示波器</td>
+      <td style="padding:0.6rem;">诊断决定方案</td>
+    </tr>
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <td style="padding:0.6rem; color:var(--gold);">2</td>
+      <td style="padding:0.6rem;">曝光、白平衡、对比度、S曲线</td>
+      <td style="padding:0.6rem;">基础面板 + 亮度曲线</td>
+      <td style="padding:0.6rem;">创造干净中性画布</td>
+    </tr>
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <td style="padding:0.6rem; color:var(--gold);">3</td>
+      <td style="padding:0.6rem;">暗部加冷、高光加暖</td>
+      <td style="padding:0.6rem;">色轮</td>
+      <td style="padding:0.6rem;">空气感 + 肤色分离</td>
+    </tr>
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <td style="padding:0.6rem; color:var(--gold);">4</td>
+      <td style="padding:0.6rem;">肤色优化、天空加蓝、植物翠绿</td>
+      <td style="padding:0.6rem;">HSL</td>
+      <td style="padding:0.6rem;">细节精修不互相干扰</td>
+    </tr>
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+      <td style="padding:0.6rem; color:var(--gold);">5</td>
+      <td style="padding:0.6rem;">暗部褪色 + RGB 曲线偏移</td>
+      <td style="padding:0.6rem;">曲线（各通道）</td>
+      <td style="padding:0.6rem;">胶片质感 + 色彩丰富度</td>
+    </tr>
+    <tr>
+      <td style="padding:0.6rem; color:var(--gold);">6</td>
+      <td style="padding:0.6rem;">暗角、颗粒、锐化、画幅</td>
+      <td style="padding:0.6rem;">基础面板 + 滤镜</td>
+      <td style="padding:0.6rem;">统一感 + 质感 + 聚焦</td>
+    </tr>
+  </table>
+</div>
+
+<h2>"电影感"的本质 — 总结</h2>
+
+<div class="card insight">
+  <h3>💡 电影感不是一个参数，是一组特征的集合</h3>
+  <ol>
+    <li><strong>动态范围充足但有控制</strong> — 清透但不过曝/死黑（一级校色）</li>
+    <li><strong>冷暖分离</strong> — 暗部偏冷、高光偏暖，画面有"空气"（色轮）</li>
+    <li><strong>色彩克制</strong> — 饱和度偏低、颜色纯净不艳（全局饱和度 + HSL）</li>
+    <li><strong>暗部不死黑</strong> — 褪色感，黑色是深灰而非纯黑（曲线褪色）</li>
+    <li><strong>有机质感</strong> — 颗粒感替代数码的"过于干净"（颗粒）</li>
+    <li><strong>视觉引导</strong> — 暗角让视线集中、宽画幅制造"观影感"（收尾）</li>
+  </ol>
+  <p style="margin-top: 1rem;">理解了这 6 个特征，你就能<strong>自己判断</strong>：这段素材需要加强哪个？哪个已经够了？这就是"懂调色"和"记参数"的区别。</p>
+</div>
+
+<h2>小测验</h2>
+
+<div class="quiz" id="quiz1">
+  <h3>🧠 Quiz 1：褪色操作</h3>
+  <p>"暗部褪色"在曲线上怎么操作？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">A. 把亮度曲线的右上角端点往下拉</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', true)">B. 把亮度曲线的左下角端点往上提</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz1', false)">C. 在曲线中间加一个锚点往下压</div>
+  <div class="feedback correct-fb" id="quiz1-correct">✅ 正确！左下角 = 画面中最暗的像素的输出值。把它往上提 = 最暗的像素不再输出纯黑(0)，而是输出深灰 → 这就是"褪色"。模拟胶片基底无法达到纯黑的物理特性。</div>
+  <div class="feedback wrong-fb" id="quiz1-wrong">❌ 想想曲线图：左下角代表什么？它代表"输入最暗的像素 → 输出什么亮度"。如果你要让最暗处不再是纯黑...</div>
+</div>
+
+<div class="quiz" id="quiz2">
+  <h3>🧠 Quiz 2：流程判断</h3>
+  <p>如果你调完色后发现"画面整体偏蓝了"，最应该回到哪一步修正？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">A. Phase 4（HSL）— 把蓝色饱和度降低</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', true)">B. Phase 2（一级校色）— 检查白平衡是否准确</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz2', false)">C. Phase 6（收尾）— 加一点暖色滤镜抵消</div>
+  <div class="feedback correct-fb" id="quiz2-correct">✅ 正确！"整体偏蓝"说明基底就有色偏——这是一级校色（白平衡）的问题。HSL 只管特定颜色、滤镜是叠加不是修正。永远先回到最底层检查。这就像盖房子：地基歪了不能靠装修补——要回到地基层修正。</div>
+  <div class="feedback wrong-fb" id="quiz2-wrong">❌ "整体"偏蓝 = 全局问题，不是某一种颜色的问题。想想哪一步是管"全局色彩基准"的？</div>
+</div>
+
+<div class="quiz" id="quiz3">
+  <h3>🧠 Quiz 3：综合理解</h3>
+  <p>以下哪个组合最能概括"电影感"的视觉特征？</p>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">A. 高饱和 + 高对比 + 纯黑暗部 + 无颗粒</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', false)">B. 低饱和 + 低对比 + 整体偏灰 + 暗角很重</div>
+  <div class="quiz-option" onclick="checkAnswer(this, 'quiz3', true)">C. 适度低饱和 + 冷暖分离 + 暗部褪色不死黑 + 细腻颗粒</div>
+  <div class="feedback correct-fb" id="quiz3-correct">✅ 正确！电影感 = 克制的色彩（适度低饱和）+ 有层次的冷暖（分区对比）+ 胶片特性（暗部褪色）+ 有机质感（细颗粒）。不是"暗"也不是"灰"——是在对比度和色彩饱和度之间找到那个"克制但有力"的平衡点。</div>
+  <div class="feedback wrong-fb" id="quiz3-wrong">❌ 回顾一下整课总结的 6 个特征。电影感不是"暗+灰"——那只是调过了。也不是"艳+猛"——那是滤镜堆砌。</div>
+</div>
+
+<h2>动手练习</h2>
+
+<div class="practice">
+  <h3>🎬 终极实操：完整调色一段 Vlog</h3>
+  <p>找一段你拍的户外日常素材（最好有人物 + 天空/植物），严格按 6 个 Phase 走一遍：</p>
+  <ul class="checklist">
+    <li><strong>Phase 1</strong>：开启示波器，观察 10 秒。判断：曝光？色偏？对比度？</li>
+    <li><strong>Phase 2</strong>：一级校色。亮度/白平衡/高光↓阴影↑/S 曲线</li>
+    <li><strong>Phase 3</strong>：色轮。阴影→青、高光→暖橙。小幅！</li>
+    <li><strong>Phase 4</strong>：HSL。橙色（肤色）降饱+提亮；蓝色（天空）加饱-明度</li>
+    <li><strong>Phase 5</strong>：曲线褪色（左下角提 5~8%）。可选：蓝色曲线暗部微提</li>
+    <li><strong>Phase 6</strong>：暗角 +10~15、颗粒 15~20、锐化 35</li>
+    <li><strong>对比</strong>：开关调色效果，观察前后差异</li>
+  </ul>
+  <p style="margin-top: 1rem; color: var(--muted);">📌 如果任何一步你觉得"做过了"→ 往回收。<strong>宁可每一步都轻一点</strong>，多步叠加的效果自然就够了。</p>
+</div>
+
+<div class="graduation">
+  <h2 style="color: var(--gold);">🎓 课程完结</h2>
+  <p style="margin: 1rem 0; font-size: 1.05rem;">你已经完成了剪映调色从原理到实战的完整学习路径。</p>
+  <p style="color: var(--muted);">你现在拥有的不是一组参数——是一个<strong>思维框架</strong>。</p>
+  <div class="card" style="text-align: left; margin-top: 1.5rem;">
+    <h3 style="color: var(--gold);">你学到了什么</h3>
+    <ol>
+      <li>色彩的三维度（HSL）和色彩关系（互补/相似/三角）</li>
+      <li>调色三步思维：诊断 → 意图 → 执行</li>
+      <li>一级校色：让画面"正确"（曝光+白平衡+对比）</li>
+      <li>色轮分区：给亮度区域上色（暗冷亮暖 = 电影感核心）</li>
+      <li>HSL 精修：单独控制一种颜色（肤色保护、天空加蓝）</li>
+      <li>风格化：褪色+RGB 分离+颗粒+暗角 = 胶片质感</li>
+    </ol>
+  </div>
+  <div class="card" style="text-align: left; margin-top: 1rem;">
+    <h3 style="color: var(--success);">接下来怎么练</h3>
+    <ul>
+      <li><strong>刻意练习</strong>：每拍一段视频，都走完 6 步流程。前 10 次会慢，之后会成为直觉。</li>
+      <li><strong>拆片分析</strong>：看到喜欢的影像风格，暂停问自己："它暗部是什么色？高光是什么色？饱和度高还是低？有没有褪色？"</li>
+      <li><strong>一镜多调</strong>：同一段素材，分别调冷调、暖调、电影感。感受不同决策带来的情绪差异。</li>
+      <li><strong>进阶方向</strong>：学习颜色蒙版（局部精确控制）、镜头匹配（多镜头统一色调）、自制 LUT</li>
+    </ul>
+  </div>
+  <p style="margin-top: 1.5rem; color: var(--muted);">有任何调色问题，随时回来问我。你的调色老师一直在 🎬</p>
+</div>
+
+<script>
+function checkAnswer(el, quizId, correct) {
+  const quiz = document.getElementById(quizId);
+  const options = quiz.querySelectorAll('.quiz-option');
+  const correctFb = document.getElementById(quizId + '-correct');
+  const wrongFb = document.getElementById(quizId + '-wrong');
+  options.forEach(o => { o.classList.remove('correct', 'wrong'); o.style.pointerEvents = 'none'; });
+  correctFb.classList.remove('show');
+  wrongFb.classList.remove('show');
+  if (correct) { el.classList.add('correct'); correctFb.classList.add('show'); }
+  else { el.classList.add('wrong'); wrongFb.classList.add('show'); }
+}
+</script>
+
+</body>
+</html>
